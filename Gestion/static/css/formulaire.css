@@ -1,0 +1,301 @@
+
+.users-header {
+    text-align: center;
+}
+.users-header h1 {
+    font-size: 3rem;
+}
+
+/* ============================================================
+   FORMULAIRE UTILISATEUR
+   ============================================================ */
+
+.form-container {
+    padding: 25px;
+}
+
+
+/* ============================================================
+   SECTIONS DU FORMULAIRE
+   ============================================================ */
+
+.form-section {
+    margin-bottom: 30px;
+}
+
+.form-section h3 {
+    margin: 0 0 18px;
+    font-size: 17px;
+    color: #111827;
+}
+
+.form-section-description {
+    margin: -8px 0 20px;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+
+/* ============================================================
+   GRILLE
+   ============================================================ */
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+
+/* ============================================================
+   CHAMP
+   ============================================================ */
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.form-group label .required {
+    color: #dc2626;
+}
+
+
+/* ============================================================
+   INPUTS
+   ============================================================ */
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 11px 13px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+
+    background: #ffffff;
+    color: #111827;
+
+    font-size: 14px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #9ca3af;
+}
+
+
+/* ============================================================
+   AIDE SOUS LES CHAMPS
+   ============================================================ */
+
+.form-help {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   SEPARATEUR
+   ============================================================ */
+
+.form-divider {
+    height: 1px;
+
+    margin: 28px 0;
+
+    background: #e5e7eb;
+
+    border: none;
+}
+
+
+/* ============================================================
+   SELECT DU ROLE
+   ============================================================ */
+
+.role-select {
+    max-width: 450px;
+}
+
+
+/* ============================================================
+   ZONE DES BOUTONS
+   ============================================================ */
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    margin-top: 30px;
+    padding-top: 20px;
+
+    border-top: 1px solid #e5e7eb;
+}
+
+
+/* ============================================================
+   BOUTON
+   ============================================================ */
+
+.btn {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+
+    padding: 0 17px;
+
+    border: none;
+    border-radius: 8px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.1s ease;
+}
+
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+
+.btn-primary {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+
+.btn-primary:hover {
+    background: #1d4ed8;
+}
+
+
+.btn-secondary {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+
+.btn-secondary:hover {
+    background: #d1d5db;
+}
+
+
+/* ============================================================
+   MESSAGE D'ERREUR
+   ============================================================ */
+
+.form-error {
+    margin-bottom: 20px;
+
+    padding: 12px 15px;
+
+    border-radius: 8px;
+
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+
+    color: #991b1b;
+
+    font-size: 14px;
+}
+
+
+/* ============================================================
+   INFORMATION SUR LE COMPTE
+   ============================================================ */
+
+.account-info {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 12px;
+
+    margin-top: 18px;
+    padding: 14px;
+
+    border-radius: 8px;
+
+    background: #eff6ff;
+    border: 1px solid #dbeafe;
+
+    color: #1e40af;
+
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 800px) {
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-container {
+        padding: 18px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+    }
+
+    .role-select {
+        max-width: none;
+    }
+}

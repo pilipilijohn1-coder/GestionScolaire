@@ -1,0 +1,295 @@
+{% extends base_template %}
+
+{% load static %}
+
+{% block title %}
+    Utilisateurs
+{% endblock %}
+
+
+{% block extra_css %}
+<style>
+    :root {
+        --u-primary: #2563eb;
+        --u-primary-dark: #1e40af;
+        --u-bg: #f8fafc;
+        --u-border: #e2e8f0;
+        --u-text: #1e293b;
+        --u-text-secondary: #64748b;
+        --u-card-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+        --u-card-shadow-hover: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+    }
+
+    .users-page {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .users-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .users-header h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--u-text);
+        letter-spacing: -0.025em;
+    }
+
+    .users-header p {
+        margin: 6px 0 0;
+        color: var(--u-text-secondary);
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .users-card {
+        background: #ffffff;
+        border: 1px solid var(--u-border);
+        border-radius: 16px;
+        box-shadow: var(--u-card-shadow);
+        overflow: hidden;
+    }
+
+    .users-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--u-border);
+        flex-wrap: wrap;
+        gap: 12px;
+        background: #fafbfc;
+    }
+
+    .users-card-header h2 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--u-text);
+        letter-spacing: -0.01em;
+    }
+
+    .users-count {
+        color: var(--u-text-secondary);
+        font-size: 13px;
+        font-weight: 600;
+        background: #ffffff;
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--u-border);
+    }
+
+    .users-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .users-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .users-table th,
+    .users-table td {
+        padding: 16px 20px;
+        text-align: left;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 14px;
+    }
+
+    .users-table th {
+        background: #f8fafc;
+        font-weight: 600;
+        color: var(--u-text-secondary);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .users-table td {
+        color: var(--u-text);
+        vertical-align: middle;
+    }
+
+    .users-table tbody tr {
+        transition: background 0.15s ease;
+    }
+
+    .users-table tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    .user-name {
+        font-weight: 700;
+        color: var(--u-text);
+    }
+
+    .user-email {
+        color: var(--u-text-secondary);
+        font-size: 13px;
+    }
+
+    .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .status-active {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-inactive {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .user-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .action-link {
+        color: var(--u-primary);
+        font-weight: 600;
+        text-decoration: none;
+        font-size: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: color 0.15s ease;
+    }
+
+    .action-link:hover {
+        color: var(--u-primary-dark);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+
+    @media (max-width: 768px) {
+        .users-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .users-card-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="users-page">
+
+    <div class="users-header">
+        <div>
+            <h1>Utilisateurs</h1>
+            <p>Gestion des comptes et des accès au système.</p>
+        </div>
+
+        <a href="{% url 'creer_utilisateur' %}" class="btn btn-primary">
+            + Nouvel utilisateur
+        </a>
+    </div>
+
+    <div class="users-card">
+        <div class="users-card-header">
+            <h2>Liste des utilisateurs</h2>
+            <span class="users-count">
+                {{ utilisateurs|length }} utilisateur(s)
+            </span>
+        </div>
+
+        <div class="users-table-wrapper">
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Postnom</th>
+                        <th>Prénom</th>
+                        <th>Email</th>
+                        <th>Téléphone</th>
+                        <th>Rôle</th>
+                        <th>Statut</th>
+                        <th>Création</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for utilisateur in utilisateurs %}
+                    <tr>
+                        <td>
+                            <span class="user-name">
+                                {{ utilisateur.nom }}
+                            </span>
+                        </td>
+                        <td>{{ utilisateur.postnom }}</td>
+                        <td>{{ utilisateur.prenom }}</td>
+                        <td>
+                            <span class="user-email">
+                                {{ utilisateur.email|default:"—" }}
+                            </span>
+                        </td>
+                        <td>{{ utilisateur.telephone|default:"—" }}</td>
+                        <td>
+                            {% for attribution in utilisateur.attributions_roles.all %}
+                                {% if attribution.actif and attribution.role.actif %}
+                                    <span class="role-badge">{{ attribution.role.libelle }}</span>
+                                {% endif %}
+                            {% empty %}
+                                <span class="empty-value">Aucun rôle</span>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% if utilisateur.actif %}
+                                <span class="status status-active">
+                                    Actif
+                                </span>
+                            {% else %}
+                                <span class="status status-inactive">
+                                    Inactif
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>{{ utilisateur.date_creation|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            <div class="user-actions">
+                                <a href="{% url 'detail_utilisateur' utilisateur.id %}" class="action-link">
+                                    Voir
+                                </a>
+                                <a href="{% url 'modifier_utilisateur' utilisateur.id %}" class="action-link">
+                                    Modifier
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="9">
+                            Aucun utilisateur enregistré.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

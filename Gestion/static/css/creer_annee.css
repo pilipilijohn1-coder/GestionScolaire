@@ -1,0 +1,450 @@
+/* ==========================================================
+   CRÉATION D'UNE ANNÉE SCOLAIRE
+   ========================================================== */
+
+.creation-annee-container {
+    width: 100%;
+    max-width: 1050px;
+
+    margin: 0 auto;
+    padding: 30px;
+}
+
+
+/* ==========================================================
+   EN-TÊTE
+   ========================================================== */
+
+.page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 25px;
+
+    margin-bottom: 30px;
+}
+
+.page-header-text h1 {
+    margin: 0 0 8px;
+
+    font-size: 28px;
+    font-weight: 700;
+
+    color: #111827;
+}
+
+.page-header-text p {
+    margin: 0;
+
+    font-size: 14px;
+    line-height: 1.6;
+
+    color: #6b7280;
+}
+
+.page-header-actions {
+    display: flex;
+    flex-shrink: 0;
+}
+
+
+/* ==========================================================
+   BOUTONS
+   ========================================================== */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    padding: 11px 18px;
+
+    border: none;
+    border-radius: 8px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn-primary {
+    color: #ffffff;
+    background-color: #2563eb;
+}
+
+.btn-primary:hover {
+    color: #ffffff;
+    background-color: #1d4ed8;
+
+    box-shadow:
+        0 5px 14px
+        rgba(37, 99, 235, 0.22);
+}
+
+.btn-secondary {
+    color: #374151;
+    background-color: #ffffff;
+
+    border: 1px solid #d1d5db;
+}
+
+.btn-secondary:hover {
+    color: #111827;
+    background-color: #f9fafb;
+}
+
+
+/* ==========================================================
+   MESSAGES
+   ========================================================== */
+
+.messages-container {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+
+    margin-bottom: 25px;
+}
+
+.message {
+    padding: 14px 16px;
+
+    border-radius: 8px;
+
+    font-size: 14px;
+}
+
+.message-success {
+    color: #166534;
+    background-color: #dcfce7;
+
+    border-left: 4px solid #22c55e;
+}
+
+.message-error {
+    color: #991b1b;
+    background-color: #fee2e2;
+
+    border-left: 4px solid #ef4444;
+}
+
+.message-warning {
+    color: #92400e;
+    background-color: #fef3c7;
+
+    border-left: 4px solid #f59e0b;
+}
+
+
+/* ==========================================================
+   CARTE DU FORMULAIRE
+   ========================================================== */
+
+.form-card {
+    overflow: hidden;
+
+    background-color: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    box-shadow:
+        0 3px 12px
+        rgba(0, 0, 0, 0.05);
+}
+
+
+/* ==========================================================
+   EN-TÊTE DE LA CARTE
+   ========================================================== */
+
+.form-card-header {
+    padding: 24px 28px;
+
+    background-color: #fafafa;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.form-card-header h2 {
+    margin: 0 0 7px;
+
+    font-size: 19px;
+    font-weight: 700;
+
+    color: #111827;
+}
+
+.form-card-header p {
+    margin: 0;
+
+    font-size: 14px;
+    line-height: 1.5;
+
+    color: #6b7280;
+}
+
+
+/* ==========================================================
+   FORMULAIRE
+   ========================================================== */
+
+.annee-form {
+    padding: 30px 28px;
+}
+
+.form-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 22px;
+
+    margin-top: 22px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 8px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    color: #374151;
+}
+
+.required {
+    margin-left: 2px;
+
+    color: #dc2626;
+}
+
+
+/* ==========================================================
+   CHAMPS
+   ========================================================== */
+
+.form-group input,
+.form-group select {
+    width: 100%;
+
+    min-height: 44px;
+
+    padding: 10px 12px;
+
+    font-size: 14px;
+
+    color: #111827;
+    background-color: #ffffff;
+
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37, 99, 235, 0.12);
+}
+
+.form-group input::placeholder {
+    color: #9ca3af;
+}
+
+.form-group select {
+    cursor: pointer;
+}
+
+
+/* ==========================================================
+   AIDE DES CHAMPS
+   ========================================================== */
+
+.form-help {
+    margin-top: 7px;
+
+    font-size: 12px;
+    line-height: 1.5;
+
+    color: #6b7280;
+}
+
+
+/* ==========================================================
+   BOÎTE D'INFORMATION
+   ========================================================== */
+
+.information-box {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 14px;
+
+    margin-top: 28px;
+    padding: 18px;
+
+    background-color: #eff6ff;
+
+    border: 1px solid #bfdbfe;
+    border-radius: 9px;
+}
+
+.information-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    width: 25px;
+    height: 25px;
+
+    border-radius: 50%;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    color: #ffffff;
+    background-color: #2563eb;
+}
+
+.information-box strong {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 14px;
+
+    color: #1e3a8a;
+}
+
+.information-box p {
+    margin: 0;
+
+    font-size: 13px;
+    line-height: 1.6;
+
+    color: #1e40af;
+}
+
+
+/* ==========================================================
+   ACTIONS DU FORMULAIRE
+   ========================================================== */
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 12px;
+
+    margin-top: 30px;
+    padding-top: 24px;
+
+    border-top: 1px solid #e5e7eb;
+}
+
+
+/* ==========================================================
+   TABLETTES
+   ========================================================== */
+
+@media screen and (max-width: 850px) {
+
+    .creation-annee-container {
+        padding: 22px;
+    }
+
+    .page-header {
+        flex-direction: column;
+    }
+
+    .page-header-actions {
+        width: 100%;
+    }
+
+    .page-header-actions .btn {
+        width: 100%;
+    }
+
+}
+
+
+/* ==========================================================
+   TÉLÉPHONES
+   ========================================================== */
+
+@media screen and (max-width: 650px) {
+
+    .creation-annee-container {
+        padding: 16px;
+    }
+
+    .page-header {
+        margin-bottom: 22px;
+    }
+
+    .page-header-text h1 {
+        font-size: 23px;
+    }
+
+    .form-card-header {
+        padding: 20px;
+    }
+
+    .annee-form {
+        padding: 22px 20px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+
+        gap: 18px;
+    }
+
+    .information-box {
+        padding: 15px;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+
+        align-items: stretch;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+    }
+
+}

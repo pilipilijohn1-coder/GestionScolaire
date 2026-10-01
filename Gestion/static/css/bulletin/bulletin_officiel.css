@@ -1,0 +1,476 @@
+/* =========================================================
+   BULLETIN OFFICIEL
+   ========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #e9ecef;
+    color: #111;
+    font-family: "Times New Roman", Times, serif;
+}
+
+
+/* =========================================================
+   ACTIONS ÉCRAN
+   ========================================================= */
+
+.screen-actions {
+    width: 210mm;
+    margin: 20px auto;
+
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.btn-screen {
+    padding: 9px 15px;
+
+    background: #ffffff;
+    color: #26384a;
+
+    border: 1px solid #cbd2d9;
+    border-radius: 5px;
+
+    text-decoration: none;
+
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+}
+
+.btn-screen:hover {
+    background: #f4f5f6;
+}
+
+.btn-print {
+    background: #26384a;
+    color: #ffffff;
+    border-color: #26384a;
+}
+
+
+/* =========================================================
+   FEUILLE
+   ========================================================= */
+
+.bulletin-sheet {
+    width: 210mm;
+    min-height: 297mm;
+
+    margin: 0 auto 30px;
+
+    padding: 12mm 10mm;
+
+    background: #ffffff;
+
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.15);
+}
+
+
+/* =========================================================
+   EN-TÊTE
+   ========================================================= */
+
+.official-header {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+
+    min-height: 32mm;
+
+    border: 1px solid #000;
+}
+
+.header-left,
+.header-center,
+.header-right {
+    padding: 6px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    text-align: center;
+}
+
+.header-left {
+    border-right: 1px solid #000;
+}
+
+.header-right {
+    border-left: 1px solid #000;
+
+    font-size: 10px;
+}
+
+.republic {
+    font-size: 10px;
+    font-weight: bold;
+    line-height: 1.4;
+}
+
+.ministry {
+    margin-top: 7px;
+    font-size: 9px;
+}
+
+.school-name {
+    font-size: 15px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.document-title {
+    margin-top: 8px;
+
+    font-size: 17px;
+    font-weight: bold;
+
+    text-transform: uppercase;
+}
+
+.school-year {
+    margin-top: 7px;
+    font-size: 11px;
+}
+
+.model-code {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+
+/* =========================================================
+   INFORMATIONS ÉLÈVE
+   ========================================================= */
+
+.student-information {
+    margin-top: 5mm;
+
+    border: 1px solid #000;
+}
+
+.student-row {
+    display: flex;
+
+    min-height: 10mm;
+
+    border-bottom: 1px solid #000;
+}
+
+.student-row:last-child {
+    border-bottom: none;
+}
+
+.student-field {
+    flex: 1;
+
+    padding: 4px 7px;
+
+    border-right: 1px solid #000;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.student-field:last-child {
+    border-right: none;
+}
+
+.student-field.large {
+    min-width: 0;
+}
+
+.field-label {
+    font-size: 8px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.field-value {
+    margin-top: 2px;
+
+    font-size: 11px;
+    font-weight: bold;
+}
+
+
+/* =========================================================
+   TABLEAU
+   ========================================================= */
+
+.results-section {
+    margin-top: 5mm;
+}
+
+.bulletin-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    table-layout: fixed;
+
+    font-size: 8px;
+}
+
+.bulletin-table th,
+.bulletin-table td {
+    border: 1px solid #000;
+}
+
+.bulletin-table th {
+    padding: 4px 2px;
+
+    background: #eeeeee;
+
+    text-align: center;
+
+    font-weight: bold;
+}
+
+.bulletin-table td {
+    height: 8mm;
+    padding: 3px 2px;
+}
+
+.number-column {
+    width: 7mm;
+}
+
+.subject-column {
+    width: 42mm;
+}
+
+.semester-header {
+    font-size: 8px;
+}
+
+.bulletin-table th:not(.subject-column) {
+    text-align: center;
+}
+
+.bulletin-table td.center,
+.bulletin-table td.mark {
+    text-align: center;
+}
+
+.subject-name {
+    text-align: left;
+    padding-left: 4px !important;
+
+    font-size: 9px;
+}
+
+.mark {
+    font-size: 8px;
+}
+
+.total {
+    font-weight: bold;
+}
+
+.annual-column {
+    width: 17mm;
+}
+
+.percentage-column {
+    width: 12mm;
+}
+
+.rank-column {
+    width: 10mm;
+}
+
+.annual {
+    font-weight: bold;
+}
+
+.empty-table {
+    height: 20mm !important;
+    text-align: center;
+}
+
+
+/* =========================================================
+   RÉSULTAT ANNUEL
+   ========================================================= */
+
+.annual-summary {
+    margin-top: 5mm;
+
+    border: 1px solid #000;
+}
+
+.summary-title {
+    padding: 5px;
+
+    border-bottom: 1px solid #000;
+
+    background: #eeeeee;
+
+    text-align: center;
+
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+}
+
+.summary-item {
+    min-height: 16mm;
+
+    padding: 5px;
+
+    border-right: 1px solid #000;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    text-align: center;
+}
+
+.summary-item:last-child {
+    border-right: none;
+}
+
+.summary-item span {
+    font-size: 8px;
+    text-transform: uppercase;
+}
+
+.summary-item strong {
+    margin-top: 4px;
+    font-size: 11px;
+}
+
+.decision {
+    background: #f5f5f5;
+}
+
+
+/* =========================================================
+   STATUT
+   ========================================================= */
+
+.bulletin-status {
+    margin-top: 4mm;
+
+    padding: 5px;
+
+    border: 1px solid #000;
+
+    font-size: 9px;
+}
+
+.bulletin-status strong {
+    margin-left: 5px;
+}
+
+
+/* =========================================================
+   SIGNATURES
+   ========================================================= */
+
+.signatures {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+
+    margin-top: 12mm;
+
+    gap: 8mm;
+}
+
+.signature-box {
+    min-height: 30mm;
+
+    text-align: center;
+
+    font-size: 10px;
+}
+
+.signature-space {
+    height: 18mm;
+}
+
+.signature-box span {
+    font-size: 8px;
+}
+
+
+/* =========================================================
+   PIED DE PAGE
+   ========================================================= */
+
+.bulletin-footer {
+    margin-top: 8mm;
+
+    padding-top: 3mm;
+
+    border-top: 1px solid #000;
+
+    display: flex;
+    justify-content: space-between;
+
+    font-size: 7px;
+}
+
+
+/* =========================================================
+   IMPRESSION
+   ========================================================= */
+
+@media print {
+
+    @page {
+        size: A4 portrait;
+        margin: 0;
+    }
+
+    body {
+        background: #ffffff;
+    }
+
+    .screen-actions {
+        display: none;
+    }
+
+    .bulletin-sheet {
+        width: 210mm;
+        min-height: 297mm;
+
+        margin: 0;
+
+        padding: 10mm;
+
+        box-shadow: none;
+    }
+}
+
+
+/* =========================================================
+   ÉCRAN
+   ========================================================= */
+
+@media screen and (max-width: 900px) {
+
+    .bulletin-sheet,
+    .screen-actions {
+        width: calc(100% - 20px);
+    }
+
+    .bulletin-sheet {
+        overflow-x: auto;
+    }
+
+    .bulletin-table {
+        min-width: 900px;
+    }
+}

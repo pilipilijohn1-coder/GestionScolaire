@@ -1,0 +1,161 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Finances{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --fi-primary: #16a34a;
+        --fi-primary-dark: #15803d;
+        --fi-bg: #f8fafc;
+        --fi-border: #e2e8f0;
+        --fi-text: #1e293b;
+        --fi-text-secondary: #64748b;
+        --fi-card-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+        --fi-card-shadow-hover: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+    }
+
+    .finances-header {
+        max-width: 1200px;
+        margin: 0 auto 28px;
+    }
+
+    .finances-header .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+
+    .finances-header h1 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--fi-text);
+    }
+
+    .finances-grid {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px;
+    }
+
+    .fi-card {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        background: #ffffff;
+        border: 1px solid var(--fi-border);
+        border-radius: 16px;
+        padding: 24px;
+        text-decoration: none;
+        color: var(--fi-text);
+        box-shadow: var(--fi-card-shadow);
+        transition: all 0.2s ease;
+    }
+
+    .fi-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--fi-card-shadow-hover);
+        border-color: var(--fi-primary);
+    }
+
+    .fi-card-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        background: #dcfce7;
+        color: var(--fi-primary);
+    }
+
+    .fi-card h2 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .fi-card p {
+        margin: 0;
+        color: var(--fi-text-secondary);
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .fi-card-arrow {
+        margin-top: auto;
+        color: #cbd5e1;
+        font-size: 18px;
+        transition: all 0.2s ease;
+    }
+
+    .fi-card:hover .fi-card-arrow {
+        color: var(--fi-primary);
+        transform: translateX(4px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="finances-header">
+    <div class="header-content">
+        <div>
+            <h1>Finances</h1>
+        </div>
+    </div>
+</div>
+
+<section class="finances-grid">
+    <a href="{% url 'liste_paiements' %}" class="fi-card">
+        <div class="fi-card-icon">💳</div>
+        <div>
+            <h2>Paiements</h2>
+            <p>Consulter et suivre les paiements des élèves.</p>
+        </div>
+        <div class="fi-card-arrow">→</div>
+    </a>
+
+    <a href="{% url 'encaisser_paiement' %}" class="fi-card">
+        <div class="fi-card-icon">💰</div>
+        <div>
+            <h2>Encaisser</h2>
+            <p>Enregistrer un nouveau paiement ou une entrée de caisse.</p>
+        </div>
+        <div class="fi-card-arrow">→</div>
+    </a>
+
+    <a href="{% url 'liste_recus' %}" class="fi-card">
+        <div class="fi-card-icon">🧾</div>
+        <div>
+            <h2>Reçus</h2>
+            <p>Consulter les reçus générés pour les paiements.</p>
+        </div>
+        <div class="fi-card-arrow">→</div>
+    </a>
+
+    <a href="{% url 'dashboard_caisse' %}" class="fi-card">
+        <div class="fi-card-icon">🏦</div>
+        <div>
+            <h2>Caisse</h2>
+            <p>Suivre les entrées et sorties de caisse.</p>
+        </div>
+        <div class="fi-card-arrow">→</div>
+    </a>
+
+    <a href="{% url 'liste_classes_paiements' %}" class="fi-card">
+        <div class="fi-card-icon">🎓</div>
+        <div>
+            <h2>Paiements par classe</h2>
+            <p>Consulter l'état des paiements par classe.</p>
+        </div>
+        <div class="fi-card-arrow">→</div>
+    </a>
+</section>
+{% endblock %}

@@ -1,0 +1,733 @@
+{% extends base_template %}
+{% load static %}
+
+
+{% block title %}
+    Modifier l'enseignant
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/modifier_enseignant.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="modification-page">
+
+
+    <!-- =====================================================
+         EN-TÊTE
+    ====================================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <a
+                href="{% url 'detail_enseignant' enseignant.id %}"
+                class="back-link"
+            >
+                <i class="fa-solid fa-arrow-left"></i>
+                Retour au détail
+            </a>
+
+            <h1>
+                Modifier l'enseignant
+            </h1>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         FORMULAIRE
+    ====================================================== -->
+
+    <form
+        method="post"
+        enctype="multipart/form-data"
+        class="enseignant-form"
+    >
+
+        {% csrf_token %}
+
+
+        <!-- ================================================
+             ERREURS GÉNÉRALES
+        ================================================= -->
+
+        {% if form.non_field_errors %}
+
+            <div class="form-alert">
+
+                <i class="fa-solid fa-circle-exclamation"></i>
+
+                <div>
+
+                    {% for error in form.non_field_errors %}
+
+                        <p>
+                            {{ error }}
+                        </p>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        {% endif %}
+
+        <section class="form-card">
+
+            <div class="form-section-header">
+
+                <div class="section-icon">
+
+                    <i class="fa-solid fa-user"></i>
+
+                </div>
+
+                <div>
+
+                    <h2>
+                        Informations personnelles
+                    </h2>
+
+
+                </div>
+
+            </div>
+
+
+            <div class="form-grid">
+
+
+                <!-- NOM -->
+
+                <div class="form-group">
+
+                    <label for="{{ form.nom.id_for_label }}">
+
+                        Nom
+
+                        <span class="required">
+                            *
+                        </span>
+
+                    </label>
+
+                    {{ form.nom }}
+
+                    {% if form.nom.errors %}
+
+                        <div class="field-errors">
+
+                            {% for error in form.nom.errors %}
+
+                                <span>
+                                    {{ error }}
+                                </span>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- POSTNOM -->
+
+                <div class="form-group">
+
+                    <label
+                        for="{{ form.postnom.id_for_label }}"
+                    >
+                        Postnom
+                    </label>
+
+                    {{ form.postnom }}
+
+                    {% if form.postnom.errors %}
+
+                        <div class="field-errors">
+
+                            {% for error in form.postnom.errors %}
+
+                                <span>
+                                    {{ error }}
+                                </span>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- PRÉNOM -->
+
+                <div class="form-group">
+
+                    <label
+                        for="{{ form.prenom.id_for_label }}"
+                    >
+
+                        Prénom
+
+                        <span class="required">
+                            *
+                        </span>
+
+                    </label>
+
+                    {{ form.prenom }}
+
+                    {% if form.prenom.errors %}
+
+                        <div class="field-errors">
+
+                            {% for error in form.prenom.errors %}
+
+                                <span>
+                                    {{ error }}
+                                </span>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- TÉLÉPHONE -->
+
+                <div class="form-group">
+
+                    <label
+                        for="{{ form.telephone.id_for_label }}"
+                    >
+                        Téléphone
+                    </label>
+
+                    {{ form.telephone }}
+
+                    {% if form.telephone.errors %}
+
+                        <div class="field-errors">
+
+                            {% for error in form.telephone.errors %}
+
+                                <span>
+                                    {{ error }}
+                                </span>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- EMAIL -->
+
+                <div class="form-group form-group-full">
+
+                    <label for="{{ form.email.id_for_label }}">
+
+                        Adresse email
+
+                    </label>
+
+                    {{ form.email }}
+
+                    {% if form.email.errors %}
+
+                        <div class="field-errors">
+
+                            {% for error in form.email.errors %}
+
+                                <span>
+                                    {{ error }}
+                                </span>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- PHOTO -->
+
+                <div class="form-group form-group-full">
+
+                    <label
+                        for="{{ form.photo_profil.id_for_label }}"
+                    >
+                        Photo de profil
+                    </label>
+
+
+                    <div class="photo-section">
+
+
+                        <div class="current-photo">
+
+                            {% if enseignant.utilisateur.photo_profil %}
+
+                                <img
+                                    src="{{ enseignant.utilisateur.photo_profil.url }}"
+                                    alt="Photo de profil"
+                                    class="profile-preview"
+                                >
+
+                            {% else %}
+
+                                <div class="profile-placeholder">
+
+                                    <i class="fa-solid fa-user"></i>
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="photo-input">
+
+                            {{ form.photo_profil }}
+
+                            
+
+                        </div>
+
+
+                    </div>
+
+
+                    {% if form.photo_profil.errors %}
+
+                        <div class="field-errors">
+
+                            {% for error in form.photo_profil.errors %}
+
+                                <span>
+                                    {{ error }}
+                                </span>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================================
+             INFORMATIONS PROFESSIONNELLES
+        ================================================= -->
+
+        <section class="form-card">
+
+            <div class="form-section-header">
+
+                <div class="section-icon">
+
+                    <i class="fa-solid fa-briefcase"></i>
+
+                </div>
+
+                <div>
+
+                    <h2>
+                        Informations professionnelles
+                    </h2>
+
+                    
+
+                </div>
+
+            </div>
+
+
+            <div class="form-grid">
+
+
+                <!-- MATRICULE -->
+
+                <div class="form-group">
+
+                    <label
+                        for="{{ form.matricule.id_for_label }}"
+                    >
+
+                        Matricule
+
+                        <span class="required">
+                            *
+                        </span>
+
+                    </label>
+
+                    {{ form.matricule }}
+
+                    {% if form.matricule.errors %}
+
+                        <div class="field-errors">
+
+                            {% for error in form.matricule.errors %}
+
+                                <span>
+                                    {{ error }}
+                                </span>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- GRADE -->
+
+                <div class="form-group">
+
+                    <label for="{{ form.grade.id_for_label }}">
+
+                        Grade
+
+                    </label>
+
+                    {{ form.grade }}
+
+                    {% if form.grade.errors %}
+
+                        <div class="field-errors">
+
+                            {% for error in form.grade.errors %}
+
+                                <span>
+                                    {{ error }}
+                                </span>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- SPÉCIALITÉ -->
+
+                <div class="form-group form-group-full">
+
+                    <label
+                        for="{{ form.specialite.id_for_label }}"
+                    >
+                        Spécialité
+                    </label>
+
+                    {{ form.specialite }}
+
+                    {% if form.specialite.errors %}
+
+                        <div class="field-errors">
+
+                            {% for error in form.specialite.errors %}
+
+                                <span>
+                                    {{ error }}
+                                </span>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+        
+<div class="form-section">
+
+    <div class="section-header">
+
+        <div class="section-icon">
+            <i class="fas fa-key"></i>
+        </div>
+
+        <div>
+
+            <h3>
+                Modifier le mot de passe
+            </h3>
+
+            
+
+        </div>
+
+    </div>
+
+
+    <div class="password-info">
+
+        <i class="fas fa-info-circle"></i>
+
+        <span>
+            Laissez ces champs vides si vous souhaitez
+            conserver le mot de passe actuel.
+        </span>
+
+    </div><br>
+
+
+    <div class="form-row">
+
+
+        <!-- NOUVEAU MOT DE PASSE -->
+
+        <div class="form-group">
+
+            <label
+                for="{{ form.mot_de_passe.id_for_label }}"
+            >
+
+                Nouveau mot de passe
+
+            </label>
+
+
+            <div class="password-input-wrapper">
+
+                {{ form.mot_de_passe }}
+
+                <button
+                    type="button"
+                    class="toggle-password"
+                    data-target="id_mot_de_passe"
+                    title="Afficher ou masquer le mot de passe"
+                >
+
+                    <i class="fas fa-eye"></i>
+
+                </button>
+
+            </div>
+
+
+            {% if form.mot_de_passe.errors %}
+
+                <div class="field-error">
+
+                    {% for error in form.mot_de_passe.errors %}
+
+                        <span>
+                            {{ error }}
+                        </span>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- CONFIRMATION -->
+
+        <div class="form-group">
+
+            <label
+                for="{{ form.confirmation_mot_de_passe.id_for_label }}"
+            >
+
+                Confirmer le nouveau mot de passe
+
+            </label>
+
+
+            <div class="password-input-wrapper">
+
+                {{ form.confirmation_mot_de_passe }}
+
+                <button
+                    type="button"
+                    class="toggle-password"
+                    data-target="id_confirmation_mot_de_passe"
+                    title="Afficher ou masquer le mot de passe"
+                >
+
+                    <i class="fas fa-eye"></i>
+
+                </button>
+
+            </div>
+
+
+            {% if form.confirmation_mot_de_passe.errors %}
+
+                <div class="field-error">
+
+                    {% for error in form.confirmation_mot_de_passe.errors %}
+
+                        <span>
+                            {{ error }}
+                        </span>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+    </div>
+
+</div>
+
+        <!-- ================================================
+             ACTIONS
+        ================================================= -->
+
+        <div class="form-actions">
+
+            <a
+                href="{% url 'detail_enseignant' enseignant.id %}"
+                class="btn btn-secondary"
+            >
+                <i class="fa-solid fa-xmark"></i>
+
+                Annuler
+            </a>
+
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                <i class="fa-solid fa-floppy-disk"></i>
+
+                Enregistrer les modifications
+            </button>
+
+        </div>
+
+
+    </form>
+
+</div>
+<script>
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            const passwordButtons =
+                document.querySelectorAll(
+                    ".toggle-password"
+                );
+
+
+            passwordButtons.forEach(
+                function (button) {
+
+                    button.addEventListener(
+                        "click",
+                        function () {
+
+                            const targetId =
+                                button.dataset.target;
+
+
+                            const input =
+                                document.getElementById(
+                                    targetId
+                                );
+
+
+                            const icon =
+                                button.querySelector(
+                                    "i"
+                                );
+
+
+                            if (
+                                input.type ===
+                                "password"
+                            ) {
+
+                                input.type = "text";
+
+                                icon.classList.remove(
+                                    "fa-eye"
+                                );
+
+                                icon.classList.add(
+                                    "fa-eye-slash"
+                                );
+
+                            }
+
+                            else {
+
+                                input.type = "password";
+
+                                icon.classList.remove(
+                                    "fa-eye-slash"
+                                );
+
+                                icon.classList.add(
+                                    "fa-eye"
+                                );
+
+                            }
+
+                        }
+                    );
+
+                }
+            );
+
+        }
+    );
+
+</script>
+{% endblock %}

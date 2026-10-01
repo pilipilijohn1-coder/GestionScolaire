@@ -1,0 +1,134 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Justifier une absence{% endblock %}
+
+{% block extra_css %}
+<style>
+    .presence-page {
+        max-width: 720px;
+        margin: 0 auto;
+    }
+    .back-link {
+        display: inline-block;
+        margin-bottom: 16px;
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    .back-link:hover { text-decoration: underline; }
+    .card {
+        background: #fff;
+        padding: 24px;
+        border-radius: 14px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    .recap {
+        display: grid;
+        grid-template-columns: 160px 1fr;
+        gap: 8px 16px;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e5e7eb;
+        font-size: 14px;
+    }
+    .recap dt { color: #6b7280; font-weight: 600; }
+    .recap dd { margin: 0; color: #111827; }
+    .badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .badge-present { background: #dcfce7; color: #166534; }
+    .badge-absent { background: #fee2e2; color: #991b1b; }
+    .badge-retard { background: #fef3c7; color: #92400e; }
+    .badge-justifie { background: #dbeafe; color: #1e40af; }
+    label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #374151;
+    }
+    input[type="text"] {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+    input[type="text"]:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+    }
+    .actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    .btn {
+        display: inline-block;
+        padding: 9px 16px;
+        border: none;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-secondary { background: #e5e7eb; color: #374151; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="presence-page">
+    <a href="{% url 'presences_classe' presence.inscription.classe.id %}" class="back-link">
+        ← Retour aux présences
+    </a>
+
+    <h1>Justifier une absence</h1>
+
+    <div class="card">
+        <dl class="recap">
+            <dt>Élève</dt>
+            <dd>{{ presence.inscription.eleve.nom }} {{ presence.inscription.eleve.prenom }}</dd>
+
+            <dt>Classe</dt>
+            <dd>{{ presence.inscription.classe.libelle }}</dd>
+
+            <dt>Date</dt>
+            <dd>{{ presence.date_presence|date:"d/m/Y" }}</dd>
+
+            <dt>Statut</dt>
+            <dd>
+                <span class="badge badge-{{ presence.statut|lower }}">{{ presence.get_statut_display }}</span>
+            </dd>
+        </dl>
+
+        <form method="post">
+            {% csrf_token %}
+            <label for="justification">Motif de l'absence</label>
+            <input
+                type="text"
+                name="justification"
+                id="justification"
+                maxlength="255"
+                value="{{ presence.justification|default:'' }}"
+                placeholder="Ex. Certificat médical, décès, déplacement..."
+            >
+
+            <div class="actions">
+                <button type="submit" class="btn btn-primary">Enregistrer la justification</button>
+                <a href="{% url 'presences_classe' presence.inscription.classe.id %}" class="btn btn-secondary">
+                    Annuler
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

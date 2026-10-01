@@ -1,0 +1,1025 @@
+/* =========================================================
+   LISTE DES RÉPARTITIONS HORAIRES
+========================================================= */
+
+
+/* =========================================================
+   PAGE PRINCIPALE
+========================================================= */
+
+.repartition-page {
+    width: 100%;
+    padding: 30px;
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   EN-TÊTE DE LA PAGE
+========================================================= */
+
+.repartition-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 25px;
+
+    margin-bottom: 30px;
+}
+
+
+/* ---------------------------------------------------------
+   PARTIE GAUCHE
+--------------------------------------------------------- */
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+
+/* ---------------------------------------------------------
+   ICÔNE PRINCIPALE
+--------------------------------------------------------- */
+
+.header-icon {
+    width: 58px;
+    height: 58px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 14px;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    font-size: 24px;
+
+    flex-shrink: 0;
+}
+
+
+/* ---------------------------------------------------------
+   TITRE
+--------------------------------------------------------- */
+
+.header-left h1 {
+    margin: 0 0 5px;
+
+    font-size: 26px;
+    font-weight: 700;
+
+    color: #1f2937;
+}
+
+
+/* ---------------------------------------------------------
+   DESCRIPTION
+--------------------------------------------------------- */
+
+.header-left p {
+    margin: 0;
+
+    font-size: 14px;
+
+    color: #6b7280;
+}
+
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.header-actions {
+    display: flex;
+    align-items: center;
+}
+
+
+/* ---------------------------------------------------------
+   BOUTON AJOUTER
+--------------------------------------------------------- */
+
+.btn-add {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 9px;
+
+    padding: 12px 20px;
+
+    border-radius: 9px;
+
+    background: #2563eb;
+
+    color: #ffffff;
+
+    text-decoration: none;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition:
+        background 0.25s ease,
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+
+.btn-add:hover {
+    background: #1d4ed8;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 20px
+        rgba(37, 99, 235, 0.25);
+}
+
+
+.btn-add i {
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   STATISTIQUES
+========================================================= */
+
+.repartition-stats {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 20px;
+
+    margin-bottom: 30px;
+}
+
+
+/* ---------------------------------------------------------
+   CARTE
+--------------------------------------------------------- */
+
+.stat-card {
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 20px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 4px 14px
+        rgba(0, 0, 0, 0.04);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+
+.stat-card:hover {
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 8px 22px
+        rgba(0, 0, 0, 0.08);
+}
+
+
+/* ---------------------------------------------------------
+   ICÔNE STATISTIQUE
+--------------------------------------------------------- */
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: #eff6ff;
+
+    color: #2563eb;
+
+    font-size: 20px;
+
+    flex-shrink: 0;
+}
+
+
+/* ---------------------------------------------------------
+   NOMBRE
+--------------------------------------------------------- */
+
+.stat-number {
+    display: block;
+
+    margin-bottom: 4px;
+
+    font-size: 24px;
+    font-weight: 700;
+
+    color: #1f2937;
+}
+
+
+/* ---------------------------------------------------------
+   LIBELLÉ
+--------------------------------------------------------- */
+
+.stat-label {
+    display: block;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    color: #4b5563;
+}
+
+
+/* ---------------------------------------------------------
+   PETITE DESCRIPTION
+--------------------------------------------------------- */
+
+.stat-small {
+    display: block;
+
+    margin-top: 4px;
+
+    font-size: 12px;
+
+    color: #9ca3af;
+}
+
+
+/* =========================================================
+   CARTE DU TABLEAU
+========================================================= */
+
+.table-card {
+    width: 100%;
+
+    background: #ffffff;
+
+    border:
+        1px solid
+        #e5e7eb;
+
+    border-radius: 14px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 5px 18px
+        rgba(0, 0, 0, 0.05);
+}
+
+
+/* =========================================================
+   EN-TÊTE DU TABLEAU
+========================================================= */
+
+.table-header {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 22px 25px;
+
+    border-bottom:
+        1px solid
+        #e5e7eb;
+}
+
+
+/* ---------------------------------------------------------
+   TITRE
+--------------------------------------------------------- */
+
+.table-header h2 {
+    margin: 0 0 5px;
+
+    font-size: 18px;
+
+    font-weight: 700;
+
+    color: #1f2937;
+}
+
+
+/* ---------------------------------------------------------
+   DESCRIPTION
+--------------------------------------------------------- */
+
+.table-header p {
+    margin: 0;
+
+    font-size: 13px;
+
+    color: #6b7280;
+}
+
+
+/* =========================================================
+   RECHERCHE
+========================================================= */
+
+.table-search {
+    position: relative;
+
+    width: 270px;
+}
+
+
+.table-search i {
+    position: absolute;
+
+    left: 13px;
+
+    top: 50%;
+
+    transform:
+        translateY(-50%);
+
+    color: #9ca3af;
+
+    font-size: 14px;
+}
+
+
+.table-search input {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding:
+        11px
+        14px
+        11px
+        38px;
+
+    border:
+        1px solid
+        #d1d5db;
+
+    border-radius: 8px;
+
+    outline: none;
+
+    font-size: 13px;
+
+    transition:
+        border 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.table-search input:focus {
+    border-color:
+        #2563eb;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37, 99, 235, 0.1);
+}
+
+
+/* =========================================================
+   RESPONSIVE TABLE
+========================================================= */
+
+.table-responsive {
+    width: 100%;
+
+    overflow-x: auto;
+}
+
+
+/* =========================================================
+   TABLEAU
+========================================================= */
+
+.repartition-table {
+    width: 100%;
+
+    border-collapse:
+        collapse;
+
+    min-width:
+        900px;
+}
+
+
+/* =========================================================
+   EN-TÊTE DES COLONNES
+========================================================= */
+
+.repartition-table thead {
+    background:
+        #f8fafc;
+}
+
+
+.repartition-table th {
+    padding:
+        15px
+        18px;
+
+    text-align:
+        left;
+
+    font-size:
+        12px;
+
+    font-weight:
+        700;
+
+    text-transform:
+        uppercase;
+
+    letter-spacing:
+        0.4px;
+
+    color:
+        #6b7280;
+
+    border-bottom:
+        1px solid
+        #e5e7eb;
+
+    white-space:
+        nowrap;
+}
+
+
+/* =========================================================
+   CELLULES
+========================================================= */
+
+.repartition-table td {
+    padding:
+        16px
+        18px;
+
+    font-size:
+        14px;
+
+    color:
+        #374151;
+
+    border-bottom:
+        1px solid
+        #f1f5f9;
+
+    vertical-align:
+        middle;
+}
+
+
+/* =========================================================
+   SURVOL DES LIGNES
+========================================================= */
+
+.repartition-table tbody tr {
+    transition:
+        background
+        0.2s ease;
+}
+
+
+.repartition-table tbody tr:hover {
+    background:
+        #f8fafc;
+}
+
+
+.repartition-table tbody tr:last-child td {
+    border-bottom:
+        none;
+}
+
+
+/* =========================================================
+   INFORMATIONS CLASSE
+========================================================= */
+
+.classe-info {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    font-weight:
+        600;
+
+    color:
+        #1f2937;
+}
+
+
+.classe-icon {
+    width:
+        34px;
+
+    height:
+        34px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        9px;
+
+    background:
+        #eff6ff;
+
+    color:
+        #2563eb;
+
+    font-size:
+        14px;
+
+    flex-shrink:
+        0;
+}
+
+
+/* =========================================================
+   MATIÈRE
+========================================================= */
+
+.matiere-badge {
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    padding:
+        6px
+        11px;
+
+    border-radius:
+        7px;
+
+    background:
+        #f3f4f6;
+
+    color:
+        #374151;
+
+    font-size:
+        13px;
+
+    font-weight:
+        600;
+
+    white-space:
+        nowrap;
+}
+
+
+/* =========================================================
+   ENSEIGNANT
+========================================================= */
+
+.enseignant-info {
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        9px;
+}
+
+
+.enseignant-avatar {
+    width:
+        34px;
+
+    height:
+        34px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        50%;
+
+    background:
+        #ecfdf5;
+
+    color:
+        #059669;
+
+    font-size:
+        13px;
+
+    flex-shrink:
+        0;
+}
+
+
+.enseignant-info span {
+    font-weight:
+        500;
+
+    color:
+        #374151;
+}
+
+
+/* =========================================================
+   JOUR
+========================================================= */
+
+.jour-badge {
+    display:
+        inline-block;
+
+    padding:
+        6px
+        11px;
+
+    border-radius:
+        7px;
+
+    background:
+        #fef3c7;
+
+    color:
+        #92400e;
+
+    font-size:
+        13px;
+
+    font-weight:
+        600;
+}
+
+
+/* =========================================================
+   CRÉNEAU
+========================================================= */
+
+.creneau-info {
+    display:
+        inline-block;
+
+    padding:
+        6px
+        10px;
+
+    border-radius:
+        7px;
+
+    background:
+        #f3e8ff;
+
+    color:
+        #7e22ce;
+
+    font-size:
+        13px;
+
+    font-weight:
+        600;
+
+    white-space:
+        nowrap;
+}
+
+
+/* =========================================================
+   ÉTAT VIDE
+========================================================= */
+
+.empty-state {
+    padding:
+        70px
+        25px;
+
+    text-align:
+        center;
+}
+
+
+/* ---------------------------------------------------------
+   ICÔNE
+--------------------------------------------------------- */
+
+.empty-icon {
+    width:
+        70px;
+
+    height:
+        70px;
+
+    margin:
+        0 auto 20px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        50%;
+
+    background:
+        #eff6ff;
+
+    color:
+        #2563eb;
+
+    font-size:
+        28px;
+}
+
+
+/* ---------------------------------------------------------
+   TITRE
+--------------------------------------------------------- */
+
+.empty-state h3 {
+    margin:
+        0 0 10px;
+
+    font-size:
+        19px;
+
+    color:
+        #1f2937;
+}
+
+
+/* ---------------------------------------------------------
+   TEXTE
+--------------------------------------------------------- */
+
+.empty-state p {
+    max-width:
+        420px;
+
+    margin:
+        0 auto 25px;
+
+    font-size:
+        14px;
+
+    line-height:
+        1.6;
+
+    color:
+        #6b7280;
+}
+
+
+/* =========================================================
+   RESPONSIVE TABLETTE
+========================================================= */
+
+@media (
+    max-width: 992px
+) {
+
+    .repartition-page {
+        padding:
+            22px;
+    }
+
+
+    .repartition-stats {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .table-header {
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+    }
+
+
+    .table-search {
+        width:
+            100%;
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE MOBILE
+========================================================= */
+
+@media (
+    max-width: 768px
+) {
+
+    .repartition-page {
+        padding:
+            15px;
+    }
+
+
+    /* -----------------------------------------------------
+       EN-TÊTE
+    ----------------------------------------------------- */
+
+    .repartition-header {
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+    }
+
+
+    .header-left {
+        align-items:
+            flex-start;
+    }
+
+
+    .header-icon {
+        width:
+            48px;
+
+        height:
+            48px;
+
+        font-size:
+            20px;
+    }
+
+
+    .header-left h1 {
+        font-size:
+            21px;
+    }
+
+
+    .header-left p {
+        font-size:
+            13px;
+    }
+
+
+    /* -----------------------------------------------------
+       BOUTON
+    ----------------------------------------------------- */
+
+    .header-actions {
+        width:
+            100%;
+    }
+
+
+    .btn-add {
+        width:
+            100%;
+    }
+
+
+    /* -----------------------------------------------------
+       STATISTIQUES
+    ----------------------------------------------------- */
+
+    .stat-card {
+        padding:
+            16px;
+    }
+
+
+    /* -----------------------------------------------------
+       TABLEAU
+    ----------------------------------------------------- */
+
+    .table-header {
+        padding:
+            18px;
+    }
+
+
+    .table-header h2 {
+        font-size:
+            17px;
+    }
+
+
+    .table-header p {
+        font-size:
+            12px;
+    }
+
+
+    .repartition-table th,
+    .repartition-table td {
+        padding:
+            13px
+            15px;
+    }
+
+
+    /* -----------------------------------------------------
+       ÉTAT VIDE
+    ----------------------------------------------------- */
+
+    .empty-state {
+        padding:
+            55px
+            20px;
+    }
+
+}
+
+
+/* =========================================================
+   PETITS ÉCRANS
+========================================================= */
+
+@media (
+    max-width: 480px
+) {
+
+    .repartition-page {
+        padding:
+            12px;
+    }
+
+
+    .header-left {
+        gap:
+            12px;
+    }
+
+
+    .header-left h1 {
+        font-size:
+            19px;
+    }
+
+
+    .stat-number {
+        font-size:
+            21px;
+    }
+
+
+    .stat-icon {
+        width:
+            42px;
+
+        height:
+            42px;
+
+        font-size:
+            17px;
+    }
+
+}

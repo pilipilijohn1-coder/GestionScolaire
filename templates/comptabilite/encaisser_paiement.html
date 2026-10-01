@@ -1,0 +1,383 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Encaisser un paiement{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --cp-primary: #2563eb;
+        --cp-primary-dark: #1e40af;
+        --cp-success: #16a34a;
+        --cp-warning: #f59e0b;
+        --cp-danger: #dc2626;
+        --cp-border: #e2e8f0;
+        --cp-text: #1e293b;
+        --cp-text-secondary: #64748b;
+        --cp-card-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+    }
+
+    .comptabilite-page {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .page-header h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--cp-text);
+        letter-spacing: -0.025em;
+    }
+
+    .page-header p {
+        margin: 6px 0 0;
+        color: var(--cp-text-secondary);
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .card {
+        background: #ffffff;
+        border: 1px solid var(--cp-border);
+        border-radius: 16px;
+        box-shadow: var(--cp-card-shadow);
+        overflow: hidden;
+    }
+
+    .card-header {
+        padding: 18px 22px;
+        border-bottom: 1px solid var(--cp-border);
+        background: #fafbfc;
+    }
+
+    .card-header h2 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--cp-text);
+    }
+
+    .card-body {
+        padding: 22px;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 6px;
+        color: var(--cp-text);
+        font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--cp-border);
+        font-size: 14px;
+        color: var(--cp-text);
+        background: #ffffff;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: var(--cp-primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 25px;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        border: none;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+
+    .btn-primary {
+        background: var(--cp-primary);
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #e5e7eb;
+        color: var(--cp-text);
+    }
+
+    .btn:hover {
+        opacity: 0.92;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--cp-primary);
+        font-weight: 600;
+        text-decoration: none;
+        font-size: 14px;
+        margin-top: 20px;
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+
+    .messages {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .alert {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .alert-success {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .alert-error {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .form-actions {
+            flex-direction: column;
+        }
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="comptabilite-page">
+    <div class="page-header">
+        <div>
+            <h1>Encaisser un paiement</h1>
+            <p>Enregistrez un nouveau paiement pour un élève.</p>
+        </div>
+    </div>
+
+    
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Informations du paiement</h2>
+        </div>
+
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="eleve_search">Élève</label>
+                    <input 
+                        type="text" 
+                        id="eleve_search" 
+                        placeholder="Rechercher par nom, prénom ou matricule..."
+                        autocomplete="off"
+                    >
+                    <input type="hidden" id="eleve_id" name="eleve_id">
+                </div>
+
+                <div class="form-group">
+                    <label for="inscription_id">Inscription</label>
+                    <select id="inscription_id" name="inscription_id" required>
+                        <option value="">Sélectionner une inscription</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="tranche_id">Tranche</label>
+                    <select id="tranche_id" name="tranche_id" required>
+                        <option value="">Sélectionner une tranche</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="montant">Montant</label>
+                    <input 
+                        type="number" 
+                        id="montant" 
+                        name="montant" 
+                        step="0.01" 
+                        min="0.01"
+                        required
+                        placeholder="0.00"
+                    >
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Enregistrer le paiement
+                    </button>
+                    <a href="{% url 'liste_paiements' %}" class="btn btn-secondary">
+                        Annuler
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const eleveSearch = document.getElementById('eleve_search');
+    const eleveIdInput = document.getElementById('eleve_id');
+    const inscriptionSelect = document.getElementById('inscription_id');
+    const trancheSelect = document.getElementById('tranche_id');
+    const montantInput = document.getElementById('montant');
+
+    if (!eleveSearch || !eleveIdInput || !inscriptionSelect || !trancheSelect || !montantInput) {
+        return;
+    }
+
+    let searchTimeout = null;
+
+    eleveSearch.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(function() {
+            if (query.length < 2) {
+                eleveIdInput.value = '';
+                inscriptionSelect.innerHTML = '<option value=\"\">Sélectionner une inscription</option>';
+                trancheSelect.innerHTML = '<option value=\"\">Sélectionner une tranche</option>';
+                montantInput.value = '';
+                return;
+            }
+
+            fetch(`{% url 'ajax_eleves_par_nom' %}?q=${encodeURIComponent(query)}`)
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(data) {
+                    if (data.results && data.results.length > 0) {
+                        const eleve = data.results[0];
+                        eleveSearch.value = eleve.text;
+                        eleveIdInput.value = eleve.id;
+                        chargerInscriptions(eleve.id);
+                    } else {
+                        eleveIdInput.value = '';
+                        inscriptionSelect.innerHTML = '<option value=\"\">Aucun élève trouvé</option>';
+                        trancheSelect.innerHTML = '<option value=\"\">Sélectionner une tranche</option>';
+                        montantInput.value = '';
+                    }
+                })
+                .catch(function() {
+                    eleveIdInput.value = '';
+                });
+        }, 250);
+    });
+
+    function chargerInscriptions(eleveId) {
+        fetch(`{% url 'ajax_inscriptions_eleve' eleve_id=0 %}`.replace('/0/', '/' + eleveId + '/'))
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+                inscriptionSelect.innerHTML = '<option value=\"\">Sélectionner une inscription</option>';
+                trancheSelect.innerHTML = '<option value=\"\">Sélectionner une tranche</option>';
+                montantInput.value = '';
+
+                if (data.results && data.results.length > 0) {
+                    data.results.forEach(function(item) {
+                        const option = document.createElement('option');
+                        option.value = item.id;
+                        option.textContent = item.text;
+                        option.dataset.anneeId = item.annee_id;
+                        option.dataset.classeId = item.classe_id;
+                        inscriptionSelect.appendChild(option);
+                    });
+                }
+            })
+            .catch(function() {
+                inscriptionSelect.innerHTML = '<option value=\"\">Erreur lors du chargement</option>';
+            });
+    }
+
+    inscriptionSelect.addEventListener('change', function() {
+        const inscriptionId = this.value;
+        trancheSelect.innerHTML = '<option value=\"\">Sélectionner une tranche</option>';
+        montantInput.value = '';
+
+        if (!inscriptionId) {
+            return;
+        }
+
+        fetch(`{% url 'ajax_tranches_par_inscription' inscription_id=0 %}`.replace('/0/', '/' + inscriptionId + '/'))
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+                if (data.results && data.results.length > 0) {
+                    data.results.forEach(function(item) {
+                        const option = document.createElement('option');
+                        option.value = item.id;
+                        option.textContent = item.text;
+                        option.dataset.montant = item.montant;
+                        trancheSelect.appendChild(option);
+                    });
+                }
+            })
+            .catch(function() {
+                trancheSelect.innerHTML = '<option value=\"\">Erreur lors du chargement</option>';
+            });
+    });
+
+    trancheSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const montant = selectedOption ? selectedOption.dataset.montant : '';
+        montantInput.value = montant || '';
+    });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,288 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>{{ titre }}</title>
+
+    <link rel="stylesheet"
+          href="{% static 'Gestion/css/bulletins.css' %}">
+
+</head>
+
+<body>
+
+<div class="bulletin-page">
+
+    <!-- EN-TÊTE -->
+
+    <header class="page-header">
+
+        <div>
+
+            <h1>
+                Pondérations officielles
+            </h1>
+
+            <p>
+                Consultation des maxima officiels
+                par niveau et par matière.
+            </p>
+
+        </div>
+
+        <a href="{% url 'liste_modeles_bulletin' %}"
+           class="btn btn-secondary">
+
+            Modèles de bulletins
+
+        </a>
+
+    </header>
+
+
+    <main class="content-container">
+
+
+        <!-- FILTRE NIVEAU -->
+
+        <section class="filter-card">
+
+            <form method="get"
+                  class="filter-form">
+
+                <div class="form-group">
+
+                    <label for="niveau">
+                        Niveau
+                    </label>
+
+                    <select name="niveau"
+                            id="niveau">
+
+                        <option value="">
+                            Sélectionner un niveau
+                        </option>
+
+                        {% for niveau in niveaux %}
+
+                            <option value="{{ niveau.code }}"
+                                {% if niveau_selectionne and niveau.code == niveau_selectionne.code %}
+                                    selected
+                                {% endif %}>
+
+                                {{ niveau.libelle }}
+
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <button type="submit"
+                        class="btn btn-primary">
+
+                    Afficher
+
+                </button>
+
+            </form>
+
+        </section>
+
+
+        {% if niveau_selectionne %}
+
+            <!-- TITRE -->
+
+            <section class="section-heading">
+
+                <div>
+
+                    <span class="page-code">
+                        {{ niveau_selectionne.code }}
+                    </span>
+
+                    <h2>
+                        {{ niveau_selectionne.libelle }}
+                    </h2>
+
+                </div>
+
+                <span class="count-badge">
+
+                    {{ ponderations|length }}
+                    matière{{ ponderations|length|pluralize }}
+
+                </span>
+
+            </section>
+
+
+            <!-- TABLEAU -->
+
+            <section class="table-card">
+
+                {% if ponderations %}
+
+                    <div class="table-wrapper">
+
+                        <table class="data-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>#</th>
+
+                                    <th>Domaine</th>
+
+                                    <th>Matière</th>
+
+                                    <th>TJ maximum</th>
+
+                                    <th>Examen maximum</th>
+
+                                    <th>Total semestre</th>
+
+                                    <th></th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                {% for p in ponderations %}
+
+                                    <tr>
+
+                                        <td>
+                                            {{ forloop.counter }}
+                                        </td>
+
+                                        <td>
+
+                                            {% if p.matiere.domaine %}
+
+                                                {{ p.matiere.domaine.libelle }}
+
+                                            {% else %}
+
+                                                —
+
+                                            {% endif %}
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <strong>
+                                                {{ p.matiere.libelle }}
+                                            </strong>
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <span class="number-value">
+                                                {{ p.travaux_journaliers_max }}
+                                            </span>
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <span class="number-value">
+                                                {{ p.examen_max }}
+                                            </span>
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <span class="number-value total">
+                                                {{ p.total_semestre_max }}
+                                            </span>
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <a href="{% url 'detail_ponderation' p.pk %}"
+                                               class="table-link">
+
+                                                Voir
+
+                                            </a>
+
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="empty-state">
+
+                        <h3>
+                            Aucune pondération
+                        </h3>
+
+                        <p>
+                            Aucune pondération officielle
+                            n'est enregistrée pour ce niveau.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+            </section>
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <h2>
+                    Sélectionnez un niveau
+                </h2>
+
+                <p>
+                    Choisissez un niveau ci-dessus pour
+                    consulter ses matières et leurs maxima.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </main>
+
+</div>
+
+</body>
+</html>

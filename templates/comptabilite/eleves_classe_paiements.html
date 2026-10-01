@@ -1,0 +1,271 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Paiements - {{ classe.libelle }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --cp-primary: #2563eb;
+        --cp-primary-dark: #1e40af;
+        --cp-success: #16a34a;
+        --cp-warning: #f59e0b;
+        --cp-danger: #dc2626;
+        --cp-border: #e2e8f0;
+        --cp-text: #1e293b;
+        --cp-text-secondary: #64748b;
+        --cp-card-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+    }
+
+    .comptabilite-page {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .page-header h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--cp-text);
+        letter-spacing: -0.025em;
+    }
+
+    .page-header p {
+        margin: 6px 0 0;
+        color: var(--cp-text-secondary);
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .filters {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .filter-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: 10px;
+        border: 1px solid var(--cp-border);
+        background: #ffffff;
+        color: var(--cp-text);
+        font-weight: 600;
+        font-size: 14px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .filter-btn:hover {
+        background: #f8fafc;
+        border-color: var(--cp-primary);
+        color: var(--cp-primary);
+    }
+
+    .filter-btn.active {
+        background: var(--cp-primary);
+        color: white;
+        border-color: var(--cp-primary);
+    }
+
+    .card {
+        background: #ffffff;
+        border: 1px solid var(--cp-border);
+        border-radius: 16px;
+        box-shadow: var(--cp-card-shadow);
+        overflow: hidden;
+    }
+
+    .card-header {
+        padding: 18px 22px;
+        border-bottom: 1px solid var(--cp-border);
+        background: #fafbfc;
+    }
+
+    .card-header h2 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--cp-text);
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 14px 16px;
+        text-align: left;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 14px;
+    }
+
+    .data-table th {
+        background: #f8fafc;
+        font-weight: 600;
+        color: var(--cp-text-secondary);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .data-table td {
+        color: var(--cp-text);
+        vertical-align: middle;
+    }
+
+    .data-table tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .status-success { background: #dcfce7; color: #166534; }
+    .status-danger { background: #fee2e2; color: #991b1b; }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--cp-primary);
+        font-weight: 600;
+        text-decoration: none;
+        font-size: 14px;
+        margin-top: 20px;
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+
+    .empty-state {
+        padding: 35px;
+        text-align: center;
+        color: var(--cp-text-secondary);
+    }
+
+    .empty-state i {
+        font-size: 36px;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .filters {
+            flex-direction: column;
+        }
+        .filter-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="comptabilite-page">
+    <div class="page-header">
+        <div>
+            <h1>{{ classe.libelle }}</h1>
+            <p>{{ classe.niveau.libelle }}{% if classe.section %} - {{ classe.section.libelle }}{% endif %}</p>
+        </div>
+    </div>
+
+    <div class="filters">
+        <a href="{% url 'eleves_classe_paiements' classe.id %}" 
+           class="filter-btn {% if filtre == 'tous' %}active{% endif %}">
+            <i class="fas fa-users"></i> Tous
+        </a>
+        <a href="{% url 'eleves_classe_paiements' classe.id %}?filtre=payes" 
+           class="filter-btn {% if filtre == 'payes' %}active{% endif %}">
+            <i class="fas fa-check-circle"></i> Ont payé
+        </a>
+        <a href="{% url 'eleves_classe_paiements' classe.id %}?filtre=dettes" 
+           class="filter-btn {% if filtre == 'dettes' %}active{% endif %}">
+            <i class="fas fa-exclamation-circle"></i> Doivent payer
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Élèves de la classe</h2>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Matricule</th>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Total payé</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for item in eleves_data %}
+                    <tr>
+                        <td>{{ item.eleve.matricule }}</td>
+                        <td>{{ item.eleve.nom }}</td>
+                        <td>{{ item.eleve.prenom }}</td>
+                        <td>{{ item.total_paye|floatformat:2 }}</td>
+                        <td>
+                            {% if item.a_paye %}
+                                <span class="status status-success">Payé</span>
+                            {% else %}
+                                <span class="status status-danger">Doit payer</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5">
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <p>Aucun élève dans cette classe.</p>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <a href="{% url 'liste_classes_paiements' %}" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+        Retour aux classes
+    </a>
+</div>
+{% endblock %}

@@ -1,0 +1,385 @@
+{% extends base_template %}
+{% load static %}
+
+
+{% block title %}
+    Détail de l'affectation
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/detail_affectation_matiere.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="detail-page">
+
+
+    <!-- =====================================================
+         EN-TÊTE
+    ====================================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <a
+                href="{% url 'liste_affectations_matieres' %}"
+                class="back-link"
+            >
+                ← Retour aux affectations
+            </a>
+
+
+            <h1>
+                Détail de l'affectation
+            </h1>
+
+
+            <p>
+                Consultez les informations relatives à cette
+                affectation de matière.
+            </p>
+
+        </div>
+
+
+        <!-- ================================================
+             STATUT
+        ================================================= -->
+
+        {% if affectation.actif %}
+
+            <span class="status active">
+                Affectation active
+            </span>
+
+        {% else %}
+
+            <span class="status inactive">
+                Affectation désactivée
+            </span>
+
+        {% endif %}
+
+
+    </div>
+
+
+    <!-- =====================================================
+         RÉSUMÉ PRINCIPAL
+    ====================================================== -->
+
+    <div class="relation-card">
+
+
+        <!-- CLASSE -->
+
+        <div class="relation-item">
+
+            <span class="relation-label">
+                Classe
+            </span>
+
+            <strong class="relation-value">
+                {{ affectation.classe.libelle }}
+            </strong>
+
+        </div>
+
+
+        <!-- FLÈCHE -->
+
+        <div class="relation-arrow">
+            →
+        </div>
+
+
+        <!-- MATIÈRE -->
+
+        <div class="relation-item">
+
+            <span class="relation-label">
+                Matière
+            </span>
+
+            <strong class="relation-value">
+
+                {{ affectation.matiere.libelle }}
+
+            </strong>
+
+
+            <span class="matiere-code">
+
+                {{ affectation.matiere.code }}
+
+            </span>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         INFORMATIONS
+    ====================================================== -->
+
+    <div class="details-grid">
+
+
+        <!-- ================================================
+             INFORMATIONS DE LA CLASSE
+        ================================================= -->
+
+        <div class="detail-card">
+
+            <div class="card-header">
+
+                <h2>
+                    Informations de la classe
+                </h2>
+
+            </div>
+
+
+            <div class="detail-list">
+
+
+                <!-- ANNÉE -->
+
+                <div class="detail-row">
+
+                    <span>
+                        Année scolaire
+                    </span>
+
+                    <strong>
+                        {{ affectation.classe.annee.libelle }}
+                    </strong>
+
+                </div>
+
+
+                <!-- NIVEAU -->
+
+                <div class="detail-row">
+
+                    <span>
+                        Niveau
+                    </span>
+
+                    <strong>
+                        {{ affectation.classe.niveau.libelle }}
+                    </strong>
+
+                </div>
+
+
+                <!-- SECTION -->
+
+                <div class="detail-row">
+
+                    <span>
+                        Section
+                    </span>
+
+                    <strong>
+
+                        {% if affectation.classe.section %}
+
+                            {{ affectation.classe.section.libelle }}
+
+                        {% else %}
+
+                            —
+                            
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <!-- CODE -->
+
+                <div class="detail-row">
+
+                    <span>
+                        Code de la classe
+                    </span>
+
+                    <strong>
+                        {{ affectation.classe.code }}
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================
+             INFORMATIONS DE LA MATIÈRE
+        ================================================= -->
+
+        <div class="detail-card">
+
+            <div class="card-header">
+
+                <h2>
+                    Informations de la matière
+                </h2>
+
+            </div>
+
+
+            <div class="detail-list">
+
+
+                <!-- CODE -->
+
+                <div class="detail-row">
+
+                    <span>
+                        Code
+                    </span>
+
+                    <strong>
+                        {{ affectation.matiere.code }}
+                    </strong>
+
+                </div>
+
+
+                <!-- LIBELLÉ -->
+
+                <div class="detail-row">
+
+                    <span>
+                        Libellé
+                    </span>
+
+                    <strong>
+                        {{ affectation.matiere.libelle }}
+                    </strong>
+
+                </div>
+
+
+                <!-- DESCRIPTION -->
+
+                <div class="detail-row description-row">
+
+                    <span>
+                        Description
+                    </span>
+
+                    <strong>
+
+                        {% if affectation.matiere.description %}
+
+                            {{ affectation.matiere.description }}
+
+                        {% else %}
+
+                            Aucune description
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <!-- STATUT MATIÈRE -->
+
+                <div class="detail-row">
+
+                    <span>
+                        Statut de la matière
+                    </span>
+
+                    <strong>
+
+                        {% if affectation.matiere.actif %}
+
+                            <span class="small-status active">
+                                Active
+                            </span>
+
+                        {% else %}
+
+                            <span class="small-status inactive">
+                                Désactivée
+                            </span>
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         ACTIONS
+    ====================================================== -->
+
+    <div class="actions-card">
+
+
+        <a
+            href="{% url 'modifier_affectation_matiere' affectation.id %}"
+            class="btn btn-primary"
+        >
+            Modifier l'affectation
+        </a>
+
+
+        <a
+            href="{% url 'activer_desactiver_affectation_matiere' affectation.id %}"
+            class="btn
+            {% if affectation.actif %}
+                btn-danger
+            {% else %}
+                btn-success
+            {% endif %}"
+        >
+
+            {% if affectation.actif %}
+
+                Désactiver
+
+            {% else %}
+
+                Activer
+
+            {% endif %}
+
+        </a>
+
+
+    </div>
+
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,338 @@
+{% extends base_template %}
+{% load static %}
+
+
+{% block title %}
+    Gestion des matières
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/liste_matieres.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="matieres-page">
+
+
+    <!-- =====================================================
+         EN-TÊTE
+    ====================================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <a
+                href="{% url 'structure_academique' %}"
+                class="back-link"
+            >
+                ← Retour à la structure académique
+            </a>
+
+            <h1>
+                Gestion des matières
+            </h1>
+
+            <p>
+                Consultez et gérez les matières disponibles
+                dans l'établissement.
+            </p>
+
+        </div>
+
+
+        <a
+            href="{% url 'creer_matiere' %}"
+            class="btn btn-primary"
+        >
+            + Nouvelle matière
+        </a>
+
+        <a
+            href="{% url 'gestion_matieres_classes' %}"
+            class="btn btn-secondary"
+            style="background: #2563eb; color: white; margin-left: 10px;"
+        >
+            <i class="fas fa-th"></i> Gestion par classe
+        </a>
+
+    </div>
+
+
+    <!-- =====================================================
+         STATISTIQUES
+    ====================================================== -->
+
+    <div class="stats-grid">
+
+
+        <div class="stat-card">
+
+            <span class="stat-label">
+                Total des matières
+            </span>
+
+            <strong class="stat-value">
+                {{ total_matieres }}
+            </strong>
+
+        </div>
+
+
+        <div class="stat-card active-stat">
+
+            <span class="stat-label">
+                Matières actives
+            </span>
+
+            <strong class="stat-value">
+                {{ matieres_actives }}
+            </strong>
+
+        </div>
+
+
+        <div class="stat-card inactive-stat">
+
+            <span class="stat-label">
+                Matières désactivées
+            </span>
+
+            <strong class="stat-value">
+                {{ matieres_inactives }}
+            </strong>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         TABLEAU DES MATIÈRES
+    ====================================================== -->
+
+    <div class="content-card">
+
+
+        <div class="card-header">
+
+            <div>
+
+                <h2>
+                    Liste des matières
+                </h2>
+
+                <p>
+                    Catalogue des matières enregistrées
+                    dans le système.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        {% if matieres %}
+
+            <div class="table-container">
+
+                <table class="matieres-table">
+
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Code
+                            </th>
+
+                            <th>
+                                Matière
+                            </th>
+
+                            <th>
+                                Description
+                            </th>
+
+                            <th>
+                                Statut
+                            </th>
+
+                            <th class="actions-column">
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for matiere in matieres %}
+
+                            <tr>
+
+
+                                <!-- CODE -->
+
+                                <td>
+
+                                    <span class="matiere-code">
+                                        {{ matiere.code }}
+                                    </span>
+
+                                </td>
+
+
+                                <!-- LIBELLÉ -->
+
+                                <td>
+
+                                    <strong class="matiere-name">
+                                        {{ matiere.libelle }}
+                                    </strong>
+
+                                </td>
+
+
+                                <!-- DESCRIPTION -->
+
+                                <td class="description-cell">
+
+                                    {% if matiere.description %}
+
+                                        {{ matiere.description|truncatechars:80 }}
+
+                                    {% else %}
+
+                                        <span class="empty-text">
+                                            Aucune description
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- STATUT -->
+
+                                <td>
+
+                                    {% if matiere.actif %}
+
+                                        <span class="status active">
+                                            Active
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="status inactive">
+                                            Désactivée
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- ACTIONS -->
+
+                                <td class="actions">
+
+                                    <a
+                                        href="{% url 'detail_matiere' matiere.id %}"
+                                        class="action-link view"
+                                    >
+                                        Détails
+                                    </a>
+
+
+                                    <a
+                                        href="{% url 'modifier_matiere' matiere.id %}"
+                                        class="action-link edit"
+                                    >
+                                        Modifier
+                                    </a>
+
+
+                                    <a
+                                        href="{% url 'activer_desactiver_matiere' matiere.id %}"
+                                        class="action-link status-action"
+                                    >
+
+                                        {% if matiere.actif %}
+
+                                            Désactiver
+
+                                        {% else %}
+
+                                            Activer
+
+                                        {% endif %}
+
+                                    </a>
+
+                                </td>
+
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+
+                </table>
+
+            </div>
+
+
+        <!-- =================================================
+             AUCUNE MATIÈRE
+        ================================================== -->
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    <i class="fas fa-book"></i>
+                </div>
+
+                <h3>
+                    Aucune matière enregistrée
+                </h3>
+
+                <p>
+                    Commencez par créer les matières qui seront
+                    utilisées dans votre établissement.
+                </p>
+
+                <a
+                    href="{% url 'creer_matiere' %}"
+                    class="btn btn-primary"
+                >
+                    + Créer une matière
+                </a>
+
+            </div>
+
+        {% endif %}
+
+
+    </div>
+
+</div>
+
+{% endblock %}

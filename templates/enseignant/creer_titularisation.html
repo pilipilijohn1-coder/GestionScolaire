@@ -1,0 +1,437 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+Titularisation - Assigner un enseignant
+{% endblock %}
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/affectations/creer_enseignant.css' %}"
+>
+
+{% endblock %}
+{% block content %}
+
+<div class="page-container">
+
+    <!-- ================================================= -->
+    <!-- EN-TÊTE -->
+    <!-- ================================================= -->
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>
+                Assigner un titulaire de classe
+            </h1>
+
+            <p>
+                Sélectionnez l'année scolaire, la classe et l'enseignant à assigner comme titulaire.
+            </p>
+
+        </div>
+
+        <a
+            href="{% url 'dashboard_directeur' %}"
+            class="btn-retour"
+        >
+            Retour au tableau de bord
+        </a>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- MESSAGES DJANGO -->
+    <!-- ================================================= -->
+
+    {% if messages %}
+        <div class="messages-container" style="margin-bottom: 20px;">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}" style="padding: 12px 16px; border-radius: 8px; margin-bottom: 10px; {% if message.tags == 'success' %}background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0;{% elif message.tags == 'error' %}background: #fee2e2; color: #991b1b; border: 1px solid #fecaca;{% else %}background: #fef3c7; color: #92400e; border: 1px solid #fde68a;{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+
+    <!-- ================================================= -->
+    <!-- ERREURS GLOBALES -->
+    <!-- ================================================= -->
+
+    {% if form.errors %}
+        <div class="form-errors-global" style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <strong>Erreurs dans le formulaire :</strong>
+            <ul style="margin: 10px 0 0 0; padding-left: 20px;">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li><strong>{{ field|capfirst }}:</strong> {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+
+    <!-- ================================================= -->
+    <!-- FORMULAIRE -->
+    <!-- ================================================= -->
+
+    <form
+        method="post"
+        class="enseignant-form"
+    >
+
+        {% csrf_token %}
+
+
+        <!-- ============================================= -->
+        <!-- INFORMATIONS DE TITULARISATION -->
+        <!-- ============================================= -->
+
+        <section class="form-section">
+
+            <div class="section-header">
+
+                <h2>
+                    Informations de titularisation
+                </h2>
+
+                <p>
+                    Assigner un enseignant comme titulaire d'une classe pour l'année scolaire.
+                </p>
+
+            </div>
+
+
+            <div class="form-grid">
+
+
+                <!-- ANNEE SCOLAIRE -->
+
+                <div class="form-group">
+
+                    <label
+                        for="{{ form.annee.id_for_label }}"
+                    >
+                        {{ form.annee.label }}
+                    </label>
+
+                    {{ form.annee }}
+
+                    {% for error in form.annee.errors %}
+
+                        <div class="field-error">
+                            {{ error }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- CLASSE -->
+
+                <div class="form-group">
+
+                    <label
+                        for="{{ form.classe.id_for_label }}"
+                    >
+                        {{ form.classe.label }}
+                    </label>
+
+                    {{ form.classe }}
+
+                    {% for error in form.classe.errors %}
+
+                        <div class="field-error">
+                            {{ error }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- ENSEIGNANT -->
+
+                <div class="form-group">
+
+                    <label
+                        for="{{ form.enseignant.id_for_label }}"
+                    >
+                        {{ form.enseignant.label }}
+                    </label>
+
+                    {{ form.enseignant }}
+
+                    {% for error in form.enseignant.errors %}
+
+                        <div class="field-error">
+                            {{ error }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- ============================================= -->
+        <!-- BOUTONS -->
+        <!-- ============================================= -->
+
+        <div class="form-actions">
+
+            <a
+                href="{% url 'dashboard_directeur' %}"
+                class="btn-annuler"
+            >
+                Annuler
+            </a>
+
+
+            <button
+                type="submit"
+                class="btn-enregistrer"
+            >
+                Assigner le titulaire
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            // =================================================
+            // RÉCUPÉRATION DES CHAMPS
+            // =================================================
+
+            var anneeSelect =
+                document.getElementById("id_annee");
+
+            var classeSelect =
+                document.getElementById("id_classe");
+
+            var enseignantSelect =
+                document.getElementById("id_enseignant");
+
+            if (!anneeSelect || !classeSelect || !enseignantSelect) {
+                console.error(
+                    "Champs de titularisation introuvables."
+                );
+                return;
+            }
+
+            // Valeurs déjà envoyées, pour les conserver
+            // si le formulaire est réaffiché après une erreur.
+
+            var anneeCourante = anneeSelect.value || "";
+            var classeCourante = "{{ form.classe.value|default_if_none:'' }}";
+            var enseignantCourant = "{{ form.enseignant.value|default_if_none:'' }}";
+
+            // =================================================
+            // FONCTION : REMPLIR UN SELECT
+            // =================================================
+
+            function remplirSelect(
+                select,
+                messageVide,
+                elements,
+                cle,
+                libelle,
+                valeurSelectionnee
+            ) {
+
+                select.innerHTML = "";
+
+                var optionVide =
+                    document.createElement("option");
+
+                optionVide.value = "";
+                optionVide.textContent = messageVide;
+
+                select.appendChild(optionVide);
+
+                elements.forEach(
+                    function (element) {
+
+                        var option =
+                            document.createElement("option");
+
+                        option.value = element[cle];
+                        option.textContent = libelle(element);
+
+                        if (
+                            valeurSelectionnee
+                            && String(element[cle])
+                                === String(valeurSelectionnee)
+                        ) {
+                            option.selected = true;
+                        }
+
+                        select.appendChild(option);
+
+                    }
+                );
+
+            }
+
+            // =================================================
+            // FONCTION : CHARGER LES OPTIONS DE L'ANNÉE
+            // =================================================
+
+            function chargerOptions(anneeId) {
+
+                if (!anneeId) {
+
+                    remplirSelect(
+                        classeSelect,
+                        "Sélectionnez d'abord une année scolaire",
+                        [], "id", function (e) { return e.libelle; }, ""
+                    );
+
+                    remplirSelect(
+                        enseignantSelect,
+                        "Sélectionnez d'abord une année scolaire",
+                        [], "id", function (e) { return e.nom; }, ""
+                    );
+
+                    return;
+
+                }
+
+                remplirSelect(
+                    classeSelect,
+                    "Chargement des classes...",
+                    [], "id", function (e) { return e.libelle; }, ""
+                );
+
+                remplirSelect(
+                    enseignantSelect,
+                    "Chargement des enseignants...",
+                    [], "id", function (e) { return e.nom; }, ""
+                );
+
+                var url =
+                    "{% url 'ajax_options_titularisation' %}"
+                    + "?annee_id="
+                    + encodeURIComponent(anneeId);
+
+                fetch(url)
+
+                    .then(
+                        function (response) {
+
+                            if (!response.ok) {
+                                throw new Error(
+                                    "Erreur HTTP " + response.status
+                                );
+                            }
+
+                            return response.json();
+
+                        }
+                    )
+
+                    .then(
+                        function (data) {
+
+                            if (data.error) {
+                                console.error(data.error);
+                            }
+
+                            remplirSelect(
+                                classeSelect,
+                                "Sélectionnez une classe",
+                                data.classes || [],
+                                "id",
+                                function (classe) {
+                                    return classe.libelle
+                                        + " ("
+                                        + classe.code
+                                        + ")";
+                                },
+                                classeCourante
+                            );
+
+                            remplirSelect(
+                                enseignantSelect,
+                                "Sélectionnez un enseignant",
+                                data.enseignants || [],
+                                "id",
+                                function (enseignant) {
+                                    return enseignant.nom
+                                        + " - "
+                                        + enseignant.matricule;
+                                },
+                                enseignantCourant
+                            );
+
+                        }
+                    )
+
+                    .catch(
+                        function (error) {
+
+                            console.error(
+                                "Erreur chargement titularisation :",
+                                error
+                            );
+
+                            remplirSelect(
+                                classeSelect,
+                                "Erreur de chargement",
+                                [], "id", function (e) { return e.libelle; }, ""
+                            );
+
+                            remplirSelect(
+                                enseignantSelect,
+                                "Erreur de chargement",
+                                [], "id", function (e) { return e.nom; }, ""
+                            );
+
+                        }
+                    );
+
+            }
+
+            // =================================================
+            // CHANGEMENT D'ANNÉE SCOLAIRE
+            // =================================================
+
+            anneeSelect.addEventListener(
+                "change",
+                function () {
+                    chargerOptions(this.value);
+                }
+            );
+
+            // =================================================
+            // CHARGEMENT INITIAL
+            // =================================================
+
+            chargerOptions(anneeCourante);
+
+        }
+    );
+</script>
+{% endblock %}

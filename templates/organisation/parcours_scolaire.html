@@ -1,0 +1,883 @@
+{% extends base_template %}
+{% load static %}
+{% block title %}
+Parcours scolaire
+{% endblock %}
+{% block extra_css %}
+<style>
+    :root {
+        --org-primary: #2563eb;
+        --org-primary-dark: #1e40af;
+        --org-success: #16a34a;
+        --org-warning: #f59e0b;
+        --org-danger: #dc2626;
+        --org-bg: #f8fafc;
+        --org-border: #e2e8f0;
+        --org-text: #1e293b;
+        --org-text-secondary: #64748b;
+        --org-card-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+        --org-card-shadow-hover: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+    }
+
+    .parcours-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 16px 32px;
+    }
+
+    /* En-tête */
+    .parcours-header {
+        margin-bottom: 28px;
+    }
+
+    .parcours-header .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+
+    .header-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: #eef2ff;
+        color: #3730a3;
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 10px;
+    }
+
+    .parcours-header h1 {
+        margin: 0 0 10px;
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--org-text);
+        letter-spacing: -0.025em;
+    }
+
+    .header-description {
+        margin: 0;
+        color: var(--org-text-secondary);
+        font-size: 14px;
+        max-width: 720px;
+        line-height: 1.6;
+    }
+
+    .header-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        background: #eef2ff;
+        color: var(--org-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        flex-shrink: 0;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+
+    /* Sélecteur d'année */
+    .annee-selector {
+        background: #ffffff;
+        border: 1px solid var(--org-border);
+        border-radius: 14px;
+        padding: 20px 24px;
+        margin-bottom: 28px;
+        box-shadow: var(--org-card-shadow);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .annee-selector label {
+        font-weight: 600;
+        color: var(--org-text);
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    .annee-selector select {
+        padding: 10px 16px;
+        border: 1px solid var(--org-border);
+        border-radius: 8px;
+        font-size: 14px;
+        background: #ffffff;
+        color: var(--org-text);
+        min-width: 280px;
+        cursor: pointer;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .annee-selector select:focus {
+        outline: none;
+        border-color: var(--org-primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .annee-selector .annee-info {
+        margin-left: auto;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .annee-info-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        background: #f8fafc;
+        border: 1px solid var(--org-border);
+        border-radius: 999px;
+        font-size: 13px;
+        color: var(--org-text-secondary);
+    }
+
+    .annee-info-item strong {
+        color: var(--org-text);
+    }
+
+    /* Barre de temps actuelle */
+    .temps-actuel {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin-bottom: 28px;
+    }
+
+    .temps-card {
+        background: #ffffff;
+        border: 1px solid var(--org-border);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: var(--org-card-shadow);
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .temps-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .temps-card:hover::before {
+        opacity: 1;
+    }
+
+    .temps-card.jour::before { background: var(--org-primary); }
+    .temps-card.semaine::before { background: var(--org-warning); }
+    .temps-card.mois::before { background: var(--org-success); }
+    .temps-card.annee::before { background: var(--org-danger); }
+
+    .temps-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--org-card-shadow-hover);
+        border-color: transparent;
+    }
+
+    .temps-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        flex-shrink: 0;
+    }
+
+    .temps-card.jour .temps-icon { background: #eef2ff; color: var(--org-primary); }
+    .temps-card.semaine .temps-icon { background: #fef3c7; color: var(--org-warning); }
+    .temps-card.mois .temps-icon { background: #dcfce7; color: var(--org-success); }
+    .temps-card.annee .temps-icon { background: #fee2e2; color: var(--org-danger); }
+
+    .temps-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .temps-label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--org-text-secondary);
+        margin-bottom: 4px;
+    }
+
+    .temps-value {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--org-text);
+        line-height: 1.3;
+        margin-bottom: 2px;
+    }
+
+    .temps-detail {
+        font-size: 13px;
+        color: var(--org-text-secondary);
+        line-height: 1.5;
+    }
+
+    .temps-detail span {
+        color: var(--org-text);
+        font-weight: 500;
+    }
+
+    /* Parcours - Structure par niveaux */
+    .parcours-section {
+        margin-bottom: 32px;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .section-title h2 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--org-text);
+    }
+
+    .section-badge {
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .badge-ecole-base { background: #dcfce7; color: #166534; }
+    .badge-secondaire { background: #eef2ff; color: #3730a3; }
+
+    .section-stats {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        color: var(--org-text-secondary);
+        font-size: 13px;
+    }
+
+    .section-stats strong {
+        color: var(--org-text);
+    }
+
+    /* Grille des niveaux */
+    .niveaux-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 20px;
+    }
+
+    .niveau-card {
+        background: #ffffff;
+        border: 1px solid var(--org-border);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: var(--org-card-shadow);
+        transition: all 0.2s ease;
+    }
+
+    .niveau-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--org-card-shadow-hover);
+        border-color: var(--org-primary);
+    }
+
+    .niveau-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--org-border);
+    }
+
+    .niveau-info h3 {
+        margin: 0 0 4px;
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--org-text);
+    }
+
+    .niveau-ordre {
+        font-size: 12px;
+        color: var(--org-text-secondary);
+        font-weight: 500;
+    }
+
+    .niveau-count {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: #f8fafc;
+        border: 1px solid var(--org-border);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .niveau-count .count-number {
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--org-primary);
+        line-height: 1;
+    }
+
+    .niveau-count .count-label {
+        font-size: 10px;
+        color: var(--org-text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .sections-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .section-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        background: #f8fafc;
+        border: 1px solid var(--org-border);
+        border-radius: 10px;
+        transition: all 0.15s ease;
+    }
+
+    .section-item:hover {
+        background: #eef2ff;
+        border-color: var(--org-primary);
+    }
+
+    .section-name {
+        font-weight: 600;
+        color: var(--org-text);
+        font-size: 14px;
+    }
+
+    .section-count {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+    }
+
+    .section-count-badge {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        background: var(--org-primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 12px;
+    }
+
+    .section-count-text {
+        color: var(--org-text-secondary);
+    }
+
+    /* Vue détaillée d'un niveau */
+    .niveau-detail-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 16px;
+        padding: 10px 16px;
+        background: #eef2ff;
+        color: var(--org-primary);
+        border: 1px solid #c7d2fe;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 13px;
+        text-decoration: none;
+        transition: all 0.15s ease;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .niveau-detail-btn:hover {
+        background: var(--org-primary);
+        color: white;
+    }
+
+    /* Résumé global */
+    .resume-global {
+        background: linear-gradient(135deg, var(--org-primary), var(--org-primary-dark));
+        border-radius: 16px;
+        padding: 28px;
+        color: white;
+        margin-top: 16px;
+    }
+
+    .resume-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .resume-header h2 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 700;
+    }
+
+    .resume-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+
+    .resume-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .resume-label {
+        font-size: 13px;
+        opacity: 0.8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .resume-value {
+        font-size: 28px;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+    /* État vide */
+    .empty-state {
+        text-align: center;
+        padding: 48px 24px;
+        color: var(--org-text-secondary);
+    }
+
+    .empty-state i {
+        font-size: 48px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+
+    .empty-state h3 {
+        margin: 0 0 8px;
+        color: var(--org-text);
+        font-size: 18px;
+    }
+
+    .empty-state p {
+        margin: 0;
+        font-size: 14px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .parcours-container {
+            padding: 0 12px 24px;
+        }
+
+        .parcours-header h1 {
+            font-size: 22px;
+        }
+
+        .annee-selector {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .annee-selector select {
+            width: 100%;
+        }
+
+        .annee-info {
+            justify-content: center !important;
+        }
+
+        .temps-actuel {
+            grid-template-columns: 1fr;
+        }
+
+        .niveaux-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .section-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .resume-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .resume-value {
+            font-size: 22px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .resume-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+{% block content %}
+
+<div class="parcours-container">
+
+    <!-- ================================================ -->
+    <!-- EN-TÊTE -->
+    <!-- ================================================ -->
+    <section class="parcours-header">
+        <div class="header-content">
+            <div>
+                <p class="header-badge">ORGANISATION SCOLAIRE</p>
+                <h1>Parcours scolaire</h1>
+                <p class="header-description">
+                    Visualisez la structure pédagogique de l'établissement,
+                    les effectifs par niveau et section, avec la situation
+                    temporelle actuelle (jour, semaine, mois, année).
+                </p>
+            </div>
+            <div class="header-icon">
+                <i class="fas fa-road"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================ -->
+    <!-- SÉLECTEUR D'ANNÉE -->
+    <!-- ================================================ -->
+    <section class="annee-selector">
+        <label for="annee-select">Année scolaire :</label>
+        <select id="annee-select" onchange="changerAnnee(this.value)">
+            {% for annee in annees %}
+                <option value="{{ annee.id }}" {% if annee_active and annee.id == annee_active.id %}selected{% endif %}>
+                    {{ annee.libelle }} ({{ annee.date_debut|date:"d/m/Y" }} - {{ annee.date_fin|date:"d/m/Y" }})
+                </option>
+            {% empty %}
+                <option value="">Aucune année scolaire configurée</option>
+            {% endfor %}
+        </select>
+        <div class="annee-info">
+            <div class="annee-info-item">
+                <i class="fas fa-calendar-day"></i>
+                <span>Jour : <strong>{{ aujourd_hui|date:"l d F Y" }}</strong></span>
+            </div>
+            <div class="annee-info-item">
+                <i class="fas fa-calendar-week"></i>
+                <span>Semaine : <strong>{{ debut_semaine|date:"d/m" }} - {{ fin_semaine|date:"d/m/Y" }}</strong></span>
+            </div>
+            <div class="annee-info-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Mois : <strong>{{ debut_mois|date:"F Y" }}</strong></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================ -->
+    <!-- BARRE DE TEMPS ACTUELLE -->
+    <!-- ================================================ -->
+    <section class="temps-actuel">
+        <!-- Jour -->
+        <div class="temps-card jour">
+            <div class="temps-icon">
+                <i class="fas fa-sun"></i>
+            </div>
+            <div class="temps-content">
+                <div class="temps-label">Jour actuel</div>
+                <div class="temps-value">{{ aujourd_hui|date:"l d F Y" }}</div>
+                <div class="temps-detail">
+                    Jour <span>{{ aujourd_hui|date:"j" }}</span> du mois,
+                    jour <span>{{ aujourd_hui|date:"w" }}</span> de la semaine
+                </div>
+            </div>
+        </div>
+
+        <!-- Semaine en cours -->
+        <div class="temps-card semaine">
+            <div class="temps-icon">
+                <i class="fas fa-calendar-week"></i>
+            </div>
+            <div class="temps-content">
+                <div class="temps-label">Semaine en cours</div>
+                <div class="temps-value">Semaine {{ aujourd_hui|date:"W" }}</div>
+                <div class="temps-detail">
+                    Du <span>{{ debut_semaine|date:"d/m" }}</span>
+                    au <span>{{ fin_semaine|date:"d/m/Y" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mois en cours -->
+        <div class="temps-card mois">
+            <div class="temps-icon">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="temps-content">
+                <div class="temps-label">Mois en cours</div>
+                <div class="temps-value">{{ debut_mois|date:"F Y" }}</div>
+                <div class="temps-detail">
+                    <span>{{ debut_mois|date:"d/m" }}</span> - <span>{{ fin_mois|date:"d/m/Y" }}</span>
+                    ({{ fin_mois|date:"j" }} jours)
+                </div>
+            </div>
+        </div>
+
+        <!-- Année scolaire active -->
+        <div class="temps-card annee">
+            <div class="temps-icon">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <div class="temps-content">
+                <div class="temps-label">Année scolaire active</div>
+                <div class="temps-value">
+                    {% if annee_active %}
+                        {{ annee_active.libelle }}
+                    {% else %}
+                        Aucune
+                    {% endif %}
+                </div>
+                <div class="temps-detail">
+                    {% if annee_active %}
+                        {{ annee_active.date_debut|date:"d/m/Y" }} - {{ annee_active.date_fin|date:"d/m/Y" }}
+                    {% else %}
+                        Aucune année ne correspond à la date actuelle
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================ -->
+    <!-- PARCOURS - ÉCOLE DE BASE -->
+    <!-- ================================================ -->
+    <section class="parcours-section">
+        <div class="section-header">
+            <div class="section-title">
+                <i class="fas fa-seedling" style="color: var(--org-success); font-size: 20px;"></i>
+                <h2>École de base</h2>
+                <span class="section-badge badge-ecole-base">Primaire / Fondamental</span>
+            </div>
+            <div class="section-stats">
+                <span><strong>{{ total_base }}</strong> élèves inscrits</span>
+                <span><strong>{{ total_inscriptions_actives }}</strong> inscriptions actives</span>
+            </div>
+        </div>
+
+        {% if niveaux_ecole_base_data %}
+            <div class="niveaux-grid">
+                {% for item in niveaux_ecole_base_data %}
+                    <div class="niveau-card">
+                        <div class="niveau-header">
+                            <div class="niveau-info">
+                                <h3>{{ item.niveau.libelle }}</h3>
+                                <div class="niveau-ordre">Ordre : {{ item.niveau.ordre }}</div>
+                            </div>
+                            <div class="niveau-count">
+                                <span class="count-number">{{ item.count }}</span>
+                                <span class="count-label">élèves</span>
+                            </div>
+                        </div>
+
+                        <div class="sections-list">
+                            {% if item.sections %}
+                                {% for section in item.sections %}
+                                    <div class="section-item">
+                                        <span class="section-name">{{ section.nom }}</span>
+                                        <div class="section-count">
+                                            <span class="section-count-badge">{{ section.count }}</span>
+                                            <span class="section-count-text">élèves</span>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="section-item" style="justify-content: center; color: var(--org-text-secondary);">
+                                    Aucune inscription pour ce niveau
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <a href="#" class="niveau-detail-btn">
+                            <i class="fas fa-arrow-right"></i>
+                            Voir le détail
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-seedling"></i>
+                <h3>Aucun niveau configuré</h3>
+                <p>Ajoutez des niveaux avec "est_ecole_base = vrai" dans la structure académique.</p>
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- ================================================ -->
+    <!-- PARCOURS - SECONDAIRE -->
+    <!-- ================================================ -->
+    <section class="parcours-section">
+        <div class="section-header">
+            <div class="section-title">
+                <i class="fas fa-building" style="color: var(--org-primary); font-size: 20px;"></i>
+                <h2>Secondaire</h2>
+                <span class="section-badge badge-secondaire">Secondaire / Spécialisé</span>
+            </div>
+            <div class="section-stats">
+                <span><strong>{{ total_secondaire }}</strong> élèves inscrits</span>
+                <span><strong>{{ sections.count }}</strong> section(s) disponible(s)</span>
+            </div>
+        </div>
+
+        {% if niveaux_secondaire_data %}
+            <div class="niveaux-grid">
+                {% for item in niveaux_secondaire_data %}
+                    <div class="niveau-card">
+                        <div class="niveau-header">
+                            <div class="niveau-info">
+                                <h3>{{ item.niveau.libelle }}</h3>
+                                <div class="niveau-ordre">Ordre : {{ item.niveau.ordre }}</div>
+                            </div>
+                            <div class="niveau-count">
+                                <span class="count-number">{{ item.count }}</span>
+                                <span class="count-label">élèves</span>
+                            </div>
+                        </div>
+
+                        <div class="sections-list">
+                            {% if item.sections %}
+                                {% for section in item.sections %}
+                                    <div class="section-item">
+                                        <span class="section-name">{{ section.nom }}</span>
+                                        <div class="section-count">
+                                            <span class="section-count-badge">{{ section.count }}</span>
+                                            <span class="section-count-text">élèves</span>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="section-item" style="justify-content: center; color: var(--org-text-secondary);">
+                                    Aucune inscription pour ce niveau
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <a href="#" class="niveau-detail-btn">
+                            <i class="fas fa-arrow-right"></i>
+                            Voir le détail
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-building"></i>
+                <h3>Aucun niveau secondaire configuré</h3>
+                <p>Ajoutez des niveaux avec "est_ecole_base = faux" dans la structure académique.</p>
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- ================================================ -->
+    <!-- RÉSUMÉ GLOBAL -->
+    <!-- ================================================ -->
+    <section class="resume-global">
+        <div class="resume-header">
+            <h2><i class="fas fa-chart-pie"></i> Résumé de l'année {{ annee_active.libelle|default:"en cours" }}</h2>
+            {% if annee_active %}
+                <span style="opacity: 0.8; font-size: 14px;">{{ annee_active.date_debut|date:"d/m/Y" }} - {{ annee_active.date_fin|date:"d/m/Y" }}</span>
+            {% endif %}
+        </div>
+        <div class="resume-grid">
+            <div class="resume-item">
+                <span class="resume-label">Total élèves inscrits</span>
+                <span class="resume-value">{{ total_inscriptions_actives }}</span>
+            </div>
+            <div class="resume-item">
+                <span class="resume-label">Total élèves (base)</span>
+                <span class="resume-value">{{ total_eleves }}</span>
+            </div>
+            <div class="resume-item">
+                <span class="resume-label">Élèves école de base</span>
+                <span class="resume-value">{{ total_base }}</span>
+            </div>
+            <div class="resume-item">
+                <span class="resume-label">Élèves secondaire</span>
+                <span class="resume-value">{{ total_secondaire }}</span>
+            </div>
+            <div class="resume-item">
+                <span class="resume-label">Sections actives</span>
+                <span class="resume-value">{{ sections.count }}</span>
+            </div>
+            <div class="resume-item">
+                <span class="resume-label">Semaine actuelle</span>
+                <span class="resume-value">{{ aujourd_hui|date:"W" }}</span>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<script>
+    function changerAnnee(anneeId) {
+        if (anneeId) {
+            window.location.href = "{% url 'parcours_scolaire' %}?annee_id=" + anneeId;
+        }
+    }
+
+    // Mise à jour automatique de l'heure
+    function updateTime() {
+        const now = new Date();
+        // Pourrait être étendu pour mise à jour en temps réel si nécessaire
+    }
+
+    // Initialisation
+    document.addEventListener('DOMContentLoaded', function() {
+        updateTime();
+    });
+</script>
+
+{% endblock %}

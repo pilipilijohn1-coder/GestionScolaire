@@ -1,0 +1,331 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+    Gestion des sections
+{% endblock %}
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/liste_sections.css' %}"
+>
+{% endblock %}
+
+{% block content %}
+
+<div class="liste-sections">
+
+    <!-- ================================================== -->
+    <!-- EN-TÊTE -->
+    <!-- ================================================== -->
+
+    <div class="page-header">
+
+        <div>
+            <h1>Gestion des sections</h1>
+
+            <p>
+                Gérez les différentes sections et options
+                de l'établissement.
+            </p>
+        </div>
+
+
+        <div class="header-actions">
+
+            <a
+                href="{% url 'structure_academique' %}"
+                class="btn btn-secondary"
+            >
+                Retour
+            </a>
+
+            <a
+                href="{% url 'creer_section' %}"
+                class="btn btn-primary"
+            >
+                Nouvelle section
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- RECHERCHE -->
+    <!-- ================================================== -->
+
+    <div class="search-card">
+
+        <form
+            method="get"
+            class="search-form"
+        >
+
+            <div class="search-group">
+
+                <input
+                    type="text"
+                    name="q"
+                    value="{{ recherche }}"
+                    placeholder="Rechercher par code ou libellé..."
+                >
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Rechercher
+                </button>
+
+            </div>
+
+
+            {% if recherche %}
+
+                <a
+                    href="{% url 'liste_sections' %}"
+                    class="reset-search"
+                >
+                    Réinitialiser
+                </a>
+
+            {% endif %}
+
+        </form>
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- TABLEAU DES SECTIONS -->
+    <!-- ================================================== -->
+
+    <div class="table-card">
+
+        <div class="table-header">
+
+            <div>
+
+                <h2>
+                    Liste des sections
+                </h2>
+
+                <p>
+                    {{ sections|length }}
+                    section{{ sections|length|pluralize }}
+                    affichée{{ sections|length|pluralize }}
+                </p>
+
+            </div>
+
+        </div>
+
+
+        {% if sections %}
+
+            <div class="table-responsive">
+
+                <table class="sections-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                #
+                            </th>
+
+                            <th>
+                                Code
+                            </th>
+
+                            <th>
+                                Libellé
+                            </th>
+
+                            <th>
+                                Statut
+                            </th>
+
+                            <th class="actions-column">
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for section in sections %}
+
+                            <tr>
+
+                                <td>
+                                    {{ forloop.counter }}
+                                </td>
+
+
+                                <td>
+
+                                    <span class="section-code">
+
+                                        {{ section.code }}
+
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <strong>
+                                        {{ section.libelle }}
+                                    </strong>
+
+                                </td>
+
+
+                                <td>
+
+                                    {% if section.actif %}
+
+                                        <span
+                                            class="status status-active"
+                                        >
+                                            Active
+                                        </span>
+
+                                    {% else %}
+
+                                        <span
+                                            class="status status-inactive"
+                                        >
+                                            Désactivée
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+
+                                    <div class="table-actions">
+
+                                        <!-- MODIFIER -->
+
+                                        <a
+                                            href="{% url 'detail_section' section.id %}"
+                                            class="action-btn action-edit"
+                                            title="Modifier"
+                                        >
+                                            Détail
+                                        </a>
+
+
+                                        <!-- ACTIVER / DÉSACTIVER -->
+
+                                        {% if section.actif %}
+
+                                            <a
+                                                href="#"
+                                                class="action-btn action-danger"
+                                                title="Désactiver"
+                                            >
+                                                Désactiver
+                                            </a>
+
+                                        {% else %}
+
+                                            <form
+                                                method="post"
+                                                action="{% url 'activer_desactiver_section' section.id %}"
+                                            >
+                                                {% csrf_token %}
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-success"
+                                                >
+                                                    Activer
+                                                </button>
+
+                                            </form>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+        {% else %}
+
+            <!-- ========================================== -->
+            <!-- AUCUNE SECTION -->
+            <!-- ========================================== -->
+
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    🏫
+                </div>
+
+                <h3>
+                    Aucune section trouvée
+                </h3>
+
+                {% if recherche %}
+
+                    <p>
+                        Aucune section ne correspond à votre
+                        recherche.
+                    </p>
+
+                    <a
+                        href="{% url 'liste_sections' %}"
+                        class="btn btn-secondary"
+                    >
+                        Voir toutes les sections
+                    </a>
+
+                {% else %}
+
+                    <p>
+                        Commencez par créer la première section
+                        de l'établissement.
+                    </p>
+
+                    <a
+                        href="{% url 'creer_section' %}"
+                        class="btn btn-primary"
+                    >
+                        Créer une section
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

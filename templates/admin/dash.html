@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+  <style>
+    .dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.sidebar {
+  width: 230px;
+  background: #1f2937;
+  color: white;
+  padding: 20px;
+}
+
+.sidebar h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar ul li {
+  margin: 15px 0;
+}
+
+.sidebar ul li a {
+  color: white;
+  text-decoration: none;
+  display: block;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background 0.3s;
+}
+
+.sidebar ul li a:hover {
+  background: #374151;
+}
+
+.dashboard-main {
+  flex: 1;
+  background: #f3f4f6;
+  padding: 20px;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.card h3 {
+  margin-bottom: 10px;
+}
+
+.card.blue { border-top: 5px solid #2563eb; }
+.card.green { border-top: 5px solid #22c55e; }
+.card.orange { border-top: 5px solid #f97316; }
+.card.red { border-top: 5px solid #ef4444; }
+
+.charts-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.chart {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.info-section {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.info-section div {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.info-section h3 {
+  margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+  .stats-cards, .charts-section, .info-section {
+    grid-template-columns: 1fr;
+  }
+}
+  </style>
+</head>
+
+<body>
+<div class="dashboard-container">
+  <aside class="sidebar">
+    <h2>Gestion Scolaire</h2>
+    <ul>
+      <li><a href="#">🏠 Tableau de Bord</a></li>
+      <li><a href="#">👨‍🎓 Élèves</a></li>
+      <li><a href="#">👩‍🏫 Enseignants</a></li>
+      <li><a href="#">🏫 Classes</a></li>
+      <li><a href="#">🧮 Examens</a></li>
+      <li><a href="#">📅 Présences</a></li>
+      <li><a href="#">💰 Paiements</a></li>
+      <li><a href="#">⚙️ Administration</a></li>
+    </ul>
+  </aside>
+  
+  <main class="dashboard-main">
+    <header class="dashboard-header">
+      <h1>Tableau de Bord - Gestion Scolaire</h1>
+      <div class="user-info">
+        <span class="notification">🔔</span>
+        <span class="user">Admin</span>
+      </div>
+    </header>
+    
+    <section class="stats-cards">
+      <div class="card blue">
+        <h3>Total Élèves</h3>
+        <p>850</p>
+      </div>
+      <div class="card green">
+        <h3>Total Enseignants</h3>
+        <p>45</p>
+      </div>
+      <div class="card orange">
+        <h3>Classes Actives</h3>
+        <p>28</p>
+      </div>
+      <div class="card red">
+        <h3>Paiements du Mois</h3>
+        <p>12 450 €</p>
+      </div>
+    </section>
+    
+    <section class="charts-section">
+      <div class="chart presences">
+        <h3>Statistiques des Présences</h3>
+        <canvas id="presenceChart"></canvas>
+      </div>
+      <div class="chart moyennes">
+        <h3>Moyennes des Classes</h3>
+        <canvas id="moyenneChart"></canvas>
+      </div>
+    </section>
+    
+    <section class="info-section">
+      <div class="notes">
+        <h3>Dernières Notes</h3>
+        <ul>
+          <li>Duval Pierre — Mathématiques : 16.5</li>
+          <li>Lefevre Emma — Histoire : 14.0</li>
+          <li>Martin Lucas — Physique : 17.2</li>
+        </ul>
+      </div>
+      <div class="events">
+        <h3>Événements à Venir</h3>
+        <ul>
+          <li>Examen de Sciences — 24 Mai 2024</li>
+          <li>Réunion Parents — 27 Mai 2024</li>
+          <li>Sortie Scolaire — 02 Juin 2024</li>
+        </ul>
+      </div>
+      <div class="annonces">
+        <h3>Annonces</h3>
+        <ul>
+          <li>Bulletins du semestre disponibles</li>
+          <li>Rappel : Paiement avant le 30 juin</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx1 = document.getElementById('presenceChart');
+  new Chart(ctx1, {
+    type: 'pie',
+    data: {
+      labels: ['Présents', 'Absents', 'Retards'],
+      datasets: [{
+        data: [78, 15, 7],
+        backgroundColor: ['#22c55e', '#ef4444', '#facc15']
+      }]
+    }
+  });
+  
+  const ctx2 = document.getElementById('moyenneChart');
+  new Chart(ctx2, {
+    type: 'line',
+    data: {
+      labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'],
+      datasets: [
+        { label: '3e Année', data: [12, 13, 14, 13.5, 14, 13.8], borderColor: '#2563eb', fill: false },
+        { label: '2nde Année', data: [11, 12, 12.5, 13, 13.2, 13.5], borderColor: '#9333ea', fill: false }
+      ]
+    }
+  });
+</script>
+
+</body>
+
+</html>

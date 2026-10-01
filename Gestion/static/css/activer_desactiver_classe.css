@@ -1,0 +1,344 @@
+/* ============================================================
+   PAGE : ACTIVATION / DÉSACTIVATION D'UNE CLASSE
+   ============================================================ */
+
+.status-page {
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 40px 25px;
+}
+
+
+/* ============================================================
+   LIEN DE RETOUR
+   ============================================================ */
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+
+    color: #2563eb;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+
+/* ============================================================
+   CARTE PRINCIPALE
+   ============================================================ */
+
+.status-card {
+    padding: 35px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+
+    box-shadow:
+        0 4px 18px
+        rgba(0, 0, 0, 0.06);
+}
+
+
+/* ============================================================
+   ICÔNE DU STATUT
+   ============================================================ */
+
+.status-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 58px;
+    height: 58px;
+
+    margin-bottom: 20px;
+
+    border-radius: 50%;
+
+    font-size: 28px;
+    font-weight: 700;
+}
+
+
+/* DÉSACTIVATION */
+
+.status-icon.warning {
+    color: #92400e;
+    background: #fef3c7;
+}
+
+
+/* ACTIVATION */
+
+.status-icon.success {
+    color: #166534;
+    background: #dcfce7;
+}
+
+
+/* ============================================================
+   TITRE ET DESCRIPTION
+   ============================================================ */
+
+.status-card h1 {
+    margin: 0 0 12px;
+
+    color: #111827;
+
+    font-size: 25px;
+    font-weight: 700;
+}
+
+.status-description {
+    margin: 0 0 28px;
+
+    color: #6b7280;
+
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.status-description strong {
+    color: #1f2937;
+}
+
+
+/* ============================================================
+   INFORMATIONS DE LA CLASSE
+   ============================================================ */
+
+.classe-information {
+    margin-bottom: 22px;
+
+    overflow: hidden;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 9px;
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 15px 18px;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-row span {
+    color: #6b7280;
+
+    font-size: 13px;
+}
+
+.info-row strong {
+    color: #1f2937;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    text-align: right;
+}
+
+
+/* ============================================================
+   MESSAGE D'AVERTISSEMENT
+   ============================================================ */
+
+.warning-box {
+    margin-bottom: 28px;
+    padding: 16px 18px;
+
+    color: #854d0e;
+    background: #fffbeb;
+
+    border-left:
+        4px solid #f59e0b;
+
+    border-radius: 7px;
+
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.warning-box strong {
+    color: #92400e;
+}
+
+
+/* ============================================================
+   MESSAGE D'ACTIVATION
+   ============================================================ */
+
+.success-box {
+    margin-bottom: 28px;
+    padding: 16px 18px;
+
+    color: #166534;
+    background: #f0fdf4;
+
+    border-left:
+        4px solid #22c55e;
+
+    border-radius: 7px;
+
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.success-box strong {
+    color: #166534;
+}
+
+
+/* ============================================================
+   ACTIONS
+   ============================================================ */
+
+.action-buttons {
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 12px;
+}
+
+
+/* ============================================================
+   STYLE GÉNÉRAL DES BOUTONS
+   ============================================================ */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 44px;
+
+    padding: 10px 20px;
+
+    border: none;
+    border-radius: 7px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease,
+        box-shadow 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+
+/* ============================================================
+   BOUTON ANNULER
+   ============================================================ */
+
+.btn-cancel {
+    color: #374151;
+    background: #e5e7eb;
+}
+
+.btn-cancel:hover {
+    background: #d1d5db;
+}
+
+
+/* ============================================================
+   BOUTON DÉSACTIVER
+   ============================================================ */
+
+.btn-warning {
+    color: #ffffff;
+    background: #d97706;
+
+    box-shadow:
+        0 4px 10px
+        rgba(217, 119, 6, 0.15);
+}
+
+.btn-warning:hover {
+    background: #b45309;
+}
+
+
+/* ============================================================
+   BOUTON ACTIVER
+   ============================================================ */
+
+.btn-success {
+    color: #ffffff;
+    background: #16a34a;
+
+    box-shadow:
+        0 4px 10px
+        rgba(22, 163, 74, 0.15);
+}
+
+.btn-success:hover {
+    background: #15803d;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media screen and (max-width: 600px) {
+
+    .status-page {
+        padding: 20px 15px;
+    }
+
+    .status-card {
+        padding: 25px 20px;
+    }
+
+    .status-card h1 {
+        font-size: 22px;
+    }
+
+    .info-row {
+        align-items: flex-start;
+        flex-direction: column;
+
+        gap: 6px;
+    }
+
+    .info-row strong {
+        text-align: left;
+    }
+
+    .action-buttons {
+        flex-direction: column-reverse;
+    }
+
+    .action-buttons .btn {
+        width: 100%;
+    }
+
+}

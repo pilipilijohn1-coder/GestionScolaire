@@ -1,0 +1,190 @@
+{% extends base_template %}
+
+{% load static %}
+
+{% block title %}
+    Nouvel utilisateur
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/formul.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="users-page">
+
+
+    <div class="users-header">
+
+        <div>
+
+            <h1>Nouvel utilisateur</h1>
+
+            
+
+        </div>
+
+    </div>
+
+
+    <div class="users-card">
+        
+        <form method="post">
+
+            {% csrf_token %}
+
+
+            <div style="padding: 25px;">
+
+
+                <h3>Informations personnelles</h3><br>
+
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <input type="text" id="nom" name="nom" placeholder=" " required>
+                        <label for="nom">Nom </label>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <input type="text" id="postnom" name="postnom" placeholder=" " required>
+                        <label for="postnom">Postnom</label>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <input type="text" id="prenom" name="prenom" placeholder=" " required>
+                        <label for="prenom">Prenom</label>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <input type="email" id="email" name="email" placeholder=" " required>
+                        <label for="email">Email</label>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <input type="number" id="telephone" name="telephone" placeholder=" " required>
+                        <label for="telephone">Téléphone</label>
+
+                    </div>
+
+                </div> <br>
+
+
+                <hr>
+
+
+                <h3>Compte de connexion</h3>
+
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <input type="text" id="login" name="login" placeholder=" " required>
+                        <label for="login">Login</label>
+
+                    </div>
+
+
+                    <div class="form-group">
+                        <input type="password" id="password" name="mot_de_passe" placeholder=" " required>
+                        <label for="password">Mot de passe</label>
+                        <span class="toggle-password" onclick="togglePassword()">👁️</span>
+                    </div>
+
+                </div>
+<br>
+
+                <hr>
+
+
+                <h3>Rôle</h3>
+
+
+                <div class="form-group">
+
+                    
+
+                    <select name="role" class="role" name="role_id">
+
+                        <option value="" >
+                            -- Aucun rôle --
+                        </option>
+
+                        {% for role in roles %}
+
+                        <option value="{{ role.id }}">
+
+                            {{ role.libelle }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <div style="margin-top: 25px;">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Créer l'utilisateur
+                    </button>
+
+
+                    <a
+                        href="{% url 'liste_utilisateurs' %}"
+                        class="btn btn-secondary"
+                    >
+                        Annuler
+                    </a>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+<script>
+    function togglePassword() {
+      const input = document.getElementById("password");
+      const icon = document.getElementById("toggleIcon");
+      if (input.type === "password") {
+        input.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+      } else {
+        input.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+      }
+    }
+  </script>
+{% endblock %}

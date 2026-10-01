@@ -1,0 +1,482 @@
+{% extends base_template %}
+{% load static %}
+
+
+{% block title %}
+    Modifier une classe
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/modifier_classe.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="classe-form-page">
+
+
+    <!-- =====================================================
+         EN-TÊTE
+    ====================================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <a
+                href="{% url 'detail_classe' classe.id %}"
+                class="back-link"
+            >
+                ← Retour aux détails
+            </a>
+
+            <h1>Modifier la classe</h1>
+
+            <p>
+                Modifiez les informations de la classe
+                <strong>{{ classe.libelle }}</strong>.
+            </p>
+
+        </div>
+
+
+        {% if classe.actif %}
+
+            <span class="status active">
+                ● Classe active
+            </span>
+
+        {% else %}
+
+            <span class="status inactive">
+                ● Classe désactivée
+            </span>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- =====================================================
+         FORMULAIRE
+    ====================================================== -->
+
+    <form
+        method="post"
+        class="classe-form"
+    >
+
+        {% csrf_token %}
+
+
+        <!-- =================================================
+             ERREURS GÉNÉRALES
+        ================================================== -->
+
+        {% if form.non_field_errors %}
+
+            <div class="form-errors">
+
+                {% for error in form.non_field_errors %}
+
+                    <p>{{ error }}</p>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+
+        <!-- =================================================
+             STRUCTURE ACADÉMIQUE
+        ================================================== -->
+
+        <div class="form-card">
+
+            <div class="card-header">
+
+                <h2>
+                    Structure académique
+                </h2>
+
+                <p>
+                    Modifiez la position de la classe
+                    dans la structure académique.
+                </p>
+
+            </div>
+
+
+            <div class="form-grid">
+
+
+                <!-- ANNÉE -->
+
+                <div class="form-group">
+
+                    <label for="{{ form.annee.id_for_label }}">
+
+                        Année scolaire
+                        <span class="required">*</span>
+
+                    </label>
+
+                    {{ form.annee }}
+
+                    {% if form.annee.errors %}
+
+                        <div class="field-error">
+
+                            {% for error in form.annee.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- NIVEAU -->
+
+                <div class="form-group">
+
+                    <label for="{{ form.niveau.id_for_label }}">
+
+                        Niveau
+                        <span class="required">*</span>
+
+                    </label>
+
+                    {{ form.niveau }}
+
+                    {% if form.niveau.errors %}
+
+                        <div class="field-error">
+
+                            {% for error in form.niveau.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- SECTION -->
+
+                <div
+                    class="form-group"
+                    id="section-group"
+                >
+
+                    <label for="{{ form.section.id_for_label }}">
+
+                        Section
+
+                        <span
+                            class="required"
+                            id="section-required"
+                        >
+                            *
+                        </span>
+
+                    </label>
+
+                    {{ form.section }}
+
+                    <small
+                        class="field-help"
+                        id="section-help"
+                    >
+                        La section est obligatoire
+                        pour les niveaux spécialisés.
+                    </small>
+
+                    {% if form.section.errors %}
+
+                        <div class="field-error">
+
+                            {% for error in form.section.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             INFORMATIONS DE LA CLASSE
+        ================================================== -->
+
+        <div class="form-card">
+
+            <div class="card-header">
+
+                <h2>
+                    Informations de la classe
+                </h2>
+
+                <p>
+                    Modifiez le code ou le libellé de la classe.
+                </p>
+
+            </div>
+
+
+            <div class="form-grid">
+
+
+                <!-- CODE -->
+
+                <div class="form-group">
+
+                    <label for="{{ form.code.id_for_label }}">
+
+                        Code de la classe
+                        <span class="required">*</span>
+
+                    </label>
+
+                    {{ form.code }}
+
+                    {% if form.code.errors %}
+
+                        <div class="field-error">
+
+                            {% for error in form.code.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- LIBELLÉ -->
+
+                <div class="form-group form-group-full">
+
+                    <label for="{{ form.libelle.id_for_label }}">
+
+                        Libellé de la classe
+                        <span class="required">*</span>
+
+                    </label>
+
+                    {{ form.libelle }}
+
+                    {% if form.libelle.errors %}
+
+                        <div class="field-error">
+
+                            {% for error in form.libelle.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             INFORMATION
+        ================================================== -->
+
+        <div class="info-box">
+
+            <strong>Attention :</strong>
+
+            Certaines modifications peuvent avoir des conséquences
+            sur les futures inscriptions et l'organisation académique.
+            Vérifiez les informations avant d'enregistrer.
+
+        </div>
+
+
+        <!-- =================================================
+             ACTIONS
+        ================================================== -->
+
+        <div class="form-actions">
+
+            <a
+                href="{% url 'detail_classe' classe.id %}"
+                class="btn btn-secondary"
+            >
+                Annuler
+            </a>
+
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Enregistrer les modifications
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- =========================================================
+     GESTION DE LA SECTION SELON LE NIVEAU
+========================================================== -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const niveauSelect =
+            document.getElementById(
+                "{{ form.niveau.id_for_label }}"
+            );
+
+        const sectionSelect =
+            document.getElementById(
+                "{{ form.section.id_for_label }}"
+            );
+
+        const sectionRequired =
+            document.getElementById(
+                "section-required"
+            );
+
+        const sectionHelp =
+            document.getElementById(
+                "section-help"
+            );
+
+
+        /*
+         * Liste des niveaux appartenant à l'École de base.
+         */
+
+        const niveauxEcoleBase = [
+
+            {% for niveau in niveaux_ecole_base %}
+
+                "{{ niveau.id }}",
+
+            {% endfor %}
+
+        ];
+
+
+        function verifierSection() {
+
+            const niveauId =
+                niveauSelect.value;
+
+
+            /*
+             * Aucun niveau sélectionné.
+             */
+
+            if (!niveauId) {
+
+                sectionSelect.disabled = false;
+
+                sectionRequired.style.display =
+                    "inline";
+
+                sectionHelp.textContent =
+                    "Sélectionnez un niveau.";
+
+                return;
+            }
+
+
+            /*
+             * Niveau de l'École de base.
+             */
+
+            if (
+                niveauxEcoleBase.includes(
+                    niveauId
+                )
+            ) {
+
+                sectionSelect.value = "";
+
+                sectionSelect.disabled = true;
+
+                sectionRequired.style.display =
+                    "none";
+
+                sectionHelp.textContent =
+                    "Ce niveau appartient à l'École de base. "
+                    + "Aucune section n'est nécessaire.";
+
+            }
+
+
+            /*
+             * Niveau spécialisé.
+             */
+
+            else {
+
+                sectionSelect.disabled = false;
+
+                sectionRequired.style.display =
+                    "inline";
+
+                sectionHelp.textContent =
+                    "La section est obligatoire "
+                    + "pour ce niveau.";
+
+            }
+
+        }
+
+
+        /* Vérification au chargement */
+
+        verifierSection();
+
+
+        /* Vérification lors du changement du niveau */
+
+        niveauSelect.addEventListener(
+            "change",
+            verifierSection
+        );
+
+    }
+);
+
+</script>
+
+{% endblock %}

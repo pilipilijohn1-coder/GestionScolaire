@@ -1,0 +1,117 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Frais scolaires{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --frais-primary: #2563eb;
+        --frais-bg: #f8fafc;
+        --frais-border: #e2e8f0;
+        --frais-text: #1e293b;
+        --frais-text-secondary: #64748b;
+    }
+    .page-header {
+        max-width: 1200px;
+        margin: 0 auto 28px;
+    }
+    .page-header h1 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--frais-text);
+    }
+    .page-header p {
+        margin: 8px 0 0;
+        color: var(--frais-text-secondary);
+        font-size: 14px;
+    }
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #ffffff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+    }
+    .data-table th,
+    .data-table td {
+        padding: 14px 16px;
+        text-align: left;
+        border-bottom: 1px solid var(--frais-border);
+        font-size: 14px;
+    }
+    .data-table th {
+        background: #f8fafc;
+        color: var(--frais-text-secondary);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 0.05em;
+    }
+    .data-table tr:last-child td {
+        border-bottom: none;
+    }
+    .data-table tr:hover td {
+        background: #f8fafc;
+    }
+    .empty-state {
+        background: #ffffff;
+        border: 1px solid var(--frais-border);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+        color: var(--frais-text-secondary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Frais scolaires</h1>
+    <p>
+        {% if annee_active %}
+            Année scolaire : <strong>{{ annee_active.libelle }}</strong>
+        {% else %}
+            Aucune année scolaire active.
+        {% endif %}
+    </p>
+    <div style="margin-top: 12px;">
+        <a href="{% url 'creer_frais' %}" class="btn btn-primary">Ajouter un frais</a>
+    </div>
+</div>
+
+{% if annee_active %}
+    {% if frais %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Libellé</th>
+                    <th>Montant total</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for f in frais %}
+                    <tr>
+                        <td>{{ f.libelle }}</td>
+                        <td>{{ f.montant_total|floatformat:2 }}</td>
+                        <td>
+                            {% if f.actif %}
+                                <span style="color:#16a34a; font-weight:600;">Actif</span>
+                            {% else %}
+                                <span style="color:#dc2626; font-weight:600;">Inactif</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="empty-state">Aucun frais scolaire configuré pour cette année.</div>
+    {% endif %}
+{% else %}
+    <div class="empty-state">Veuillez activer une année scolaire pour consulter les frais.</div>
+{% endif %}
+{% endblock %}

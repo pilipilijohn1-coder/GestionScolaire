@@ -1,0 +1,1255 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+    Configuration de la journée scolaire
+{% endblock %}
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/organisation/configuration_journee.css' %}"
+>
+{% endblock %}
+
+{% block content %}
+
+<div class="configuration-container">
+
+    <!-- =====================================================
+         FIL D'ARIANE
+    ====================================================== -->
+
+    <div class="breadcrumb">
+
+        <a href="{% url 'interface_organisation_scolaire' %}">
+            <i class="fas fa-arrow-left"></i>
+            Organisation scolaire
+        </a>
+
+        <span>/</span>
+
+        <strong>
+            Configuration de la journée
+        </strong>
+
+    </div>
+
+
+    <!-- =====================================================
+         EN-TÊTE
+    ====================================================== -->
+
+    <section class="configuration-header">
+
+        <div class="header-content">
+
+            <div>
+
+                <p class="header-label">
+                    ORGANISATION SCOLAIRE
+                </p>
+
+                <h1>
+                    Configuration de la journée scolaire
+                </h1>
+
+                <p class="header-description">
+                    Définissez la structure horaire générale
+                    de l'année scolaire.
+                </p>
+
+            </div>
+
+            <div class="header-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         SÉLECTION DE L'ANNÉE
+    ====================================================== -->
+
+    <section class="selection-card">
+
+        <div class="card-header">
+
+            <div class="card-title">
+
+                <i class="fas fa-calendar-alt"></i>
+
+                <div>
+                    <h2>
+                        Année scolaire
+                    </h2>
+
+                    <p>
+                        Sélectionnez l'année à configurer.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <form
+            method="get"
+            action="{% url 'configuration_journee' %}"
+        >
+
+            <div class="form-group">
+
+                <label for="annee_id">
+                    Année scolaire
+                </label>
+
+                <select
+                    name="annee_id"
+                    id="annee_id"
+                    class="form-control"
+                    onchange="this.form.submit()"
+                >
+
+                    <option value="">
+                        Sélectionner une année scolaire
+                    </option>
+
+                    {% for annee in annees %}
+
+                        <option
+                            value="{{ annee.id }}"
+                            {% if annee_selectionnee and annee.id == annee_selectionnee.id %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ annee.libelle }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    {% if annee_selectionnee %}
+
+
+    <!-- =====================================================
+         ÉTAT DE LA CONFIGURATION
+    ====================================================== -->
+
+    {% if configuration %}
+
+        <section class="status-card">
+
+            <div class="status-icon">
+
+                {% if configuration.verrouillee %}
+                    <i class="fas fa-lock"></i>
+                {% else %}
+                    <i class="fas fa-edit"></i>
+                {% endif %}
+
+            </div>
+
+            <div class="status-content">
+
+                <span class="status-label">
+                    État de la configuration
+                </span>
+
+                {% if configuration.verrouillee %}
+
+                    <strong class="status-locked">
+                        Configuration verrouillée
+                    </strong>
+
+                    <p>
+                        Cette configuration est définitive.
+                        Elle peut maintenant être utilisée
+                        pour la répartition des cours.
+                    </p>
+
+                {% else %}
+
+                    <strong class="status-draft">
+                        Configuration en préparation
+                    </strong>
+
+                    <p>
+                        Vous pouvez encore modifier la
+                        configuration et régénérer les créneaux.
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+    {% endif %}
+
+
+    <!-- =====================================================
+         CONFIGURATION + APERÇU
+    ====================================================== -->
+
+    <div class="configuration-layout">
+
+
+        <!-- =================================================
+             FORMULAIRE
+        ================================================== -->
+
+        <section class="configuration-form-card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        Paramètres de la journée
+                    </h2>
+
+                    <p>
+                        Définissez la structure des heures
+                        de cours et de la pause.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            {% if configuration and configuration.verrouillee %}
+
+                <!-- =========================================
+                     CONFIGURATION VERROUILLÉE
+                ========================================== -->
+
+                <div class="locked-message">
+
+                    <i class="fas fa-lock"></i>
+
+                    <div>
+
+                        <strong>
+                            Configuration verrouillée
+                        </strong>
+
+                        <p>
+                            Les paramètres ne peuvent plus
+                            être modifiés.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================================
+                     AFFICHAGE DES PARAMÈTRES
+                ========================================== -->
+
+                <div class="configuration-summary">
+
+                    <div class="summary-item">
+
+                        <span>
+                            Heure de début
+                        </span>
+
+                        <strong>
+                            {{ configuration.heure_debut_journee|time:"H:i" }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-item">
+
+                        <span>
+                            Durée d'un cours
+                        </span>
+
+                        <strong>
+                            {{ configuration.duree_heure }} min
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-item">
+
+                        <span>
+                            Heures par jour
+                        </span>
+
+                        <strong>
+                            {{ configuration.nombre_heures_par_jour }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-item">
+
+                        <span>
+                            Pause après
+                        </span>
+
+                        <strong>
+                            {{ configuration.pause_apres_heure }}e heure
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-item">
+
+                        <span>
+                            Durée de la pause
+                        </span>
+
+                        <strong>
+                            {{ configuration.duree_pause }} min
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            {% else %}
+
+                <!-- =========================================
+                     FORMULAIRE MODIFIABLE
+                ========================================== -->
+
+                <form
+                    method="post"
+                    id="configurationJourneeForm"
+                >
+
+                    {% csrf_token %}
+
+
+                    <!-- ERREURS GÉNÉRALES -->
+
+                    {% if form.non_field_errors %}
+
+                        <div class="form-errors">
+                            {{ form.non_field_errors }}
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- ANNÉE -->
+
+                    <div class="form-group full-width">
+
+                        <label for="{{ form.annee.id_for_label }}">
+                            {{ form.annee.label }}
+                        </label>
+
+                        {{ form.annee }}
+
+                        {% if form.annee.errors %}
+
+                            <div class="field-error">
+                                {{ form.annee.errors }}
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- HEURE DE DÉBUT -->
+
+                    <div class="form-group">
+
+                        <label
+                            for="{{ form.heure_debut_journee.id_for_label }}"
+                        >
+
+                            <i class="fas fa-sun"></i>
+
+                            {{ form.heure_debut_journee.label }}
+
+                        </label>
+
+                        {{ form.heure_debut_journee }}
+
+                        {% if form.heure_debut_journee.errors %}
+
+                            <div class="field-error">
+                                {{ form.heure_debut_journee.errors }}
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- DURÉE -->
+
+                    <div class="form-group">
+
+                        <label
+                            for="{{ form.duree_heure.id_for_label }}"
+                        >
+
+                            <i class="fas fa-hourglass-half"></i>
+
+                            {{ form.duree_heure.label }}
+
+                        </label>
+
+                        <div class="input-with-suffix">
+
+                            {{ form.duree_heure }}
+
+                            <span>
+                                minutes
+                            </span>
+
+                        </div>
+
+                        {% if form.duree_heure.errors %}
+
+                            <div class="field-error">
+                                {{ form.duree_heure.errors }}
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- NOMBRE D'HEURES -->
+
+                    <div class="form-group">
+
+                        <label
+                            for="{{ form.nombre_heures_par_jour.id_for_label }}"
+                        >
+
+                            <i class="fas fa-list-ol"></i>
+
+                            {{ form.nombre_heures_par_jour.label }}
+
+                        </label>
+
+                        {{ form.nombre_heures_par_jour }}
+
+                        {% if form.nombre_heures_par_jour.errors %}
+
+                            <div class="field-error">
+                                {{ form.nombre_heures_par_jour.errors }}
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- PAUSE APRÈS -->
+
+                    <div class="form-group">
+
+                        <label
+                            for="{{ form.pause_apres_heure.id_for_label }}"
+                        >
+
+                            <i class="fas fa-mug-hot"></i>
+
+                            {{ form.pause_apres_heure.label }}
+
+                        </label>
+
+                        {{ form.pause_apres_heure }}
+
+                        {% if form.pause_apres_heure.errors %}
+
+                            <div class="field-error">
+                                {{ form.pause_apres_heure.errors }}
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- DURÉE PAUSE -->
+
+                    <div class="form-group full-width">
+
+                        <label
+                            for="{{ form.duree_pause.id_for_label }}"
+                        >
+
+                            <i class="fas fa-stopwatch"></i>
+
+                            {{ form.duree_pause.label }}
+
+                        </label>
+
+                        <div class="input-with-suffix">
+
+                            {{ form.duree_pause }}
+
+                            <span>
+                                minutes
+                            </span>
+
+                        </div>
+
+                        {% if form.duree_pause.errors %}
+
+                            <div class="field-error">
+                                {{ form.duree_pause.errors }}
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- ENREGISTRER -->
+
+                    <div class="form-actions">
+
+                        <a
+                            href="{% url 'interface_organisation_scolaire' %}"
+                            class="btn-cancel"
+                        >
+
+                            <i class="fas fa-arrow-left"></i>
+
+                            Annuler
+
+                        </a>
+
+
+                        <button
+                            type="submit"
+                            class="btn-save"
+                        >
+
+                            <i class="fas fa-save"></i>
+
+                            Enregistrer la configuration
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- =================================================
+             APERÇU
+        ================================================== -->
+
+        <aside class="preview-card">
+
+            <div class="preview-header">
+
+                <div class="preview-title">
+
+                    <i class="fas fa-calendar-day"></i>
+
+                    <div>
+
+                        <h2>
+                            Aperçu de la journée
+                        </h2>
+
+                        <p>
+                            Simulation automatique
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="preview-content"
+                id="previewContent"
+            >
+
+                <div
+                    class="preview-empty"
+                    id="previewEmpty"
+                >
+
+                    <i class="fas fa-clock"></i>
+
+                    <p>
+                        Complétez les paramètres pour
+                        visualiser la journée.
+                    </p>
+
+                </div>
+
+
+                <div
+                    class="schedule-preview"
+                    id="schedulePreview"
+                >
+                </div>
+
+            </div>
+
+
+            <div class="preview-legend">
+
+                <div>
+                    <span class="legend-course"></span>
+                    Heure de cours
+                </div>
+
+                <div>
+                    <span class="legend-break"></span>
+                    Pause
+                </div>
+
+            </div>
+
+        </aside>
+
+    </div>
+
+
+    <!-- =====================================================
+         CRÉNEAUX GÉNÉRÉS
+    ====================================================== -->
+
+    {% if configuration %}
+
+    <section class="creneaux-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <h2>
+                    Créneaux horaires générés
+                </h2>
+
+                <p>
+                    Créneaux enregistrés pour
+                    {{ annee_selectionnee.libelle }}.
+                </p>
+
+            </div>
+
+            {% if not configuration.verrouillee %}
+
+                <form
+                    method="post"
+                    action="{% url 'generer_creneaux' configuration.id %}"
+                >
+
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="btn-generate"
+                    >
+
+                        <i class="fas fa-clock"></i>
+
+                        {% if creneaux %}
+                            Régénérer les créneaux
+                        {% else %}
+                            Générer les créneaux
+                        {% endif %}
+
+                    </button>
+
+                </form>
+
+            {% endif %}
+
+        </div>
+
+
+        {% if creneaux %}
+
+            <div class="creneaux-table-wrapper">
+
+                <table class="creneaux-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Ordre
+                            </th>
+
+                            <th>
+                                Type
+                            </th>
+
+                            <th>
+                                Heure de début
+                            </th>
+
+                            <th>
+                                Heure de fin
+                            </th>
+
+                            <th>
+                                Numéro
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for creneau in creneaux %}
+
+                        <tr>
+
+                            <td>
+
+                                <span class="ordre-badge">
+                                    {{ creneau.ordre }}
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                {% if creneau.type_creneau == "PAUSE" %}
+
+                                    <span class="badge-pause">
+
+                                        <i class="fas fa-mug-hot"></i>
+
+                                        Pause
+
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge-cours">
+
+                                        <i class="fas fa-book"></i>
+
+                                        Cours
+
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+
+                                {{ creneau.heure_debut|time:"H:i" }}
+
+                            </td>
+
+
+                            <td>
+
+                                {{ creneau.heure_fin|time:"H:i" }}
+
+                            </td>
+
+
+                            <td>
+
+                                {% if creneau.numero_heure %}
+
+                                    {{ creneau.numero_heure }}e heure
+
+                                {% else %}
+
+                                    —
+
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- =================================================
+                 VALIDATION
+            ================================================== -->
+
+            {% if not configuration.verrouillee %}
+
+                <div class="validation-zone">
+
+                    <div class="validation-information">
+
+                        <i class="fas fa-circle-check"></i>
+
+                        <div>
+
+                            <strong>
+                                Les créneaux sont prêts
+                            </strong>
+
+                            <p>
+                                Vérifiez les horaires avant
+                                de valider définitivement
+                                la configuration.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <form
+                        method="post"
+                        action="{% url 'valider_configuration_horaire' configuration.id %}"
+                    >
+
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="btn-validation"
+                            onclick="return confirm(
+                                'Après validation, la configuration ne pourra plus être modifiée. Voulez-vous continuer ?'
+                            );"
+                        >
+
+                            <i class="fas fa-lock"></i>
+
+                            Valider et verrouiller
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            {% else %}
+
+                <div class="validation-locked">
+
+                    <i class="fas fa-lock"></i>
+
+                    <div>
+
+                        <strong>
+                            Configuration définitivement verrouillée
+                        </strong>
+
+                        <p>
+                            Les créneaux sont maintenant disponibles
+                            pour la répartition des cours.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+
+        {% else %}
+
+            <!-- =================================================
+                 AUCUN CRÉNEAU
+            ================================================== -->
+
+            <div class="empty-creneaux">
+
+                <div class="empty-icon">
+
+                    <i class="fas fa-clock"></i>
+
+                </div>
+
+                <h3>
+                    Aucun créneau généré
+                </h3>
+
+                <p>
+                    Enregistrez d'abord la configuration,
+                    puis générez les créneaux horaires.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+    {% endif %}
+
+
+    {% else %}
+
+    <!-- =====================================================
+         AUCUNE ANNÉE
+    ====================================================== -->
+
+    <div class="empty-selection">
+
+        <div class="empty-selection-icon">
+
+            <i class="fas fa-calendar-check"></i>
+
+        </div>
+
+        <h3>
+            Sélectionnez une année scolaire
+        </h3>
+
+        <p>
+            Sélectionnez une année pour commencer
+            la configuration de la journée scolaire.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const heureDebut =
+            document.getElementById(
+                "id_heure_debut_journee"
+            );
+
+        const dureeHeure =
+            document.getElementById(
+                "id_duree_heure"
+            );
+
+        const nombreHeures =
+            document.getElementById(
+                "id_nombre_heures_par_jour"
+            );
+
+        const pauseApres =
+            document.getElementById(
+                "id_pause_apres_heure"
+            );
+
+        const dureePause =
+            document.getElementById(
+                "id_duree_pause"
+            );
+
+        const previewEmpty =
+            document.getElementById(
+                "previewEmpty"
+            );
+
+        const schedulePreview =
+            document.getElementById(
+                "schedulePreview"
+            );
+
+
+        // =====================================================
+        // FORMATAGE
+        // =====================================================
+
+        function formatTime(minutes) {
+
+            const hours =
+                Math.floor(
+                    minutes / 60
+                );
+
+            const mins =
+                minutes % 60;
+
+            return (
+                String(hours).padStart(2, "0")
+                + ":"
+                + String(mins).padStart(2, "0")
+            );
+        }
+
+
+        // =====================================================
+        // APERÇU
+        // =====================================================
+
+        function updatePreview() {
+
+            if (
+                !heureDebut ||
+                !dureeHeure ||
+                !nombreHeures ||
+                !pauseApres ||
+                !dureePause
+            ) {
+                return;
+            }
+
+
+            const startValue =
+                heureDebut.value;
+
+            const courseDuration =
+                parseInt(
+                    dureeHeure.value
+                );
+
+            const totalCourses =
+                parseInt(
+                    nombreHeures.value
+                );
+
+            const breakAfter =
+                parseInt(
+                    pauseApres.value
+                );
+
+            const breakDuration =
+                parseInt(
+                    dureePause.value
+                );
+
+
+            if (
+                !startValue ||
+                !courseDuration ||
+                !totalCourses ||
+                !breakAfter ||
+                !breakDuration
+            ) {
+
+                previewEmpty.style.display =
+                    "flex";
+
+                schedulePreview.innerHTML =
+                    "";
+
+                return;
+            }
+
+
+            const timeParts =
+                startValue.split(":");
+
+
+            let currentMinutes =
+                (
+                    parseInt(timeParts[0])
+                    * 60
+                )
+                +
+                parseInt(timeParts[1]);
+
+
+            previewEmpty.style.display =
+                "none";
+
+            schedulePreview.innerHTML =
+                "";
+
+
+            for (
+                let i = 1;
+                i <= totalCourses;
+                i++
+            ) {
+
+                const start =
+                    currentMinutes;
+
+                const end =
+                    start
+                    + courseDuration;
+
+
+                const courseItem =
+                    document.createElement(
+                        "div"
+                    );
+
+                courseItem.className =
+                    "preview-time-item course";
+
+
+                courseItem.innerHTML =
+                    `
+                    <div class="time-number">
+                        ${i}
+                    </div>
+
+                    <div class="time-details">
+
+                        <strong>
+                            Heure ${i}
+                        </strong>
+
+                        <span>
+                            ${formatTime(start)}
+                            —
+                            ${formatTime(end)}
+                        </span>
+
+                    </div>
+                    `;
+
+
+                schedulePreview.appendChild(
+                    courseItem
+                );
+
+
+                currentMinutes =
+                    end;
+
+
+                // =================================================
+                // PAUSE
+                // =================================================
+
+                if (
+                    i === breakAfter
+                    &&
+                    i < totalCourses
+                ) {
+
+                    const breakStart =
+                        currentMinutes;
+
+                    const breakEnd =
+                        breakStart
+                        + breakDuration;
+
+
+                    const breakItem =
+                        document.createElement(
+                            "div"
+                        );
+
+                    breakItem.className =
+                        "preview-time-item break";
+
+
+                    breakItem.innerHTML =
+                        `
+                        <div class="break-icon">
+                            <i class="fas fa-mug-hot"></i>
+                        </div>
+
+                        <div class="time-details">
+
+                            <strong>
+                                Pause
+                            </strong>
+
+                            <span>
+                                ${formatTime(breakStart)}
+                                —
+                                ${formatTime(breakEnd)}
+                            </span>
+
+                        </div>
+                        `;
+
+
+                    schedulePreview.appendChild(
+                        breakItem
+                    );
+
+
+                    currentMinutes =
+                        breakEnd;
+                }
+            }
+        }
+
+
+        // =====================================================
+        // ÉVÉNEMENTS
+        // =====================================================
+
+        const fields = [
+            heureDebut,
+            dureeHeure,
+            nombreHeures,
+            pauseApres,
+            dureePause
+        ];
+
+
+        fields.forEach(
+            function (field) {
+
+                if (field) {
+
+                    field.addEventListener(
+                        "input",
+                        updatePreview
+                    );
+
+                    field.addEventListener(
+                        "change",
+                        updatePreview
+                    );
+
+                }
+
+            }
+        );
+
+
+        updatePreview();
+
+    }
+);
+
+</script>
+
+{% endblock %}

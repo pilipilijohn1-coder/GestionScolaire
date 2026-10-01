@@ -1,0 +1,288 @@
+{% extends base_template %}
+{% load static %}
+
+
+{% block title %}
+    Activation / Désactivation de la classe
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/activer_desactiver_classe.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="status-page">
+
+
+    <!-- =====================================================
+         RETOUR
+    ====================================================== -->
+
+    <a
+        href="{% url 'detail_classe' classe.id %}"
+        class="back-link"
+    >
+        ← Retour aux détails
+    </a>
+
+
+    <!-- =====================================================
+         CARTE PRINCIPALE
+    ====================================================== -->
+
+    <div class="status-card">
+
+
+        <!-- =================================================
+             CLASSE ACTIVE
+        ================================================== -->
+
+        {% if classe.actif %}
+
+            <div class="status-icon warning">
+                !
+            </div>
+
+
+            <h1>
+                Désactiver la classe ?
+            </h1>
+
+
+            <p class="status-description">
+
+                Vous êtes sur le point de désactiver la classe
+                <strong>{{ classe.libelle }}</strong>.
+
+            </p>
+
+
+            <!-- INFORMATIONS -->
+
+            <div class="classe-information">
+
+                <div class="info-row">
+
+                    <span>Code</span>
+
+                    <strong>
+                        {{ classe.code }}
+                    </strong>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <span>Année scolaire</span>
+
+                    <strong>
+                        {{ classe.annee.libelle }}
+                    </strong>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <span>Niveau</span>
+
+                    <strong>
+                        {{ classe.niveau.libelle }}
+                    </strong>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <span>Section</span>
+
+                    <strong>
+
+                        {% if classe.section %}
+
+                            {{ classe.section.libelle }}
+
+                        {% else %}
+
+                            Non applicable
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- AVERTISSEMENT -->
+
+            <div class="warning-box">
+
+                <strong>Attention :</strong>
+
+                Une classe désactivée ne pourra plus être utilisée
+                pour les nouvelles opérations académiques tant
+                qu'elle ne sera pas réactivée.
+
+            </div>
+
+
+        <!-- =================================================
+             CLASSE DÉSACTIVÉE
+        ================================================== -->
+
+        {% else %}
+
+            <div class="status-icon success">
+                ✓
+            </div>
+
+
+            <h1>
+                Activer la classe ?
+            </h1>
+
+
+            <p class="status-description">
+
+                Vous êtes sur le point de réactiver la classe
+                <strong>{{ classe.libelle }}</strong>.
+
+            </p>
+
+
+            <!-- INFORMATIONS -->
+
+            <div class="classe-information">
+
+                <div class="info-row">
+
+                    <span>Code</span>
+
+                    <strong>
+                        {{ classe.code }}
+                    </strong>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <span>Année scolaire</span>
+
+                    <strong>
+                        {{ classe.annee.libelle }}
+                    </strong>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <span>Niveau</span>
+
+                    <strong>
+                        {{ classe.niveau.libelle }}
+                    </strong>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <span>Section</span>
+
+                    <strong>
+
+                        {% if classe.section %}
+
+                            {{ classe.section.libelle }}
+
+                        {% else %}
+
+                            Non applicable
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- INFORMATION -->
+
+            <div class="success-box">
+
+                <strong>Information :</strong>
+
+                La réactivation permettra à la classe d'être
+                à nouveau utilisée dans les opérations académiques
+                autorisées.
+
+            </div>
+
+        {% endif %}
+
+
+        <!-- =================================================
+             FORMULAIRE DE CONFIRMATION
+        ================================================== -->
+
+        <form method="post">
+
+            {% csrf_token %}
+
+
+            <div class="action-buttons">
+
+                <a
+                    href="{% url 'detail_classe' classe.id %}"
+                    class="btn btn-cancel"
+                >
+                    Annuler
+                </a>
+
+
+                {% if classe.actif %}
+
+                    <button
+                        type="submit"
+                        class="btn btn-warning"
+                    >
+                        Oui, désactiver
+                    </button>
+
+                {% else %}
+
+                    <button
+                        type="submit"
+                        class="btn btn-success"
+                    >
+                        Oui, activer
+                    </button>
+
+                {% endif %}
+
+            </div>
+
+        </form>
+
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,386 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>
+        Bulletin - {{ bulletin.inscription.eleve }}
+    </title>
+
+    <style>
+
+        @page {
+            size: A4 landscape;
+            margin: 8mm;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 9px;
+            margin: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #000;
+            padding: 3px;
+            text-align: center;
+        }
+
+        .no-border {
+            border: none;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .left {
+            text-align: left;
+        }
+
+        .title {
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .domain {
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .subtotal {
+            font-weight: bold;
+        }
+
+        .footer {
+            margin-top: 15px;
+        }
+
+        .signature {
+            height: 45px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<table>
+
+    <tr>
+
+        <td colspan="9" class="no-border center">
+
+            <div class="title">
+                RÉPUBLIQUE DÉMOCRATIQUE DU CONGO
+            </div>
+
+            <div class="title">
+                MINISTÈRE DE L'ENSEIGNEMENT PRIMAIRE,
+                SECONDAIRE ET PROFESSIONNEL
+            </div>
+
+            <div>
+                BULLETIN DE LA 7ᵉ ANNÉE
+            </div>
+
+            <div>
+                ANNÉE SCOLAIRE
+                {{ bulletin.annee_scolaire.libelle }}
+            </div>
+
+        </td>
+
+    </tr>
+
+
+    <tr>
+
+        <td class="left">
+
+            <strong>ÉLÈVE :</strong>
+
+            {{ bulletin.inscription.eleve.nom }}
+            {{ bulletin.inscription.eleve.postnom }}
+            {{ bulletin.inscription.eleve.prenom }}
+
+        </td>
+
+        <td colspan="2">
+
+            <strong>MATRICULE :</strong>
+
+            {{ bulletin.inscription.eleve.matricule }}
+
+        </td>
+
+        <td colspan="2">
+
+            <strong>CLASSE :</strong>
+
+            {{ bulletin.inscription.classe.libelle }}
+
+        </td>
+
+        <td colspan="4">
+
+            <strong>ANNÉE :</strong>
+
+            {{ bulletin.annee_scolaire.libelle }}
+
+        </td>
+
+    </tr>
+
+
+    <tr>
+
+        <th rowspan="2">
+            MATIÈRES
+        </th>
+
+        <th colspan="3">
+            PREMIER SEMESTRE
+        </th>
+
+        <th colspan="3">
+            SECOND SEMESTRE
+        </th>
+
+        <th rowspan="2">
+            T.A.
+        </th>
+
+        <th rowspan="2">
+            REPÊCHAGE
+        </th>
+
+    </tr>
+
+
+    <tr>
+
+        <th>
+            T.J.
+        </th>
+
+        <th>
+            EXAMEN
+        </th>
+
+        <th>
+            TOTAL
+        </th>
+
+        <th>
+            T.J.
+        </th>
+
+        <th>
+            EXAMEN
+        </th>
+
+        <th>
+            TOTAL
+        </th>
+
+    </tr>
+
+
+    {% for ligne in bulletin.lignes.all %}
+
+    <tr>
+
+        <td class="left">
+            {{ ligne.matiere.libelle }}
+        </td>
+
+        <td>
+            {{ ligne.s1_travaux_journaliers_obtenu }}/{{ ligne.s1_travaux_journaliers_max }}
+        </td>
+
+        <td>
+            {{ ligne.s1_examen_obtenu }}/{{ ligne.s1_examen_max }}
+        </td>
+
+        <td>
+            {{ ligne.s1_total_obtenu }}/{{ ligne.s1_total_max }}
+        </td>
+
+        <td>
+            {{ ligne.s2_travaux_journaliers_obtenu }}/{{ ligne.s2_travaux_journaliers_max }}
+        </td>
+
+        <td>
+            {{ ligne.s2_examen_obtenu }}/{{ ligne.s2_examen_max }}
+        </td>
+
+        <td>
+            {{ ligne.s2_total_obtenu }}/{{ ligne.s2_total_max }}
+        </td>
+
+        <td>
+            {{ ligne.total_annuel_obtenu }}
+        </td>
+
+        <td>
+            {{ ligne.examen_repechage_obtenu }}
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+
+    <tr>
+
+        <td class="subtotal">
+            MAXIMA
+        </td>
+
+        <td>
+            380
+        </td>
+
+        <td>
+            760
+        </td>
+
+        <td>
+            1520
+        </td>
+
+        <td>
+            380
+        </td>
+
+        <td>
+            760
+        </td>
+
+        <td>
+            1520
+        </td>
+
+        <td>
+            3040
+        </td>
+
+        <td>
+            —
+        </td>
+
+    </tr>
+
+
+    <tr>
+
+        <td class="subtotal">
+            TOTAL
+        </td>
+
+        <td colspan="3">
+            {{ bulletin.total_semestre_1 }}
+        </td>
+
+        <td colspan="3">
+            {{ bulletin.total_semestre_2 }}
+        </td>
+
+        <td>
+            {{ bulletin.total_annuel }}
+        </td>
+
+        <td>
+            {{ bulletin.examen_repechage }}
+        </td>
+
+    </tr>
+
+
+    <tr>
+
+        <td class="subtotal">
+            POURCENTAGE
+        </td>
+
+        <td colspan="8">
+            {{ bulletin.pourcentage }} %
+        </td>
+
+    </tr>
+
+
+    <tr>
+
+        <td class="subtotal">
+            PLACE / NOMBRE D'ÉLÈVES
+        </td>
+
+        <td colspan="8">
+
+            {% if bulletin.place %}
+                {{ bulletin.place }}/{{ bulletin.nombre_eleves }}
+            {% else %}
+                —
+            {% endif %}
+
+        </td>
+
+    </tr>
+
+</table>
+
+
+<div class="footer">
+
+    <p>
+        <strong>Décision :</strong>
+        {{ bulletin.get_decision_display|default:"À déterminer" }}
+    </p>
+
+    {% if bulletin.observation_decision %}
+
+        <p>
+            {{ bulletin.observation_decision }}
+        </p>
+
+    {% endif %}
+
+
+    <table>
+
+        <tr>
+
+            <td class="no-border signature">
+                Signature de l'élève
+            </td>
+
+            <td class="no-border signature">
+                Sceau de l'école
+            </td>
+
+            <td class="no-border signature">
+                Le chef d'établissement
+            </td>
+
+        </tr>
+
+    </table>
+
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,452 @@
+{% extends base_template %}
+{% load static %}
+
+
+{% block title %}
+    Détail du niveau
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/detail_niveau.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="detail-niveau-page">
+
+    <!-- ================================================== -->
+    <!-- EN-TÊTE -->
+    <!-- ================================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <a
+                href="{% url 'liste_niveaux' %}"
+                class="back-link"
+            >
+                ← Retour aux niveaux
+            </a>
+
+            <h1>
+                {{ niveau.libelle }}
+            </h1>
+
+            <p>
+                Informations détaillées du niveau académique.
+            </p>
+
+        </div>
+
+
+        <!-- STATUT -->
+
+        {% if niveau.actif %}
+
+            <span class="status status-active">
+                Actif
+            </span>
+
+        {% else %}
+
+            <span class="status status-inactive">
+                Désactivé
+            </span>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- ACTIONS -->
+    <!-- ================================================== -->
+
+    <div class="detail-actions">
+
+        <a
+            href="{% url 'modifier_niveau' niveau.id %}"
+            class="btn btn-primary"
+        >
+            Modifier
+        </a>
+
+
+        <form
+            method="post"
+            action="{% url 'activer_desactiver_niveau' niveau.id %}"
+            class="action-form"
+        >
+
+            {% csrf_token %}
+
+            {% if niveau.actif %}
+
+                <button
+                    type="submit"
+                    class="btn btn-danger"
+                    onclick="return confirm(
+                        'Voulez-vous vraiment désactiver ce niveau ?'
+                    );"
+                >
+                    Désactiver
+                </button>
+
+            {% else %}
+
+                <button
+                    type="submit"
+                    class="btn btn-success"
+                >
+                    Activer
+                </button>
+
+            {% endif %}
+
+        </form>
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- INFORMATIONS PRINCIPALES -->
+    <!-- ================================================== -->
+
+    <div class="details-grid">
+
+
+        <!-- INFORMATIONS DU NIVEAU -->
+
+        <div class="detail-card">
+
+            <div class="card-header">
+
+                <h2>
+                    Informations générales
+                </h2>
+
+            </div>
+
+
+            <div class="detail-list">
+
+
+                <!-- CODE -->
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Code
+                    </span>
+
+                    <span class="niveau-code">
+                        {{ niveau.code }}
+                    </span>
+
+                </div>
+
+
+                <!-- LIBELLÉ -->
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Libellé
+                    </span>
+
+                    <span class="detail-value">
+                        {{ niveau.libelle }}
+                    </span>
+
+                </div>
+
+
+                <!-- ORDRE -->
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Ordre académique
+                    </span>
+
+                    <span class="ordre-badge">
+                        {{ niveau.ordre }}
+                    </span>
+
+                </div>
+
+
+                <!-- TYPE -->
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Type de niveau
+                    </span>
+
+                    {% if niveau.est_ecole_base %}
+
+                        <span class="type-badge type-base">
+                            École de base
+                        </span>
+
+                    {% else %}
+
+                        <span class="type-badge type-section">
+                            Niveau avec section
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- STATUT -->
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Statut
+                    </span>
+
+                    {% if niveau.actif %}
+
+                        <span class="status status-active">
+                            Actif
+                        </span>
+
+                    {% else %}
+
+                        <span class="status status-inactive">
+                            Désactivé
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- RÈGLE ACADÉMIQUE -->
+
+        <div class="detail-card academic-rule-card">
+
+            <div class="card-header">
+
+                <h2>
+                    Règle académique
+                </h2>
+
+            </div>
+
+
+            {% if niveau.est_ecole_base %}
+
+                <div class="rule-content">
+
+                    <div class="rule-icon">
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <h3>
+                            Niveau commun
+                        </h3>
+
+                        <p>
+                            Ce niveau appartient à l'École de base.
+                            Les classes créées pour ce niveau ne
+                            doivent être associées à aucune section.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            {% else %}
+
+                <div class="rule-content">
+
+                    <div class="rule-icon">
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <h3>
+                            Niveau spécialisé
+                        </h3>
+
+                        <p>
+                            Ce niveau nécessite une section.
+                            Chaque classe créée pour ce niveau devra
+                            être associée à une section académique.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- CLASSES ASSOCIÉES -->
+    <!-- ================================================== -->
+
+    <div class="classes-card">
+
+        <div class="classes-header">
+
+            <div>
+
+                <h2>
+                    Classes associées
+                </h2>
+
+                <p>
+                    Liste des classes utilisant ce niveau.
+                </p>
+
+            </div>
+
+
+            <span class="classes-count">
+                {{ nombre_classes }} classe{{ nombre_classes|pluralize }}
+            </span>
+
+        </div>
+
+
+        {% if classes %}
+
+            <div class="table-responsive">
+
+                <table class="classes-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Classe
+                            </th>
+
+                            <th>
+                                Année scolaire
+                            </th>
+
+                            <th>
+                                Section
+                            </th>
+
+                            <th>
+                                Statut
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for classe in classes %}
+
+                            <tr>
+
+                                <td>
+                                    <strong>
+                                        {{ classe.libelle }}
+                                    </strong>
+                                </td>
+
+
+                                <td>
+                                    {{ classe.annee.libelle }}
+                                </td>
+
+
+                                <td>
+
+                                    {% if classe.section %}
+
+                                        {{ classe.section.libelle }}
+
+                                    {% else %}
+
+                                        <span class="no-section">
+                                            École de base
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+
+                                    {% if classe.actif %}
+
+                                        <span class="status status-active">
+                                            Active
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="status status-inactive">
+                                            Désactivée
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-classes">
+
+                <h3>
+                    Aucune classe associée
+                </h3>
+
+                <p>
+                    Aucune classe n'utilise actuellement ce niveau.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

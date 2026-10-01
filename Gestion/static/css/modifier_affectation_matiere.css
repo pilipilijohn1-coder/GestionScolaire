@@ -1,0 +1,498 @@
+/* ============================================================
+   PAGE : DÉTAIL D'UNE AFFECTATION DE MATIÈRE
+   ============================================================ */
+
+.detail-page {
+    width: 100%;
+    max-width: 1100px;
+
+    margin: 0 auto;
+    padding: 35px 25px;
+}
+
+
+/* ============================================================
+   EN-TÊTE
+   ============================================================ */
+
+.page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 25px;
+
+    margin-bottom: 28px;
+}
+
+.back-link {
+    display: inline-block;
+
+    margin-bottom: 12px;
+
+    color: #2563eb;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+.page-header h1 {
+    margin: 0 0 8px;
+
+    color: #111827;
+
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.page-header p {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+
+/* ============================================================
+   STATUT PRINCIPAL
+   ============================================================ */
+
+.status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 8px 14px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+.status.active {
+    color: #166534;
+    background: #dcfce7;
+}
+
+.status.inactive {
+    color: #991b1b;
+    background: #fee2e2;
+}
+
+
+/* ============================================================
+   CARTE DE RELATION
+   ============================================================ */
+
+.relation-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 35px;
+
+    margin-bottom: 28px;
+    padding: 30px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    box-shadow:
+        0 3px 15px
+        rgba(0, 0, 0, 0.04);
+}
+
+.relation-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    min-width: 220px;
+
+    gap: 7px;
+
+    text-align: center;
+}
+
+.relation-label {
+    color: #9ca3af;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.05em;
+}
+
+.relation-value {
+    color: #1f2937;
+
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.relation-arrow {
+    color: #2563eb;
+
+    font-size: 35px;
+    font-weight: 400;
+}
+
+.matiere-code {
+    padding: 4px 9px;
+
+    color: #1d4ed8;
+    background: #dbeafe;
+
+    border-radius: 5px;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    letter-spacing: 0.04em;
+}
+
+
+/* ============================================================
+   GRILLE DES INFORMATIONS
+   ============================================================ */
+
+.details-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 22px;
+
+    margin-bottom: 25px;
+}
+
+
+/* ============================================================
+   CARTES
+   ============================================================ */
+
+.detail-card {
+    overflow: hidden;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    box-shadow:
+        0 3px 15px
+        rgba(0, 0, 0, 0.03);
+}
+
+.card-header {
+    padding: 18px 22px;
+
+    background: #f9fafb;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.card-header h2 {
+    margin: 0;
+
+    color: #111827;
+
+    font-size: 17px;
+    font-weight: 700;
+}
+
+
+/* ============================================================
+   LISTE DES INFORMATIONS
+   ============================================================ */
+
+.detail-list {
+    padding: 5px 22px;
+}
+
+.detail-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    min-height: 58px;
+
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-row > span {
+    flex-shrink: 0;
+
+    color: #6b7280;
+
+    font-size: 13px;
+}
+
+.detail-row strong {
+    color: #1f2937;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    text-align: right;
+}
+
+
+/* ============================================================
+   DESCRIPTION
+   ============================================================ */
+
+.description-row {
+    align-items: flex-start;
+
+    padding:
+        16px 0;
+}
+
+.description-row strong {
+    max-width: 65%;
+
+    color: #4b5563;
+
+    font-weight: 500;
+
+    line-height: 1.6;
+}
+
+
+/* ============================================================
+   PETITS STATUTS
+   ============================================================ */
+
+.small-status {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 5px 10px;
+
+    border-radius: 20px;
+
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.small-status.active {
+    color: #166534;
+    background: #dcfce7;
+}
+
+.small-status.inactive {
+    color: #991b1b;
+    background: #fee2e2;
+}
+
+
+/* ============================================================
+   CARTE DES ACTIONS
+   ============================================================ */
+
+.actions-card {
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 12px;
+
+    padding: 20px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+}
+
+
+/* ============================================================
+   BOUTONS
+   ============================================================ */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 44px;
+
+    padding: 10px 20px;
+
+    border: none;
+    border-radius: 7px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease,
+        box-shadow 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+
+/* ============================================================
+   BOUTON PRINCIPAL
+   ============================================================ */
+
+.btn-primary {
+    color: #ffffff;
+    background: #2563eb;
+
+    box-shadow:
+        0 4px 10px
+        rgba(37, 99, 235, 0.15);
+}
+
+.btn-primary:hover {
+    background: #1d4ed8;
+}
+
+
+/* ============================================================
+   BOUTON DANGER
+   ============================================================ */
+
+.btn-danger {
+    color: #ffffff;
+    background: #dc2626;
+
+    box-shadow:
+        0 4px 10px
+        rgba(220, 38, 38, 0.15);
+}
+
+.btn-danger:hover {
+    background: #b91c1c;
+}
+
+
+/* ============================================================
+   BOUTON SUCCESS
+   ============================================================ */
+
+.btn-success {
+    color: #ffffff;
+    background: #16a34a;
+
+    box-shadow:
+        0 4px 10px
+        rgba(22, 163, 74, 0.15);
+}
+
+.btn-success:hover {
+    background: #15803d;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media screen and (max-width: 800px) {
+
+    .detail-page {
+        padding: 25px 18px;
+    }
+
+    .details-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media screen and (max-width: 650px) {
+
+    .page-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .relation-card {
+        flex-direction: column;
+
+        gap: 20px;
+    }
+
+    .relation-arrow {
+        transform: rotate(90deg);
+    }
+
+    .relation-item {
+        min-width: auto;
+    }
+
+    .actions-card {
+        flex-direction: column;
+    }
+
+    .actions-card .btn {
+        width: 100%;
+    }
+
+}
+
+
+@media screen and (max-width: 450px) {
+
+    .detail-page {
+        padding: 20px 12px;
+    }
+
+    .page-header h1 {
+        font-size: 24px;
+    }
+
+    .detail-row {
+        align-items: flex-start;
+        flex-direction: column;
+
+        gap: 6px;
+
+        padding:
+            13px 0;
+    }
+
+    .detail-row strong {
+        max-width: 100%;
+
+        text-align: left;
+    }
+
+    .description-row strong {
+        max-width: 100%;
+    }
+
+}

@@ -1,0 +1,113 @@
+/* FORMULAIRE UTILISATEUR */
+.form-grid {
+display: grid;
+grid-template-columns: repeat(2, minmax(0, 1fr));
+gap: 20px;
+}
+
+.form-group {
+position: relative;
+margin-bottom: 20px;
+}
+
+.form-group input,
+.form-group select {
+width: 100%;
+padding: 14px 12px;
+border: 1px solid #d1d5db;
+border-radius: 8px;
+background: #f9fafb;
+color: #020a1b;
+font-size: 14px;
+}
+
+/* Label flottant animé */
+.form-group label {
+position: absolute;
+top: 50%;
+left: 14px;
+transform: translateY(-50%);
+color: #040608;
+font-size: 20px;
+pointer-events: none;
+transition: all 0.3s ease;
+background: transparent;
+padding: 0 4px;
+}
+
+/* Animation au focus ou si rempli */
+.form-group input:focus ~ label,
+.form-group input:not(:placeholder-shown) ~ label,
+.form-group select:focus ~ label,
+.form-group select:not([value=""]) ~ label {
+top: -8px;
+left: 10px;
+font-size: 16px;
+color: #0c0b0b;
+transform: none;
+background: #b6d6f5;
+border-radius: 4px;
+}
+
+/* Icône œil */
+.toggle-password {
+position: absolute;
+right: 12px;
+top: 50%;
+transform: translateY(-50%);
+cursor: pointer;
+color: #aaa;
+font-size: 18px;
+transition: color 0.3s ease;
+}
+
+.toggle-password:hover {
+color: #2563eb;
+}
+
+select {
+    display: inline-block;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.3s ease;
+
+}
+
+/* Boutons */
+.btn {
+display: inline-block;
+padding: 12px 20px;
+border-radius: 8px;
+text-align: center;
+cursor: pointer;
+transition: 0.3s ease;
+}
+
+.btn-primary {
+background: #2563eb;
+color: #fff;
+border: none;
+}
+
+.btn-primary:hover {
+background: #1d4ed8;
+}
+
+.btn-secondary {
+background: #6b7280;
+color: #fff;
+text-decoration: none;
+}
+
+.btn-secondary:hover {
+background: #4b5563;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+.form-grid {
+grid-template-columns: 1fr;
+}
+}

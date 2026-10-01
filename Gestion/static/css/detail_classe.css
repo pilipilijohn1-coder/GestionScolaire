@@ -1,0 +1,577 @@
+/* ============================================================
+   PAGE : DÉTAIL D'UNE CLASSE
+   ============================================================ */
+
+.classe-detail-page {
+    width: 100%;
+    max-width: 1200px;
+
+    margin: 0 auto;
+    padding: 30px;
+}
+
+
+/* ============================================================
+   EN-TÊTE
+   ============================================================ */
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    gap: 25px;
+
+    margin-bottom: 30px;
+}
+
+.back-link {
+    display: inline-block;
+
+    margin-bottom: 15px;
+
+    color: #2563eb;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+.title-row {
+    display: flex;
+    align-items: center;
+
+    gap: 15px;
+}
+
+.title-row h1 {
+    margin: 0 0 7px;
+
+    color: #111827;
+
+    font-size: 30px;
+    font-weight: 700;
+}
+
+.title-row p {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 14px;
+}
+
+
+/* ============================================================
+   ACTIONS
+   ============================================================ */
+
+.header-actions {
+    display: flex;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+}
+
+
+/* ============================================================
+   BOUTONS
+   ============================================================ */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+
+    padding: 10px 18px;
+
+    border: none;
+    border-radius: 7px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+
+/* BOUTON MODIFIER */
+
+.btn-secondary {
+    color: #374151;
+    background: #e5e7eb;
+}
+
+.btn-secondary:hover {
+    background: #d1d5db;
+}
+
+
+/* BOUTON STATUT */
+
+.btn-status {
+    color: #ffffff;
+    background: #2563eb;
+}
+
+.btn-status:hover {
+    background: #1d4ed8;
+}
+
+
+/* ============================================================
+   CARTE DES INFORMATIONS
+   ============================================================ */
+
+.detail-card {
+    margin-bottom: 25px;
+
+    overflow: hidden;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    box-shadow:
+        0 2px 12px
+        rgba(0, 0, 0, 0.04);
+}
+
+
+/* ============================================================
+   EN-TÊTE DE CARTE
+   ============================================================ */
+
+.card-header {
+    padding: 22px 25px;
+
+    background: #f9fafb;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.card-header h2 {
+    margin: 0 0 7px;
+
+    color: #111827;
+
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.card-header p {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 13px;
+}
+
+
+/* ============================================================
+   INFORMATIONS
+   ============================================================ */
+
+.details-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 0;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+
+    min-height: 110px;
+
+    gap: 9px;
+
+    padding: 22px;
+
+    border-right: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.detail-item:nth-child(3n) {
+    border-right: none;
+}
+
+.detail-item:nth-last-child(-n + 3) {
+    border-bottom: none;
+}
+
+.detail-label {
+    color: #6b7280;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.4px;
+}
+
+.detail-item strong {
+    color: #1f2937;
+
+    font-size: 15px;
+}
+
+
+/* ============================================================
+   CODE DE LA CLASSE
+   ============================================================ */
+
+.classe-code {
+    width: fit-content;
+
+    padding: 6px 10px;
+
+    color: #1d4ed8;
+    background: #eff6ff;
+
+    border-radius: 5px;
+
+    font-size: 13px !important;
+}
+
+
+/* ============================================================
+   STATUT
+   ============================================================ */
+
+.status {
+    display: inline-flex;
+    align-items: center;
+
+    width: fit-content;
+
+    padding: 6px 12px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status.active {
+    color: #166534;
+    background: #dcfce7;
+}
+
+.status.inactive {
+    color: #991b1b;
+    background: #fee2e2;
+}
+
+
+/* ============================================================
+   VALEUR NON DÉFINIE
+   ============================================================ */
+
+.not-defined {
+    color: #9ca3af;
+
+    font-size: 14px;
+    font-style: italic;
+}
+
+
+/* ============================================================
+   RÉSUMÉ
+   ============================================================ */
+
+.summary-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 20px;
+
+    margin-bottom: 25px;
+}
+
+.summary-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    min-height: 120px;
+
+    padding: 22px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    box-shadow:
+        0 2px 12px
+        rgba(0, 0, 0, 0.04);
+}
+
+.summary-content {
+    display: flex;
+    flex-direction: column;
+
+    gap: 9px;
+}
+
+.summary-label {
+    color: #6b7280;
+
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.summary-number {
+    color: #111827;
+
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.titulaire-name {
+    color: #1f2937;
+
+    font-size: 15px;
+}
+
+.summary-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 48px;
+    height: 48px;
+
+    background: #f3f4f6;
+
+    border-radius: 50%;
+
+    font-size: 22px;
+}
+
+
+/* ============================================================
+   GESTION PÉDAGOGIQUE
+   ============================================================ */
+
+.future-card {
+    margin-bottom: 25px;
+    padding: 25px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    box-shadow:
+        0 2px 12px
+        rgba(0, 0, 0, 0.04);
+}
+
+.future-card h2 {
+    margin: 0 0 10px;
+
+    color: #111827;
+
+    font-size: 18px;
+}
+
+.future-card > p {
+    margin: 0 0 20px;
+
+    color: #6b7280;
+
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.future-items {
+    display: flex;
+
+    gap: 15px;
+
+    flex-wrap: wrap;
+}
+
+.future-item {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 10px 14px;
+
+    color: #374151;
+    background: #f8fafc;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 7px;
+
+    font-size: 13px;
+}
+
+.future-item span {
+    color: #2563eb;
+
+    font-size: 16px;
+}
+
+
+/* ============================================================
+   INFORMATION SYSTÈME
+   ============================================================ */
+
+.system-info {
+    padding: 17px 20px;
+
+    color: #475569;
+    background: #f8fafc;
+
+    border-left:
+        4px solid #2563eb;
+
+    border-radius: 7px;
+
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.system-info p {
+    margin: 0;
+}
+
+.system-info strong {
+    color: #1f2937;
+}
+
+
+/* ============================================================
+   RESPONSIVE TABLETTE
+   ============================================================ */
+
+@media screen and (max-width: 950px) {
+
+    .page-header {
+        flex-direction: column;
+    }
+
+    .header-actions {
+        width: 100%;
+    }
+
+    .details-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .detail-item:nth-child(3n) {
+        border-right: 1px solid #e5e7eb;
+    }
+
+    .detail-item:nth-child(2n) {
+        border-right: none;
+    }
+
+    .detail-item:nth-last-child(-n + 3) {
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .detail-item:nth-last-child(-n + 2) {
+        border-bottom: none;
+    }
+
+    .summary-grid {
+        grid-template-columns:
+            1fr;
+    }
+
+}
+
+
+/* ============================================================
+   RESPONSIVE MOBILE
+   ============================================================ */
+
+@media screen and (max-width: 600px) {
+
+    .classe-detail-page {
+        padding: 15px;
+    }
+
+    .title-row {
+        align-items: flex-start;
+        flex-direction: column;
+
+        gap: 10px;
+    }
+
+    .title-row h1 {
+        font-size: 25px;
+    }
+
+    .header-actions {
+        flex-direction: column;
+    }
+
+    .header-actions .btn {
+        width: 100%;
+    }
+
+    .details-grid {
+        grid-template-columns:
+            1fr;
+    }
+
+    .detail-item,
+    .detail-item:nth-child(2n),
+    .detail-item:nth-child(3n) {
+        border-right: none;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .detail-item:last-child {
+        border-bottom: none;
+    }
+
+    .card-header,
+    .future-card {
+        padding: 20px;
+    }
+
+    .future-items {
+        flex-direction: column;
+    }
+
+    .future-item {
+        width: 100%;
+
+        box-sizing: border-box;
+    }
+
+}

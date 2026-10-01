@@ -1,0 +1,1349 @@
+{% extends base_template %} {% load static %}
+{% block title %} Créer une répartition horaire {% endblock %}
+{% block extra_css %}
+    <link
+    rel="stylesheet"
+    href="{% static 'css/organisation/creer_repartition_horaire.css' %}"
+>
+{% endblock %}
+{% block content %}
+
+
+<!-- =====================================================
+     EN-TÊTE
+====================================================== -->
+
+<div class="page-header">
+
+    <div>
+
+        <a
+            href="{% url 'tableau_bord_repartition_horaire' %}"
+            class="back-link"
+        >
+            ← Retour au tableau de bord
+        </a>
+
+        <h1>
+            Créer une répartition horaire
+        </h1>
+
+        <p>
+            Configurez progressivement l'année scolaire,
+            la classe, la matière, le jour et le créneau horaire.
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     ERREURS GÉNÉRALES
+====================================================== -->
+
+{% if form.non_field_errors %}
+
+    <div class="form-errors">
+
+        {% for error in form.non_field_errors %}
+
+            <p>
+                {{ error }}
+            </p>
+
+        {% endfor %}
+
+    </div>
+
+{% endif %}
+
+
+<!-- =====================================================
+     FORMULAIRE
+====================================================== -->
+
+<form
+    method="post"
+    class="repartition-form"
+    id="repartitionForm"
+>
+
+    {% csrf_token %}
+
+
+    <!-- =================================================
+         CARTE PRINCIPALE
+    ================================================== -->
+
+    <div class="form-card">
+
+
+        <!-- =============================================
+             EN-TÊTE
+        ============================================== -->
+
+        <div class="card-header">
+
+            <h2>
+                Informations de programmation
+            </h2>
+
+            <p>
+                Sélectionnez les informations dans l'ordre.
+                Certaines listes seront chargées automatiquement.
+            </p>
+
+        </div>
+
+
+        <!-- =============================================
+             CONTENU
+        ============================================== -->
+
+        <div class="form-content">
+
+
+            <!-- =========================================
+                 ANNÉE SCOLAIRE
+            ========================================== -->
+
+            <div class="form-group">
+
+                <label
+                    for="{{ form.annee.id_for_label }}"
+                >
+                    Année scolaire
+                    <span class="required">*</span>
+                </label>
+
+                {{ form.annee }}
+
+                {% if form.annee.errors %}
+
+                    <div class="field-error">
+
+                        {% for error in form.annee.errors %}
+
+                            <span>
+                                {{ error }}
+                            </span>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+                <span class="field-help">
+                    Sélectionnez l'année scolaire concernée.
+                </span>
+
+            </div>
+
+
+            <!-- =========================================
+                 CLASSE
+            ========================================== -->
+
+            <div class="form-group">
+
+                <label
+                    for="{{ form.classe.id_for_label }}"
+                >
+                    Classe
+                    <span class="required">*</span>
+                </label>
+
+                {{ form.classe }}
+
+                {% if form.classe.errors %}
+
+                    <div class="field-error">
+
+                        {% for error in form.classe.errors %}
+
+                            <span>
+                                {{ error }}
+                            </span>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+                <span class="field-help">
+                    Sélectionnez d'abord une année scolaire.
+                </span>
+
+            </div>
+
+
+            <!-- =========================================
+                 MATIÈRE
+            ========================================== -->
+
+            <div class="form-group">
+
+                <label
+                    for="{{ form.affectation_matiere.id_for_label }}"
+                >
+                    Matière
+                    <span class="required">*</span>
+                </label>
+
+                {{ form.affectation_matiere }}
+
+                {% if form.affectation_matiere.errors %}
+
+                    <div class="field-error">
+
+                        {% for error in form.affectation_matiere.errors %}
+
+                            <span>
+                                {{ error }}
+                            </span>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+                <span class="field-help">
+                    Les matières sont chargées selon la classe sélectionnée.
+                </span>
+
+            </div>
+
+
+            <!-- =========================================
+                 AFFECTATION
+                 Ce bloc est affiché seulement si le champ
+                 existe dans le formulaire.
+            ========================================== -->
+
+            {% if form.affectation %}
+
+            <div class="form-group">
+
+                <label
+                    for="{{ form.affectation.id_for_label }}"
+                >
+                    Enseignant
+                    <span class="required">*</span>
+                </label>
+
+                {{ form.affectation }}
+
+                {% if form.affectation.errors %}
+
+                    <div class="field-error">
+
+                        {% for error in form.affectation.errors %}
+
+                            <span>
+                                {{ error }}
+                            </span>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+                <span class="field-help">
+                    Sélectionnez l'enseignant affecté à cette matière.
+                </span>
+
+            </div>
+
+            {% endif %}
+
+
+            <!-- =========================================
+                 JOUR
+            ========================================== -->
+
+            <div class="form-group">
+
+                <label
+                    for="{{ form.jour.id_for_label }}"
+                >
+                    Jour
+                    <span class="required">*</span>
+                </label>
+
+                {{ form.jour }}
+
+                {% if form.jour.errors %}
+
+                    <div class="field-error">
+
+                        {% for error in form.jour.errors %}
+
+                            <span>
+                                {{ error }}
+                            </span>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+                <span class="field-help">
+                    Choisissez le jour pendant lequel le cours aura lieu.
+                </span>
+
+            </div>
+
+
+            <!-- =========================================
+                 CRÉNEAU
+            ========================================== -->
+
+            <div class="form-group">
+
+                <label
+                    for="{{ form.creneau.id_for_label }}"
+                >
+                    Créneau horaire
+                    <span class="required">*</span>
+                </label>
+
+                {{ form.creneau }}
+
+                {% if form.creneau.errors %}
+
+                    <div class="field-error">
+
+                        {% for error in form.creneau.errors %}
+
+                            <span>
+                                {{ error }}
+                            </span>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+                <span class="field-help">
+                    Seuls les créneaux disponibles seront affichés.
+                </span>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         INFORMATIONS SUR LE VOLUME HORAIRE
+    ================================================== -->
+
+    <div
+        class="volume-info"
+        id="volumeInfo"
+        style="display: none;"
+    >
+
+        <div class="volume-item">
+
+            <span class="volume-label">
+                Heures prévues
+            </span>
+
+            <strong id="heuresPrevues">
+                0
+            </strong>
+
+        </div>
+
+
+        <div class="volume-item">
+
+            <span class="volume-label">
+                Heures programmées
+            </span>
+
+            <strong id="heuresProgrammees">
+                0
+            </strong>
+
+        </div>
+
+
+        <div class="volume-item">
+
+            <span class="volume-label">
+                Heures restantes
+            </span>
+
+            <strong id="heuresRestantes">
+                0
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         INFORMATION ENSEIGNANT
+    ================================================== -->
+
+    <div
+        class="enseignant-info"
+        id="enseignant-info"
+        style="display: none;"
+    >
+
+        <span class="enseignant-label">
+            Enseignant :
+        </span>
+
+        <strong id="enseignantNom">
+        </strong>
+
+    </div>
+
+
+    <!-- =================================================
+         INFORMATION
+    ================================================== -->
+
+    <div
+        class="info-box"
+        id="ajaxMessage"
+        style="display: none;"
+    >
+    </div>
+
+
+    <!-- =================================================
+         ACTIONS
+    ================================================== -->
+
+    <div class="form-actions">
+
+        <a
+            href="{% url 'tableau_bord_repartition_horaire' %}"
+            class="btn btn-secondary"
+        >
+            Annuler
+        </a>
+
+
+        <button
+            type="submit"
+            class="btn btn-primary"
+        >
+            Enregistrer la répartition
+        </button>
+
+    </div>
+
+
+</form>
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        // =================================================
+        // ÉLÉMENTS DU FORMULAIRE
+        // =================================================
+
+        const anneeSelect = document.getElementById(
+            "id_annee"
+        );
+
+        const classeSelect = document.getElementById(
+            "id_classe"
+        );
+
+        const matiereSelect = document.getElementById(
+            "id_affectation_matiere"
+        );
+
+        const jourSelect = document.getElementById(
+            "id_jour"
+        );
+
+        const creneauSelect = document.getElementById(
+            "id_creneau"
+        );
+
+
+        // =================================================
+        // ZONES D'INFORMATION
+        //
+        // Ces éléments sont optionnels.
+        // =================================================
+        const enseignantInfo = document.getElementById(
+            "enseignant-info"
+        );
+
+
+        const volumeInfo = document.getElementById(
+            "volumeInfo"
+        );
+
+
+        const messageInfo = document.getElementById(
+            "ajaxMessage"
+        );
+
+        // =================================================
+        // URLs AJAX
+        // =================================================
+
+        const urlClasses = "{% url 'ajax_classes_par_annee' %}";
+
+        const urlMatieres = "{% url 'ajax_matieres_par_classe' %}";
+
+        const urlCreneaux = "{% url 'ajax_creneaux_disponibles' %}";
+
+
+        // =================================================
+        // FONCTION :
+        // RÉINITIALISER UN SELECT
+        // =================================================
+
+        function resetSelect(
+            selectElement,
+            message
+        ) {
+
+            selectElement.innerHTML = "";
+
+            const option = document.createElement(
+                "option"
+            );
+
+            option.value = "";
+
+            option.textContent = message;
+
+            selectElement.appendChild(
+                option
+            );
+
+            selectElement.disabled = true;
+        }
+
+
+        // =================================================
+        // FONCTION :
+        // AFFICHER UNE ERREUR
+        // =================================================
+
+        function afficherMessage(
+            message,
+            type = "info"
+        ) {
+
+            if (!messageInfo) {
+                return;
+            }
+
+            messageInfo.textContent = message;
+
+            messageInfo.className =
+                "ajax-message " + type;
+        }
+
+
+        // =================================================
+        // ÉTAT INITIAL
+        // =================================================
+
+        if (classeSelect) {
+
+            classeSelect.disabled = true;
+        }
+
+
+        if (matiereSelect) {
+
+            matiereSelect.disabled = true;
+        }
+
+
+        if (creneauSelect) {
+
+            creneauSelect.disabled = true;
+        }
+
+
+        // =================================================
+        // CHANGEMENT D'ANNÉE
+        // =================================================
+
+        anneeSelect.addEventListener(
+            "change",
+            function () {
+
+                const anneeId =
+                    this.value;
+
+
+                // -----------------------------------------
+                // RÉINITIALISATION
+                // -----------------------------------------
+
+                resetSelect(
+                    classeSelect,
+                    "Sélectionnez une classe"
+                );
+
+                resetSelect(
+                    matiereSelect,
+                    "Sélectionnez une matière"
+                );
+
+                resetSelect(
+                    creneauSelect,
+                    "Sélectionnez un créneau"
+                );
+
+
+                if (messageInfo) {
+
+                    messageInfo.textContent = "";
+                }
+
+
+                // -----------------------------------------
+                // AUCUNE ANNÉE
+                // -----------------------------------------
+
+                if (!anneeId) {
+
+                    return;
+                }
+
+
+                // -----------------------------------------
+                // CHARGEMENT DES CLASSES
+                // -----------------------------------------
+
+                fetch(
+                    urlClasses
+                    + "?annee_id="
+                    + encodeURIComponent(
+                        anneeId
+                    )
+                )
+
+                .then(
+                    response => response.json()
+                )
+
+                .then(
+                    data => {
+
+                        classeSelect.innerHTML = "";
+
+                        const optionInitiale =
+                            document.createElement(
+                                "option"
+                            );
+
+                        optionInitiale.value = "";
+
+                        optionInitiale.textContent =
+                            "Sélectionnez une classe";
+
+                        classeSelect.appendChild(
+                            optionInitiale
+                        );
+
+
+                        if (
+                            data.classes
+                            && data.classes.length > 0
+                        ) {
+
+                            data.classes.forEach(
+                                classe => {
+
+                                    const option =
+                                        document
+                                        .createElement(
+                                            "option"
+                                        );
+
+                                    option.value =
+                                        classe.id;
+
+                                    option.textContent =
+                                        classe.nom;
+
+                                    classeSelect
+                                    .appendChild(
+                                        option
+                                    );
+                                }
+                            );
+
+
+                            classeSelect.disabled =
+                                false;
+
+                        } else {
+
+                            afficherMessage(
+                                "Aucune classe active "
+                                + "n'a été trouvée "
+                                + "pour cette année.",
+                                "warning"
+                            );
+                        }
+                    }
+                )
+
+                .catch(
+                    error => {
+
+                        console.error(
+                            error
+                        );
+
+                        afficherMessage(
+                            "Impossible de charger "
+                            + "les classes.",
+                            "error"
+                        );
+                    }
+                );
+            }
+        );
+
+
+        // =================================================
+        // CHANGEMENT DE CLASSE
+        // =================================================
+
+        classeSelect.addEventListener(
+            "change",
+            function () {
+
+                const anneeId =
+                    anneeSelect.value;
+
+                const classeId =
+                    this.value;
+
+
+                // -----------------------------------------
+                // RÉINITIALISATION
+                // -----------------------------------------
+
+                resetSelect(
+                    matiereSelect,
+                    "Sélectionnez une matière"
+                );
+
+                resetSelect(
+                    creneauSelect,
+                    "Sélectionnez un créneau"
+                );
+
+
+                if (enseignantInfo) {
+
+                    enseignantInfo.style.display =
+                        "none";
+
+                    document.getElementById(
+                        "enseignantNom"
+                    ).textContent = "";
+                }
+
+
+                if (volumeInfo) {
+
+                    volumeInfo.style.display =
+                        "none";
+
+                    document.getElementById(
+                        "heuresPrevues"
+                    ).textContent = "0";
+
+                    document.getElementById(
+                        "heuresProgrammees"
+                    ).textContent = "0";
+
+                    document.getElementById(
+                        "heuresRestantes"
+                    ).textContent = "0";
+                }
+
+
+                // -----------------------------------------
+                // VÉRIFICATION
+                // -----------------------------------------
+
+                if (
+                    !anneeId
+                    || !classeId
+                ) {
+
+                    return;
+                }
+
+
+                // -----------------------------------------
+                // CHARGEMENT DES MATIÈRES
+                // -----------------------------------------
+
+                fetch(
+                    urlMatieres
+                    + "?annee_id="
+                    + encodeURIComponent(
+                        anneeId
+                    )
+                    + "&classe_id="
+                    + encodeURIComponent(
+                        classeId
+                    )
+                )
+
+                .then(
+                    response => response.json()
+                )
+
+                .then(
+                    data => {
+
+                        matiereSelect.innerHTML =
+                            "";
+
+                        const optionInitiale =
+                            document
+                            .createElement(
+                                "option"
+                            );
+
+                        optionInitiale.value =
+                            "";
+
+                        optionInitiale.textContent =
+                            "Sélectionnez une matière";
+
+                        matiereSelect.appendChild(
+                            optionInitiale
+                        );
+
+
+                        if (
+                            data.matieres
+                            && data.matieres.length > 0
+                        ) {
+
+                            data.matieres.forEach(
+                                matiere => {
+
+                                    const option =
+                                        document
+                                        .createElement(
+                                            "option"
+                                        );
+
+                                    // IMPORTANT :
+                                    // ID = AffectationMatiere
+
+                                    option.value =
+                                        matiere.id;
+
+                                    option.textContent =
+                                        matiere.nom;
+
+                                    // Informations
+                                    // supplémentaires
+
+                                    option.dataset.enseignant =
+                                        (
+                                            matiere.enseignant
+                                            || ""
+                                        );
+
+                                    option.dataset.affectationId =
+                                        (
+                                            matiere.affectation_id
+                                            || ""
+                                        );
+
+                                    option.dataset.heuresPrevues =
+                                        (
+                                            matiere.heures_par_semaine
+                                            || 0
+                                        );
+
+                                    option.dataset.heuresProgrammees =
+                                        (
+                                            matiere.heures_programmees
+                                            || 0
+                                        );
+
+                                    option.dataset.heuresRestantes =
+                                        (
+                                            matiere.heures_restantes
+                                            || 0
+                                        );
+
+                                    option.dataset.peutProgrammer =
+                                        (
+                                            matiere.peut_programmer
+                                        );
+
+                                    option.dataset.message =
+                                        (
+                                            matiere.message
+                                            || ""
+                                        );
+
+                                    matiereSelect
+                                    .appendChild(
+                                        option
+                                    );
+                                }
+                            );
+
+
+                            matiereSelect.disabled =
+                                false;
+                        }
+                    }
+                )
+
+                .catch(
+                    error => {
+
+                        console.error(
+                            error
+                        );
+
+                        afficherMessage(
+                            "Impossible de charger "
+                            + "les matières.",
+                            "error"
+                        );
+                    }
+                );
+            }
+        );
+
+
+        // =================================================
+        // CHANGEMENT DE MATIÈRE
+        // =================================================
+
+        matiereSelect.addEventListener(
+            "change",
+            function () {
+
+                const option =
+                    this.options[
+                        this.selectedIndex
+                    ];
+
+
+                // -----------------------------------------
+                // ENSEIGNANT
+                // -----------------------------------------
+
+                if (enseignantInfo) {
+
+                    if (
+                        option.dataset.enseignant
+                    ) {
+
+                        document.getElementById(
+                            "enseignantNom"
+                        ).textContent =
+                            option.dataset
+                            .enseignant;
+
+                    } else {
+
+                        document.getElementById(
+                            "enseignantNom"
+                        ).textContent =
+                            "Aucun enseignant actif "
+                            + "n'est associé à "
+                            + "cette matière.";
+                    }
+                }
+
+
+                // -----------------------------------------
+                // VOLUME HORAIRE
+                // -----------------------------------------
+
+                if (volumeInfo) {
+
+                    volumeInfo.style.display =
+                        "block";
+
+                    document.getElementById(
+                        "heuresPrevues"
+                    ).textContent =
+                        (
+                            option.dataset
+                            .heuresPrevues
+                            || 0
+                        );
+
+                    document.getElementById(
+                        "heuresProgrammees"
+                    ).textContent =
+                        (
+                            option.dataset
+                            .heuresProgrammees
+                            || 0
+                        );
+
+                    document.getElementById(
+                        "heuresRestantes"
+                    ).textContent =
+                        (
+                            option.dataset
+                            .heuresRestantes
+                            || 0
+                        );
+                }
+
+
+                // -----------------------------------------
+                // MESSAGE
+                // -----------------------------------------
+
+                if (
+                    option.dataset.message
+                ) {
+
+                    afficherMessage(
+                        option.dataset.message,
+                        "info"
+                    );
+                }
+
+
+                // -----------------------------------------
+                // RÉINITIALISER CRÉNEAUX
+                // -----------------------------------------
+
+                resetSelect(
+                    creneauSelect,
+                    "Sélectionnez un créneau"
+                );
+
+
+                // -----------------------------------------
+                // CHARGER LES CRÉNEAUX
+                // SI LE JOUR EST DÉJÀ SÉLECTIONNÉ
+                // -----------------------------------------
+
+                chargerCreneaux();
+            }
+        );
+
+
+        // =================================================
+        // CHANGEMENT DE JOUR
+        // =================================================
+
+        jourSelect.addEventListener(
+            "change",
+            function () {
+
+                // -----------------------------------------
+                // RÉINITIALISATION
+                // -----------------------------------------
+
+                resetSelect(
+                    creneauSelect,
+                    "Sélectionnez un créneau"
+                );
+
+
+                // -----------------------------------------
+                // CHARGEMENT
+                // -----------------------------------------
+
+                chargerCreneaux();
+            }
+        );
+
+
+        // =================================================
+        // FONCTION PRINCIPALE :
+        // CHARGER LES CRÉNEAUX
+        // =================================================
+
+        function chargerCreneaux() {
+
+            const anneeId =
+                anneeSelect.value;
+
+            const classeId =
+                classeSelect.value;
+
+            const affectationMatiereId =
+                matiereSelect.value;
+
+            const jour =
+                jourSelect.value;
+
+
+            // ---------------------------------------------
+            // VÉRIFICATION
+            // ---------------------------------------------
+
+            if (
+                !anneeId
+                || !classeId
+                || !affectationMatiereId
+                || !jour
+            ) {
+
+                return;
+            }
+
+
+            // ---------------------------------------------
+            // MESSAGE
+            // ---------------------------------------------
+
+            afficherMessage(
+                "Chargement des créneaux disponibles...",
+                "info"
+            );
+
+
+            // ---------------------------------------------
+            // APPEL AJAX
+            // ---------------------------------------------
+
+            const url =
+                urlCreneaux
+                + "?annee_id="
+                + encodeURIComponent(
+                    anneeId
+                )
+                + "&classe_id="
+                + encodeURIComponent(
+                    classeId
+                )
+                + "&affectation_matiere_id="
+                + encodeURIComponent(
+                    affectationMatiereId
+                )
+                + "&jour="
+                + encodeURIComponent(
+                    jour
+                );
+
+
+            fetch(url)
+
+            .then(
+                response => {
+
+                    return response
+                    .json()
+                    .then(
+                        data => ({
+
+                            status:
+                                response.status,
+
+                            data:
+                                data,
+                        })
+                    );
+                }
+            )
+
+            .then(
+                result => {
+
+                    const data =
+                        result.data;
+
+
+                    // -------------------------------------
+                    // ERREUR AJAX
+                    // -------------------------------------
+
+                    if (
+                        data.error
+                    ) {
+
+                        afficherMessage(
+                            data.error,
+                            "warning"
+                        );
+
+                        return;
+                    }
+
+
+                    // -------------------------------------
+                    // RÉINITIALISATION
+                    // -------------------------------------
+
+                    creneauSelect.innerHTML =
+                        "";
+
+
+                    const optionInitiale =
+                        document
+                        .createElement(
+                            "option"
+                        );
+
+                    optionInitiale.value =
+                        "";
+
+                    optionInitiale.textContent =
+                        "Sélectionnez un créneau";
+
+                    creneauSelect.appendChild(
+                        optionInitiale
+                    );
+
+
+                    // -------------------------------------
+                    // AJOUT DES CRÉNEAUX
+                    // -------------------------------------
+
+                    if (
+                        data.creneaux
+                        && data.creneaux.length > 0
+                    ) {
+
+                        data.creneaux.forEach(
+                            creneau => {
+
+                                const option =
+                                    document
+                                    .createElement(
+                                        "option"
+                                    );
+
+                                option.value =
+                                    creneau.id;
+
+                                option.textContent =
+                                    creneau.libelle;
+
+                                creneauSelect
+                                .appendChild(
+                                    option
+                                );
+                            }
+                        );
+
+
+                        creneauSelect.disabled =
+                            false;
+
+
+                        // -----------------------------
+                        // INFORMATIONS VOLUME
+                        // -----------------------------
+
+                        if (
+                            volumeInfo
+                        ) {
+
+                            volumeInfo.style.display =
+                                "block";
+
+                            document.getElementById(
+                                "heuresPrevues"
+                            ).textContent =
+                                data.heures_prevues;
+
+                            document.getElementById(
+                                "heuresProgrammees"
+                            ).textContent =
+                                data.heures_programmees;
+
+                            document.getElementById(
+                                "heuresRestantes"
+                            ).textContent =
+                                data.heures_restantes;
+                        }
+
+
+                        // -----------------------------
+                        // ENSEIGNANT
+                        // -----------------------------
+
+                        if (
+                            enseignantInfo
+                            && data.enseignant
+                        ) {
+
+                            enseignantInfo.style.display =
+                                "block";
+
+                            document.getElementById(
+                                "enseignantNom"
+                            ).textContent =
+                                data.enseignant;
+                        }
+
+
+                        afficherMessage(
+                            data.creneaux.length
+                            + " créneau(x) disponible(s).",
+                            "success"
+                        );
+
+                    } else {
+
+                        afficherMessage(
+                            "Aucun créneau disponible "
+                            + "pour cette sélection.",
+                            "warning"
+                        );
+                    }
+                }
+            )
+
+            .catch(
+                error => {
+
+                    console.error(
+                        error
+                    );
+
+                    afficherMessage(
+                        "Une erreur est survenue "
+                        + "lors du chargement "
+                        + "des créneaux.",
+                        "error"
+                    );
+                }
+            );
+        }
+
+    }
+);
+
+</script>
+{% endblock %}

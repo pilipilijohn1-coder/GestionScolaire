@@ -1,0 +1,165 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Saisie des notes{% endblock %}
+
+{% block extra_css %}
+<style>
+    .evaluation-header {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 20px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 20px;
+    }
+    .evaluation-header h2 { margin: 0 0 5px; }
+    .evaluation-header p { margin: 0; color: #6b7280; }
+    .evaluation-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .evaluation-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        text-decoration: none;
+        color: #111827;
+        transition: 0.2s;
+    }
+    .evaluation-item:hover {
+        background: #f9fafb;
+        border-color: #c7d2fe;
+    }
+    .evaluation-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .evaluation-info strong { font-size: 15px; }
+    .evaluation-info span { color: #4b5563; font-size: 14px; }
+    .evaluation-info small { color: #9ca3af; }
+    .notes-form { margin-top: 20px; }
+    .note-input {
+        text-align: center;
+        font-weight: 600;
+    }
+    .form-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        padding: 20px 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+    <div class="page-header">
+        <div>
+            <h1>Saisie des notes</h1>
+            <p style="color:#6b7280;">Sélectionnez une évaluation puis saisissez les notes des élèves.</p>
+        </div>
+    </div>
+
+    
+
+    {% if not evaluation %}
+        <div class="filter-card">
+            <div class="filter-header">
+                <h2><i class="fa-solid fa-list"></i> Choisir une évaluation</h2>
+            </div>
+            <div class="evaluation-list">
+                {% for ev in evaluations_disponibles %}
+                    <a href="{% url 'saisie_notes' ev.id %}" class="evaluation-item">
+                        <div class="evaluation-info">
+                            <strong>{{ ev.libelle }}</strong>
+                            <span>{{ ev.affectation.affectation_matiere.classe.libelle }} — {{ ev.affectation.affectation_matiere.matiere.libelle }}</span>
+                            <small>{{ ev.date_evaluation|date:"d/m/Y" }} | Barème : {{ ev.bareme }}</small>
+                        </div>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                {% empty %}
+                    <p style="color:#6b7280; text-align:center; padding:20px;">Aucune évaluation disponible.</p>
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <div class="evaluation-header">
+            <h2>{{ evaluation.libelle }}</h2>
+            <p>
+                {{ evaluation.affectation.affectation_matiere.classe.libelle }}
+                — {{ evaluation.affectation.affectation_matiere.matiere.libelle }}
+                | Barème : {{ evaluation.bareme }}
+            </p>
+        </div>
+
+        <form method="post" class="notes-form">
+            {% csrf_token %}
+
+            <div class="table-card">
+                <div class="table-header">
+                    <div>
+                        <h2>Notes des élèves</h2>
+                        <p>{{ resultats|length }} élève{{ resultats|length|pluralize }}</p>
+                    </div>
+                </div>
+
+                {% if resultats %}
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Élève</th>
+                                    <th class="text-center">Note / {{ evaluation.bareme }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in resultats %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ item.eleve.nom }} {{ item.eleve.postnom }} {{ item.eleve.prenom }}</strong>
+                                        </td>
+                                        <td class="text-center">
+                                            <input
+                                                type="number"
+                                                step="0.01"
+                                                min="0"
+                                                max="{{ evaluation.bareme }}"
+                                                name="points_{{ item.eleve.id }}"
+                                                value="{{ item.resultat.points_obtenus|default_if_none:'' }}"
+                                                class="form-control note-input"
+                                                style="max-width: 120px; margin: 0 auto;"
+                                            >
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-save"></i> Enregistrer les notes
+                        </button>
+                        <a href="{% url 'mes_evaluations' %}" class="btn btn-secondary">
+                            <i class="fa-solid fa-arrow-left"></i> Retour
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fa-solid fa-user-graduate"></i>
+                        <h3>Aucun élève inscrit</h3>
+                        <p>Aucun élève n'est inscrit dans cette classe pour l'année en cours.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </form>
+    {% endif %}
+
+</div>
+{% endblock %}

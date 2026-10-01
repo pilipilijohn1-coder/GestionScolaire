@@ -1,0 +1,358 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Affectations des enseignants{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --ae-primary: #2563eb;
+        --ae-primary-dark: #1e40af;
+        --ae-bg: #f8fafc;
+        --ae-border: #e2e8f0;
+        --ae-text: #1e293b;
+        --ae-text-secondary: #64748b;
+        --ae-success: #16a34a;
+        --ae-warning: #d97706;
+        --ae-danger: #dc2626;
+        --ae-card-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+        --ae-card-shadow-hover: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+    }
+
+    .ae-page-header {
+        max-width: 1200px;
+        margin: 0 auto 28px;
+    }
+
+    .ae-page-header h1 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--ae-text);
+    }
+
+    .ae-page-header p {
+        margin: 8px 0 0;
+        color: var(--ae-text-secondary);
+        font-size: 14px;
+    }
+
+    .ae-grid {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 20px;
+    }
+
+    .ae-card {
+        background: #ffffff;
+        border: 1px solid var(--ae-border);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: var(--ae-card-shadow);
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .ae-card:hover {
+        border-color: var(--ae-primary);
+        transform: translateY(-3px);
+        box-shadow: var(--ae-card-shadow-hover);
+    }
+
+    .ae-card-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .ae-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .ae-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .ae-avatar-placeholder {
+        font-size: 20px;
+        color: var(--ae-text-secondary);
+    }
+
+    .ae-card-info {
+        flex: 1;
+    }
+
+    .ae-card-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--ae-text);
+        margin: 0;
+    }
+
+    .ae-card-meta {
+        font-size: 12px;
+        color: var(--ae-text-secondary);
+        line-height: 1.5;
+        margin: 2px 0 0;
+    }
+
+    .ae-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        margin-left: 6px;
+    }
+
+    .ae-badge-assigned {
+        background: #dcfce7;
+        color: var(--ae-success);
+    }
+
+    .ae-badge-unassigned {
+        background: #fef3c7;
+        color: var(--ae-warning);
+    }
+
+    .ae-affectations-list {
+        margin-top: 16px;
+        padding: 12px;
+        background: #f8fafc;
+        border-radius: 10px;
+        border: 1px solid var(--ae-border);
+        display: none;
+    }
+
+    .ae-affectations-list.visible {
+        display: block;
+    }
+
+    .ae-affectation-item {
+        padding: 8px 0;
+        border-bottom: 1px solid var(--ae-border);
+        font-size: 13px;
+    }
+
+    .ae-affectation-item:last-child {
+        border-bottom: none;
+    }
+
+    .ae-affectation-item .ae-cours-label {
+        font-weight: 600;
+        color: var(--ae-text);
+    }
+
+    .ae-affectation-item .ae-classe-label {
+        color: var(--ae-text-secondary);
+        font-size: 12px;
+    }
+
+    .ae-card-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+    }
+
+    .ae-btn {
+        flex: 1;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        text-align: center;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+    }
+
+    .ae-btn-detail {
+        background: #eef2ff;
+        color: var(--ae-primary);
+    }
+
+    .ae-btn-detail:hover {
+        background: #e0e7ff;
+    }
+
+    .ae-btn-affectations {
+        background: #f1f5f9;
+        color: var(--ae-text);
+    }
+
+    .ae-btn-affectations:hover {
+        background: #e2e8f0;
+    }
+
+    .ae-btn-assign {
+        background: #dcfce7;
+        color: var(--ae-success);
+    }
+
+    .ae-btn-assign:hover {
+        background: #c6f6d5;
+    }
+
+    .ae-empty-state {
+        max-width: 1200px;
+        margin: 0 auto;
+        text-align: center;
+        padding: 40px;
+        color: var(--ae-text-secondary);
+        font-size: 14px;
+    }
+
+    @media (max-width: 640px) {
+        .ae-grid {
+            grid-template-columns: 1fr;
+        }
+        .ae-card-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ae-page-header">
+    <h1>Affectations des enseignants</h1>
+    <p>
+        Visualisez les enseignants, leurs affectations et
+        attribuez rapidement des cours à une classe.
+    </p>
+</div>
+
+{% if enseignants_data %}
+<div class="ae-grid">
+    {% for item in enseignants_data %}
+    <div class="ae-card">
+        <div class="ae-card-header">
+            <div class="ae-avatar">
+                {% if item.enseignant.utilisateur.photo_profil %}
+                <img src="{{ item.enseignant.utilisateur.photo_profil.url }}" alt="Photo">
+                {% else %}
+                <span class="ae-avatar-placeholder">
+                    {{ item.enseignant.utilisateur.prenom|first }}{{ item.enseignant.utilisateur.nom|first }}
+                </span>
+                {% endif %}
+            </div>
+            <div class="ae-card-info">
+                <h2 class="ae-card-title">
+                    {{ item.enseignant.utilisateur.nom }} {{ item.enseignant.utilisateur.prenom }}
+                </h2>
+                <div class="ae-card-meta">
+                    Matricule : <strong>{{ item.enseignant.matricule }}</strong>
+                </div>
+                {% if item.enseignant.grade %}
+                <div class="ae-card-meta">
+                    Grade : {{ item.enseignant.grade }}
+                </div>
+                {% else %}
+                <div class="ae-card-meta">
+                    Grade : <em>Non renseigné</em>
+                </div>
+                {% endif %}
+                {% if item.enseignant.specialite %}
+                <div class="ae-card-meta">
+                    Spécialité : {{ item.enseignant.specialite }}
+                </div>
+                {% else %}
+                <div class="ae-card-meta">
+                    Spécialité : <em>Non renseignée</em>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Badge d'affectation -->
+        <div style="margin-bottom: 12px;">
+            {% if item.nombre_affectations > 0 %}
+            <span class="ae-badge ae-badge-assigned">
+                {{ item.nombre_affectations }} affectation(s)
+            </span>
+            {% else %}
+            <span class="ae-badge ae-badge-unassigned">
+                Non affecté
+            </span>
+            {% endif %}
+        </div>
+
+        <!-- Liste des affectations -->
+        <div class="ae-affectations-list" id="affectations-{{ item.enseignant.id }}">
+            {% if item.affectations %}
+            {% for aff in item.affectations %}
+            <div class="ae-affectation-item">
+                <div class="ae-cours-label">
+                    {{ aff.affectation_matiere.matiere.libelle }}
+                </div>
+                <div class="ae-classe-label">
+                    {{ aff.affectation_matiere.classe.libelle }}
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="ae-affectation-item">
+                <span class="ae-cours-label" style="color: var(--ae-text-secondary);">
+                    Aucune affectation
+                </span>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Boutons d'actions -->
+        <div class="ae-card-actions">
+            <a href="{% url 'detail_enseignant' item.enseignant.id %}"
+               class="ae-btn ae-btn-detail"
+               title="Voir le détail de l'enseignant">
+                <i class="fas fa-eye"></i> Voir détail
+            </a>
+            <button type="button" class="ae-btn ae-btn-affectations"
+                    onclick="toggleAffectations('affectations-{{ item.enseignant.id }}', this)"
+                    title="Voir les affectations de l'enseignant">
+                <i class="fas fa-book"></i> Voir affectations
+            </button>
+            <a href="{% url 'creer_affectation' %}?enseignant_id={{ item.enseignant.id }}"
+               class="ae-btn ae-btn-assign"
+               title="Affecter un cours à cet enseignant">
+                <i class="fas fa-plus"></i> Affecter
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="ae-empty-state">
+    <i class="fas fa-info-circle" style="font-size: 32px; margin-bottom: 12px;"></i>
+    <p>Aucun enseignant disponible pour la gestion des affectations.</p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleAffectations(elementId, button) {
+        const el = document.getElementById(elementId);
+        if (el) {
+            el.classList.toggle('visible');
+        }
+    }
+</script>
+{% endblock %}

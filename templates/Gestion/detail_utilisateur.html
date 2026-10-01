@@ -1,0 +1,679 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+    Détail utilisateur
+{% endblock %}
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/detail_utilisateur.css' %}"
+>
+{% endblock %}
+
+{% block content %}
+
+<div class="detail-utilisateur">
+
+    <!-- ================================================== -->
+    <!-- EN-TÊTE -->
+    <!-- ================================================== -->
+    <div class="detail-header">
+
+        <div class="detail-header-info">
+            <h1>
+                {{ utilisateur.prenom }}
+                {{ utilisateur.nom }}
+            </h1>
+
+            <p>
+                Consultation des informations,
+                de l'état du compte et de l'activité récente.
+            </p>
+        </div>
+
+        <div class="detail-actions">
+
+    <a
+        href="{% url 'liste_utilisateurs' %}"
+        class="btn btn-secondary"
+    >
+        Retour
+    </a>
+
+    <a
+        href="{% url 'modifier_utilisateur' utilisateur.id %}"
+        class="btn btn-primary"
+    >
+        Modifier
+    </a>
+
+    <a
+        href="{% url 'activites_utilisateur' utilisateur.id %}"
+        class="btn btn-info"
+    >
+        Activités
+    </a>
+
+    <a
+        href="{% url 'reinitialiser_mot_de_passe' utilisateur.id %}"
+        class="btn btn-warning"
+    >
+        Réinitialiser le mot de passe
+    </a>
+
+</div>
+
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- RÉSUMÉ DU COMPTE -->
+    <!-- ================================================== -->
+    <div class="user-summary-card">
+
+        <div class="user-summary-main">
+
+            <div class="user-avatar">
+                {{ utilisateur.prenom|first }}{{ utilisateur.nom|first }}
+            </div>
+
+            <div class="user-summary-info">
+
+                <h2>
+                    {{ utilisateur.prenom }}
+                    {% if utilisateur.postnom %}
+                        {{ utilisateur.postnom }}
+                    {% endif %}
+                    {{ utilisateur.nom }}
+                </h2>
+
+                <p>
+                    Compte utilisateur
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="user-summary-status">
+
+            {% if utilisateur.actif %}
+
+                <span class="status status-active">
+                    Compte actif
+                </span>
+
+            {% else %}
+
+                <span class="status status-inactive">
+                    Compte désactivé
+                </span>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- INFORMATIONS PERSONNELLES -->
+    <!-- ================================================== -->
+    <div class="detail-card">
+
+        <div class="card-title">
+
+            <div>
+                <h2>Informations personnelles</h2>
+
+                <p>
+                    Informations générales concernant l'utilisateur.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="detail-grid">
+
+            <div class="detail-item">
+                <span class="detail-label">
+                    Nom
+                </span>
+
+                <span class="detail-value">
+                    {{ utilisateur.nom }}
+                </span>
+            </div>
+
+
+            <div class="detail-item">
+                <span class="detail-label">
+                    Postnom
+                </span>
+
+                <span class="detail-value">
+                    {{ utilisateur.postnom|default:"Non renseigné" }}
+                </span>
+            </div>
+
+
+            <div class="detail-item">
+                <span class="detail-label">
+                    Prénom
+                </span>
+
+                <span class="detail-value">
+                    {{ utilisateur.prenom }}
+                </span>
+            </div>
+
+
+            <div class="detail-item">
+                <span class="detail-label">
+                    Téléphone
+                </span>
+
+                <span class="detail-value">
+                    {{ utilisateur.telephone|default:"Non renseigné" }}
+                </span>
+            </div>
+
+
+            <div class="detail-item full-width">
+
+                <span class="detail-label">
+                    Adresse e-mail
+                </span>
+
+                <span class="detail-value">
+                    {{ utilisateur.email|default:"Non renseigné" }}
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- COMPTE ET ACTIVITÉ ACTUELLE -->
+    <!-- ================================================== -->
+    <div class="detail-card">
+
+        <div class="card-title">
+
+            <div>
+                <h2>Informations du compte</h2>
+
+                <p>
+                    État actuel et informations d'accès au système.
+                </p>
+            </div>
+
+        </div>
+
+
+        {% if compte %}
+
+            <div class="detail-grid">
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Identifiant
+                    </span>
+
+                    <span class="detail-value">
+                        {{ compte.login }}
+                    </span>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Compte créé le
+                    </span>
+
+                    <span class="detail-value">
+
+                        {{ utilisateur.date_creation|date:"d/m/Y à H:i" }}
+
+                    </span>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Dernière connexion
+                    </span>
+
+                    <span class="detail-value">
+
+                        {% if compte.dernier_login %}
+
+                            {{ compte.dernier_login|date:"d/m/Y à H:i" }}
+
+                        {% else %}
+
+                            Jamais connecté
+
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span class="detail-label">
+                        Échecs de connexion
+                    </span>
+
+                    <span class="detail-value">
+
+                        {{ compte.echecs_connexion }}
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-message">
+
+                Aucun compte d'authentification
+                n'est associé à cet utilisateur.
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- SÉCURITÉ DU COMPTE -->
+    <!-- ================================================== -->
+    {% if compte %}
+
+        <div class="detail-card">
+
+            <div class="card-title">
+
+                <div>
+                    <h2>Sécurité du compte</h2>
+
+                    <p>
+                        État actuel de la sécurité et de l'accès au compte.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="security-grid">
+
+
+                <!-- ÉTAT DU COMPTE -->
+                <div class="security-item">
+
+                    <span class="security-label">
+                        État du compte
+                    </span>
+
+                    {% if utilisateur.actif %}
+
+                        <span class="status status-active">
+                            Actif
+                        </span>
+
+                    {% else %}
+
+                        <span class="status status-inactive">
+                            Désactivé
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- VERROUILLAGE -->
+                <div class="security-item">
+
+                    <span class="security-label">
+                        Verrouillage temporaire
+                    </span>
+
+                    {% if compte.verrouille_jusqu_a %}
+
+                        <span class="status status-warning">
+
+                            Jusqu'au
+                            {{ compte.verrouille_jusqu_a|date:"d/m/Y H:i" }}
+
+                        </span>
+
+                    {% else %}
+
+                        <span class="status status-neutral">
+                            Non verrouillé
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- MOT DE PASSE -->
+                <div class="security-item">
+
+                    <span class="security-label">
+                        Changement du mot de passe
+                    </span>
+
+                    {% if compte.changement_mdp_obligatoire %}
+
+                        <span class="status status-warning">
+                            Obligatoire
+                        </span>
+
+                    {% else %}
+
+                        <span class="status status-neutral">
+                            Non obligatoire
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- ÉCHECS -->
+                <div class="security-item">
+
+                    <span class="security-label">
+                        Échecs actuels
+                    </span>
+
+                    <strong>
+                        {{ compte.echecs_connexion }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- ================================================== -->
+    <!-- RÔLES ATTRIBUÉS -->
+    <!-- ================================================== -->
+    <div class="detail-card">
+
+        <div class="card-title">
+
+            <div>
+                <h2>Rôles attribués</h2>
+
+                <p>
+                    Rôles actuellement actifs pour cet utilisateur.
+                </p>
+            </div>
+
+        </div>
+
+
+        {% if roles %}
+
+            <div class="roles-list">
+
+                {% for attribution in roles %}
+
+                    <div class="role-item">
+
+                        <div>
+
+                            <span class="role-name">
+
+                                {{ attribution.role.libelle }}
+
+                            </span>
+
+                            <span class="role-date">
+
+                                Attribué le
+                                {{ attribution.date_attribution|date:"d/m/Y H:i" }}
+
+                            </span>
+
+                        </div>
+
+
+                        <span class="status status-active">
+                            Actif
+                        </span>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-message">
+
+                Aucun rôle actif n'est attribué
+                à cet utilisateur.
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- ACTIVITÉ RÉCENTE -->
+    <!-- ================================================== -->
+    <div class="detail-card activity-card">
+
+        <div class="card-title activity-header">
+
+            <div>
+
+                <h2>Activité récente</h2>
+
+                <p>
+                    Dernières actions enregistrées
+                    concernant cet utilisateur.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        {% if historiques %}
+
+            <div class="activity-list">
+
+                {% for historique in historiques %}
+
+                    <div class="activity-item">
+
+
+                        <div class="activity-date">
+
+                            <strong>
+
+                                {{ historique.date_action|date:"d/m/Y" }}
+
+                            </strong>
+
+                            <span>
+
+                                {{ historique.date_action|date:"H:i" }}
+
+                            </span>
+
+                        </div>
+
+
+                        <div class="activity-content">
+
+                            <h3>
+
+                                {{ historique.type_action.libelle }}
+
+                            </h3>
+
+
+                            {% if historique.utilisateur %}
+
+                                <p>
+
+                                    Action effectuée par :
+
+                                    <strong>
+
+                                        {{ historique.utilisateur.prenom }}
+                                        {{ historique.utilisateur.nom }}
+
+                                    </strong>
+
+                                </p>
+
+                            {% else %}
+
+                                <p>
+
+                                    Action effectuée par le système.
+
+                                </p>
+
+                            {% endif %}
+
+
+                            {% if historique.motif %}
+
+                                <p class="activity-motif">
+
+                                    {{ historique.motif }}
+
+                                </p>
+
+                            {% endif %}
+
+                        </div>
+
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-activity">
+
+                <strong>
+                    Aucune activité enregistrée
+                </strong>
+
+                <p>
+                    Les prochaines actions importantes
+                    concernant cet utilisateur apparaîtront ici.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- ACTIONS -->
+    <!-- ================================================== -->
+    <div class="detail-footer">
+
+        <a
+            href="{% url 'liste_utilisateurs' %}"
+            class="btn btn-secondary"
+        >
+            Retour à la liste
+        </a>
+
+
+        <a
+            href="{% url 'modifier_utilisateur' utilisateur.id %}"
+            class="btn btn-primary"
+        >
+            Modifier l'utilisateur
+        </a>
+
+
+        <a
+            href="{% url 'reinitialiser_mot_de_passe' utilisateur.id %}"
+            class="btn btn-warning"
+        >
+            Réinitialiser le mot de passe
+        </a>
+
+
+        <!-- Activation / désactivation -->
+         
+<form
+        method="POST"
+        action="{% url 'desactiver_utilisateur' utilisateur.id %}"
+        class="action-form"
+    >
+        {% csrf_token %}
+
+        {% if utilisateur.actif %}
+            <button
+                type="submit"
+                class="btn btn-danger"
+                onclick="return confirm(
+                    'Voulez-vous vraiment désactiver cet utilisateur ?'
+                );"
+            >
+                Désactiver l'utilisateur
+            </button>
+        {% else %}
+            <button
+                type="submit"
+                class="btn btn-success"
+                onclick="return confirm(
+                    'Voulez-vous vraiment activer cet utilisateur ?'
+                );"
+            >
+                Activer l'utilisateur
+            </button>
+        {% endif %}
+    </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

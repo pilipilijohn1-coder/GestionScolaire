@@ -1,0 +1,300 @@
+{% extends base_template %}
+{% load static %}
+
+
+{% block title %}
+    Modifier une matière
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/modifier_matiere.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="matiere-form-page">
+
+
+    <!-- =====================================================
+         EN-TÊTE
+    ====================================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <a
+                href="{% url 'detail_matiere' matiere.id %}"
+                class="back-link"
+            >
+                ← Retour au détail de la matière
+            </a>
+
+
+            <h1>
+                Modifier la matière
+            </h1>
+
+
+            <p>
+                Modifiez les informations enregistrées pour
+                <strong>{{ matiere.libelle }}</strong>.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         ERREURS GÉNÉRALES
+    ====================================================== -->
+
+    {% if form.non_field_errors %}
+
+        <div class="form-errors">
+
+            {% for error in form.non_field_errors %}
+
+                <p>
+                    {{ error }}
+                </p>
+
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- =====================================================
+         FORMULAIRE
+    ====================================================== -->
+
+    <form
+        method="post"
+        class="matiere-form"
+    >
+
+        {% csrf_token %}
+
+
+        <div class="form-card">
+
+
+            <!-- =============================================
+                 EN-TÊTE DE LA CARTE
+            ============================================== -->
+
+            <div class="card-header">
+
+                <h2>
+                    Informations de la matière
+                </h2>
+
+                <p>
+                    Modifiez uniquement les informations
+                    nécessaires.
+                </p>
+
+            </div>
+
+
+            <!-- =============================================
+                 CHAMPS
+            ============================================== -->
+
+            <div class="form-content">
+
+
+                <!-- CODE -->
+
+                <div class="form-group">
+
+                    <label for="{{ form.code.id_for_label }}">
+
+                        Code
+                        <span class="required">*</span>
+
+                    </label>
+
+
+                    {{ form.code }}
+
+
+                    {% if form.code.errors %}
+
+                        <div class="field-error">
+
+                            {% for error in form.code.errors %}
+
+                                <span>
+                                    {{ error }}
+                                </span>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <span class="field-help">
+
+                        Le code doit être unique.
+                        Exemple : MATH ou FRAN.
+
+                    </span>
+
+                </div>
+
+
+                <!-- LIBELLÉ -->
+
+                <div class="form-group">
+
+                    <label
+                        for="{{ form.libelle.id_for_label }}"
+                    >
+
+                        Nom de la matière
+                        <span class="required">*</span>
+
+                    </label>
+
+
+                    {{ form.libelle }}
+
+
+                    {% if form.libelle.errors %}
+
+                        <div class="field-error">
+
+                            {% for error in form.libelle.errors %}
+
+                                <span>
+                                    {{ error }}
+                                </span>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- DESCRIPTION -->
+
+                <div class="form-group form-group-full">
+
+                    <label
+                        for="{{ form.description.id_for_label }}"
+                    >
+                        Description
+                    </label>
+
+
+                    {{ form.description }}
+
+
+                    {% if form.description.errors %}
+
+                        <div class="field-error">
+
+                            {% for error in form.description.errors %}
+
+                                <span>
+                                    {{ error }}
+                                </span>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <span class="field-help">
+
+                        Ce champ est facultatif.
+
+                    </span>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             INFORMATION SUR LE STATUT
+        ================================================== -->
+
+        <div class="status-info-box">
+
+            <strong>Statut actuel :</strong>
+
+            {% if matiere.actif %}
+
+                <span class="status active">
+                    Active
+                </span>
+
+            {% else %}
+
+                <span class="status inactive">
+                    Désactivée
+                </span>
+
+            {% endif %}
+
+            <span class="status-text">
+                Le statut de la matière se modifie depuis
+                l'interface d'activation ou de désactivation.
+            </span>
+
+        </div>
+
+
+        <!-- =================================================
+             ACTIONS
+        ================================================== -->
+
+        <div class="form-actions">
+
+
+            <a
+                href="{% url 'detail_matiere' matiere.id %}"
+                class="btn btn-secondary"
+            >
+                Annuler
+            </a>
+
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Enregistrer les modifications
+            </button>
+
+
+        </div>
+
+
+    </form>
+
+</div>
+
+{% endblock %}

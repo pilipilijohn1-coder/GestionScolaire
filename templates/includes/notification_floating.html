@@ -1,0 +1,89 @@
+{% load static %}
+
+<!-- FAB NOTICEUR DE NOTIFICATIONS -->
+<div class="notification-float">
+    <button id="notification-float-btn" class="notification-float-btn" title="Notifications">
+        <i class="fa-solid fa-bell"></i>
+        {% if nb_notifications_non_lues > 0 %}
+        <span class="notification-badge">{{ nb_notifications_non_lues }}</span>
+        {% endif %}
+    </button>
+</div>
+
+<!-- POPUP DE NOTIFICATIONS -->
+<div id="notification-popup" class="notification-popup">
+    <div class="notification-popup-header">
+        <h3>Notifications</h3>
+        <button id="notification-popup-close" class="close-btn">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+    <div id="notification-popup-body" class="notification-popup-body">
+        <div style="padding: 20px; text-align: center; color: #6b7280; font-size: 13px;">
+            Chargement des notifications...
+        </div>
+    </div>
+    <div class="notification-popup-footer">
+        <a href="{% url 'liste_notifications' %}">Voir toutes les notifications</a>
+    </div>
+</div>
+
+<script>
+var notificationBtn = document.getElementById('notification-float-btn');
+var notificationPopup = document.getElementById('notification-popup');
+var notificationPopupClose = document.getElementById('notification-popup-close');
+var notificationPopupBody = document.getElementById('notification-popup-body');
+
+if (notificationBtn && notificationPopup) {
+    notificationBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        notificationPopup.classList.toggle('notification-popup--open');
+        if (notificationPopup.classList.contains('notification-popup--open')) {
+            loadNotifications();
+        }
+    });
+
+    notificationPopupClose.addEventListener('click', function() {
+        notificationPopup.classList.remove('notification-popup--open');
+    });
+
+    notificationPopup.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+
+    window.addEventListener('click', function() {
+        notificationPopup.classList.remove('notification-popup--open');
+    });
+}
+
+function loadNotifications() {
+    fetch("{% url 'ajax_notifications_recentes' %}")
+        .then(function(response) {
+            if (!response.ok) {
+                throw new Error("Erreur HTTP " + response.status);
+            }
+            return response.json();
+        })
+        .then(function(data) {
+            var html = '';
+            if (data.notifications && data.notifications.length > 0) {
+                data.notifications.forEach(function(notif) {
+                    var unreadClass = notif.lu ? '' : 'notification-popup-item--unread';
+                    html += '<div class="notification-popup-item ' + unreadClass + '">';
+                    html += '<span class="notification-type type-' + notif.type_code + '">' + notif.type_code.toUpperCase() + '</span>';
+                    html += '<span class="notification-title">' + notif.objet + '</span>';
+                    html += '<span class="notification-text">' + notif.contenu + '</span>';
+                    html += '<span class="notification-date">' + notif.date_creation + '</span>';
+                    html += '</div>';
+                });
+            } else {
+                html = '<div style="padding: 30px; text-align: center; color: #9ca3af; font-size: 13px;"><i class="fas fa-inbox" style="font-size: 36px; display: block; margin-bottom: 10px;"></i>Aucune notification pour le moment.</div>';
+            }
+            notificationPopupBody.innerHTML = html;
+        })
+        .catch(function(error) {
+            console.error('Erreur:', error);
+            notificationPopupBody.innerHTML = '<div style="padding: 20px; text-align: center; color: #ef4444; font-size: 13px;">Erreur lors du chargement.</div>';
+        });
+}
+</script>

@@ -1,0 +1,616 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+    Tableau de bord des répartitions horaires
+{% endblock %}
+
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/organisation/tableau_bord_repartition_horaire.css' %}"
+>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="repartition-dashboard">
+
+
+    <!-- =====================================================
+        EN-TÊTE
+    ====================================================== -->
+
+    <div class="page-header">
+
+        <div class="page-header-content">
+
+            <h1>
+                Tableau de bord des horaires
+            </h1>
+
+            <p>
+                Suivez l'état d'avancement de la répartition
+                des horaires pour chaque classe.
+            </p>
+
+        </div>
+
+
+        <div class="page-header-actions">
+
+            <a
+                href="{% url 'creer_repartition_horaire' %}"
+                class="btn btn-primary"
+            >
+                Répartir un horaire
+            </a>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+        FILTRE PAR ANNÉE SCOLAIRE
+    ====================================================== -->
+
+    <div class="filter-card">
+
+        <form
+            method="get"
+            class="year-filter-form"
+        >
+
+            <div class="filter-group">
+
+                <label for="annee">
+                    Année scolaire
+                </label>
+
+                <select
+                    name="annee"
+                    id="annee"
+                    onchange="this.form.submit()"
+                >
+
+                    {% for annee in annees %}
+
+                        <option
+                            value="{{ annee.id }}"
+
+                            {% if annee_selectionnee and annee.id == annee_selectionnee.id %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ annee.libelle }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+
+    <!-- =====================================================
+        ANNÉE SÉLECTIONNÉE
+    ====================================================== -->
+
+    {% if annee_selectionnee %}
+
+        <div class="selected-year">
+
+            <span>
+                Année scolaire
+            </span>
+
+            <strong>
+                {{ annee_selectionnee.libelle }}
+            </strong>
+
+        </div>
+
+    {% endif %}
+
+
+
+    <!-- =====================================================
+        STATISTIQUES GLOBALES
+    ====================================================== -->
+
+    <div class="statistics-grid">
+
+
+        <!-- TOTAL DES CLASSES -->
+
+        <div class="stat-card">
+
+            <div class="stat-card-content">
+
+                <span class="stat-label">
+                    Classes
+                </span>
+
+                <strong class="stat-value">
+                    {{ total_classes }}
+                </strong>
+
+                <span class="stat-description">
+                    Classes concernées
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- CLASSES COMPLÈTES -->
+
+        <div class="stat-card stat-complete">
+
+            <div class="stat-card-content">
+
+                <span class="stat-label">
+                    Horaires complets
+                </span>
+
+                <strong class="stat-value">
+                    {{ classes_completes }}
+                </strong>
+
+                <span class="stat-description">
+                    Répartitions terminées
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- CLASSES INCOMPLÈTES -->
+
+        <div class="stat-card stat-incomplete">
+
+            <div class="stat-card-content">
+
+                <span class="stat-label">
+                    Horaires incomplets
+                </span>
+
+                <strong class="stat-value">
+                    {{ classes_incompletes }}
+                </strong>
+
+                <span class="stat-description">
+                    Répartitions à compléter
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- CLASSES NON CONFIGURÉES -->
+
+        <div class="stat-card stat-not-configured">
+
+            <div class="stat-card-content">
+
+                <span class="stat-label">
+                    Non configurées
+                </span>
+
+                <strong class="stat-value">
+                    {{ classes_non_configurees }}
+                </strong>
+
+                <span class="stat-description">
+                    Aucun volume horaire défini
+                </span>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    {% if annee_selectionnee and not configuration.verrouillee %}
+
+        <div class="alert alert-warning">
+
+            <i class="fas fa-exclamation-triangle"></i>
+
+            <div>
+
+                <strong>
+                    Configuration horaire non verrouillée
+                </strong>
+
+                <p>
+                    La configuration horaire de l'année
+                    <strong>
+                        {{ annee_selectionnee.libelle }}
+                    </strong>
+                    n'est pas verrouillée. Vous devez d'abord
+                    configurer et verrouiller la journée
+                    avant de pouvoir répartir les cours.
+                </p>
+
+                <a
+                    href="{% url 'configuration_journee' %}?annee_id={{ annee_selectionnee.id }}"
+                    class="btn btn-warning"
+                >
+                    <i class="fas fa-cog"></i>
+                    Configurer la journée
+                </a>
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- =====================================================
+        TITRE DE LA SECTION
+    ====================================================== -->
+
+    <div class="section-header">
+
+        <div>
+
+            <h2>
+                État des horaires par classe
+            </h2>
+
+            <p>
+                Consultez l'avancement de la répartition
+                horaire de chaque classe.
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+        LISTE DES CLASSES
+    ====================================================== -->
+
+    {% if classes_horaires %}
+
+        <div class="classes-grid">
+
+
+            {% for item in classes_horaires %}
+
+
+                <!-- =========================================
+                    CARTE CLASSE
+                ========================================== -->
+
+                <div class="classe-card">
+
+
+                    <!-- =====================================
+                        EN-TÊTE
+                    ====================================== -->
+
+                    <div class="classe-card-header">
+
+
+                        <div class="classe-title">
+
+                            <h3>
+                                {{ item.classe.libelle }}
+                            </h3>
+
+
+                            <div class="classe-information">
+
+                                <span>
+                                    {{ item.classe.niveau.libelle }}
+                                </span>
+
+
+                                {% if item.classe.section %}
+
+                                    <span>
+                                        {{ item.classe.section.libelle }}
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- =================================
+                            STATUT
+                        ================================== -->
+
+                        {% if item.etat == "COMPLETE" %}
+
+                            <span class="status status-complete">
+                                Complète
+                            </span>
+
+
+                        {% elif item.etat == "INCOMPLETE" %}
+
+                            <span class="status status-incomplete">
+                                Incomplète
+                            </span>
+
+
+                        {% else %}
+
+                            <span class="status status-not-configured">
+                                Non configurée
+                            </span>
+
+                        {% endif %}
+
+
+                    </div>
+
+
+
+                    <!-- =====================================
+                        PROGRESSION
+                    ====================================== -->
+
+                    <div class="progress-section">
+
+
+                        <div class="progress-header">
+
+                            <span>
+                                Avancement
+                            </span>
+
+                            <strong>
+                                {{ item.pourcentage }} %
+                            </strong>
+
+                        </div>
+
+
+
+                        <div class="progress-bar">
+
+                            <div
+                                class="
+                                    progress-value
+
+                                    {% if item.etat == "COMPLETE" %}
+                                        progress-complete
+
+                                    {% elif item.etat == "INCOMPLETE" %}
+                                        progress-incomplete
+
+                                    {% else %}
+                                        progress-not-configured
+                                    {% endif %}
+                                "
+                                style="
+                                    width: {{ item.pourcentage }}%;
+                                "
+                            >
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- =====================================
+                        STATISTIQUES DE LA CLASSE
+                    ====================================== -->
+
+                    <div class="classe-statistics">
+
+
+                        <!-- HEURES PRÉVUES -->
+
+                        <div class="classe-statistic">
+
+                            <span class="classe-statistic-label">
+                                Heures prévues
+                            </span>
+
+                            <strong>
+                                {{ item.heures_prevues }}
+                            </strong>
+
+                        </div>
+
+
+
+                        <!-- HEURES RÉPARTIES -->
+
+                        <div class="classe-statistic">
+
+                            <span class="classe-statistic-label">
+                                Heures réparties
+                            </span>
+
+                            <strong>
+                                {{ item.heures_reparties }}
+                            </strong>
+
+                        </div>
+
+
+
+                        <!-- HEURES RESTANTES -->
+
+                        <div class="classe-statistic">
+
+                            <span class="classe-statistic-label">
+                                Heures restantes
+                            </span>
+
+                            <strong>
+                                {{ item.heures_restantes }}
+                            </strong>
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- =====================================
+                        MESSAGE SELON L'ÉTAT
+                    ====================================== -->
+
+                    <div class="classe-state-message">
+
+
+                        {% if item.etat == "COMPLETE" %}
+
+                            <p>
+                                Toutes les heures prévues pour
+                                cette classe ont été réparties.
+                            </p>
+
+
+                        {% elif item.etat == "INCOMPLETE" %}
+
+                            <p>
+                                Il reste
+                                <strong>
+                                    {{ item.heures_restantes }}
+                                </strong>
+                                heure{{ item.heures_restantes|pluralize }}
+                                à répartir pour compléter
+                                l'horaire de cette classe.
+                            </p>
+
+
+                        {% else %}
+
+                            <p>
+                                Aucune matière avec un volume
+                                horaire hebdomadaire n'est encore
+                                configurée pour cette classe.
+                            </p>
+
+                        {% endif %}
+
+
+                    </div>
+
+
+
+                    <!-- =====================================
+                        ACTIONS
+                    ====================================== -->
+
+                    <div class="classe-actions">
+
+                        <a
+                            href="{% url 'liste_repartition_horaire' %}?annee={{ item.classe.annee.id }}&classe={{ item.classe.id }}"
+                            class="btn btn-secondary"
+                        >
+                            Voir les cr&eacute;neaux
+                        </a>
+
+
+                        {% if item.etat == "COMPLETE" %}
+
+                            <a
+                                href="{% url 'creer_repartition_horaire' %}?annee={{ item.classe.annee.id }}&classe={{ item.classe.id }}"
+                                class="btn btn-secondary"
+                            >
+                                Voir l'horaire
+                            </a>
+
+
+                        {% elif item.etat == "INCOMPLETE" %}
+
+                            <a
+                                href="{% url 'creer_repartition_horaire' %}?annee={{ item.classe.annee.id }}&classe={{ item.classe.id }}"
+                                class="btn btn-primary"
+                            >
+                                Compléter l'horaire
+                            </a>
+
+
+                        {% else %}
+
+                            <a
+                                href="{% url 'liste_affectations_matieres' %}?classe={{ item.classe.id }}"
+                                class="btn btn-warning"
+                            >
+                                Configurer les matières
+                            </a>
+
+                        {% endif %}
+
+
+                    </div>
+
+
+                </div>
+
+
+            {% endfor %}
+
+
+        </div>
+
+
+
+    {% else %}
+
+
+        <!-- =================================================
+            ÉTAT VIDE
+        ================================================== -->
+
+        <div class="empty-state">
+
+            <div class="empty-state-content">
+
+                <h3>
+                    Aucune classe disponible
+                </h3>
+
+                <p>
+                    Aucune classe active n'est disponible pour
+                    l'année scolaire sélectionnée.
+                </p>
+
+            </div>
+
+        </div>
+
+
+    {% endif %}
+
+
+</div>
+
+{% endblock %}

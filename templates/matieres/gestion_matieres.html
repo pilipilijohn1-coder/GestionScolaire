@@ -1,0 +1,580 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Gestion des matières{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --gm-primary: #2563eb;
+        --gm-primary-dark: #1e40af;
+        --gm-bg: #f8fafc;
+        --gm-border: #e2e8f0;
+        --gm-text: #1e293b;
+        --gm-text-secondary: #64748b;
+        --gm-card-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+        --gm-card-shadow-hover: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+    }
+
+    .gm-page-header {
+        max-width: 1200px;
+        margin: 0 auto 28px;
+    }
+
+    .gm-page-header h1 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--gm-text);
+    }
+
+    .gm-page-header p {
+        margin: 8px 0 0;
+        color: var(--gm-text-secondary);
+        font-size: 14px;
+    }
+
+    .gm-grid {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 20px;
+    }
+
+    .gm-card {
+        background: #ffffff;
+        border: 1px solid var(--gm-border);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: var(--gm-card-shadow);
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .gm-card:hover {
+        border-color: var(--gm-primary);
+        transform: translateY(-3px);
+        box-shadow: var(--gm-card-shadow-hover);
+    }
+
+    .gm-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 12px;
+    }
+
+    .gm-card-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--gm-text);
+        margin: 0;
+    }
+
+    .gm-card-meta {
+        font-size: 13px;
+        color: var(--gm-text-secondary);
+        line-height: 1.6;
+        margin: 4px 0 0;
+    }
+
+    .gm-badge-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: #eef2ff;
+        color: var(--gm-primary);
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .gm-card-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 16px;
+    }
+
+    .gm-btn-action {
+        flex: 1;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        text-align: center;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .gm-btn-view {
+        background: #f1f5f9;
+        color: var(--gm-text);
+    }
+
+    .gm-btn-view:hover {
+        background: #e2e8f0;
+    }
+
+    .gm-btn-assign {
+        background: #eef2ff;
+        color: var(--gm-primary);
+    }
+
+    .gm-btn-assign:hover {
+        background: #e0e7ff;
+    }
+
+    .gm-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1050;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(15, 23, 42, 0.58);
+    }
+
+    .gm-overlay.open {
+        display: flex;
+    }
+
+    .gm-modal {
+        width: 100%;
+        max-width: 900px;
+        max-height: 88vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        background: #ffffff;
+        border-radius: 18px;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+    }
+
+    .gm-modal-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 20px 22px;
+        border-bottom: 1px solid var(--gm-border);
+    }
+
+    .gm-modal-title {
+        margin: 0;
+        color: var(--gm-text);
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    .gm-modal-subtitle {
+        margin: 5px 0 0;
+        color: var(--gm-text-secondary);
+        font-size: 13px;
+    }
+
+    .gm-modal-close {
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--gm-border);
+        border-radius: 10px;
+        background: #f8fafc;
+        color: var(--gm-text-secondary);
+        font-size: 17px;
+        cursor: pointer;
+    }
+
+    .gm-modal-close:hover {
+        background: #e2e8f0;
+        color: var(--gm-text);
+    }
+
+    .gm-modal-body {
+        min-height: 180px;
+        overflow-y: auto;
+        padding: 20px 22px;
+    }
+
+    .gm-modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 14px 22px;
+        border-top: 1px solid var(--gm-border);
+        background: #f8fafc;
+    }
+
+    .gm-loading,
+    .gm-error {
+        padding: 28px;
+        text-align: center;
+        color: var(--gm-text-secondary);
+    }
+
+     .gm-error {
+        color: #991b1b;
+    }
+
+    .gm-btn-schedule {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .gm-btn-schedule:hover {
+        background: #c0e8d4;
+    }
+
+    .gm-emplois-du-temps {
+        overflow-x: auto;
+    }
+
+    .gm-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    .gm-grid-table th,
+    .gm-grid-table td {
+        padding: 8px 12px;
+        border: 1px solid var(--gm-border);
+        text-align: center;
+    }
+
+    .gm-grid-table th {
+        background: #f1f5f9;
+        font-weight: 600;
+        color: var(--gm-text-secondary);
+    }
+
+    .gm-creneau-cell {
+        font-size: 12px;
+        color: var(--gm-text-secondary);
+        background: #f8fafc;
+    }
+
+    .gm-cours-cell {
+        font-size: 13px;
+        color: var(--gm-text);
+    }
+
+    .gm-cours-vide {
+        color: #cbd5e1;
+    }
+
+    .gm-empty {
+        padding: 20px;
+        text-align: center;
+        color: var(--gm-text-secondary);
+    }
+
+    body.gm-overlay-open {
+        overflow: hidden;
+    }
+
+    .gm-empty-state {
+        max-width: 1200px;
+        margin: 0 auto;
+        text-align: center;
+        padding: 40px;
+        color: var(--gm-text-secondary);
+        font-size: 14px;
+    }
+
+    @media (max-width: 640px) {
+        .gm-grid {
+            grid-template-columns: 1fr;
+        }
+        .gm-overlay {
+            padding: 12px;
+        }
+        .gm-modal {
+            max-height: 92vh;
+            border-radius: 14px;
+        }
+        .gm-card-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="gm-page-header">
+    <h1>Gestion des matières par classe</h1>
+    <p>
+        Visualisez les matières affectées à chaque classe et
+        affectez rapidement de nouvelles matières.
+    </p>
+</div>
+
+{% if classes_data %}
+<div class="gm-grid">
+    {% for item in classes_data %}
+    <div class="gm-card">
+        <div class="gm-card-header">
+            <div>
+                <h2 class="gm-card-title">{{ item.classe.libelle }}</h2>
+                <div class="gm-card-meta">
+                    <span class="gm-badge-count">
+                        {{ item.nombre_affectations }} cours
+                    </span>
+
+                    {% if item.est_niveau_bulletin %}
+                    <span class="gm-card-meta">
+                        Matières officielles du bulletin
+                    </span>
+                    {% endif %}
+                </div>
+                <div class="gm-card-meta">
+                    Code : <strong>{{ item.classe.code }}</strong>
+                </div>
+                {% if item.classe.niveau %}
+                <div class="gm-card-meta">
+                    Niveau : {{ item.classe.niveau.libelle }}
+                </div>
+                {% endif %}
+                {% if item.classe.section %}
+                <div class="gm-card-meta">
+                    Section : {{ item.classe.section.libelle }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="gm-card-actions">
+            <a href="#"
+               class="gm-btn-action gm-btn-schedule"
+               data-classe-id="{{ item.classe.id }}"
+               data-classe-libelle="{{ item.classe.libelle|escapejs }}"
+               onclick="openHorairePopup(event, this)">
+                <i class="fas fa-clock"></i> Horaire
+            </a>
+            <a href="{% url 'liste_matieres_classe' item.classe.id %}"
+               class="gm-btn-action gm-btn-view"
+               data-liste-url="{% url 'liste_matieres_classe' item.classe.id %}"
+               data-classe-libelle="{{ item.classe.libelle|escapejs }}"
+               onclick="openMatieresOverlay(event, this)">
+                <i class="fas fa-eye"></i> Voir les cours
+            </a>
+            <a href="{% url 'creer_matiere' %}?classe_id={{ item.classe.id }}"
+               class="gm-btn-action gm-btn-assign">
+                <i class="fas fa-plus"></i> Affecter des cours
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="gm-overlay" id="matieresOverlay" aria-hidden="true">
+    <section class="gm-modal" role="dialog" aria-modal="true" aria-labelledby="matieresOverlayTitle">
+        <header class="gm-modal-header">
+            <div>
+                <h2 class="gm-modal-title" id="matieresOverlayTitle">Matières de la classe</h2>
+                <p class="gm-modal-subtitle" id="matieresOverlaySubtitle"></p>
+            </div>
+            <button type="button" class="gm-modal-close" onclick="closeMatieresOverlay()" aria-label="Fermer">
+                <i class="fas fa-times"></i>
+            </button>
+        </header>
+        <div class="gm-modal-body" id="matieresOverlayBody">
+            <div class="gm-loading">Chargement des matières...</div>
+        </div>
+        <footer class="gm-modal-footer">
+            <a href="#" class="gm-btn-action gm-btn-view" id="matieresPageLink" target="_blank">
+                <i class="fas fa-external-link-alt"></i> Ouvrir la liste
+            </a>
+            <button type="button" class="gm-btn-action gm-btn-view" onclick="closeMatieresOverlay()">
+                <i class="fas fa-times"></i> Fermer
+            </button>
+        </footer>
+    </section>
+</div>
+
+{% else %}
+<div class="gm-empty-state">
+    <i class="fas fa-info-circle" style="font-size: 32px; margin-bottom: 12px;"></i>
+    <p>Aucune classe disponible pour la gestion des matières.</p>
+</div>
+{% endif %}
+
+<div class="gm-overlay" id="horaireOverlay" aria-hidden="true">
+    <section class="gm-modal" role="dialog" aria-modal="true" aria-labelledby="horaireOverlayTitle">
+        <header class="gm-modal-header">
+            <div>
+                <h2 class="gm-modal-title" id="horaireOverlayTitle">Horaire de la classe</h2>
+                <p class="gm-modal-subtitle" id="horaireOverlaySubtitle"></p>
+            </div>
+            <button type="button" class="gm-modal-close" onclick="closeHoraireOverlay()" aria-label="Fermer">
+                <i class="fas fa-times"></i>
+            </button>
+        </header>
+        <div class="gm-modal-body" id="horaireOverlayBody">
+            <div class="gm-loading">Chargement de l'horaire...</div>
+        </div>
+        <footer class="gm-modal-footer">
+            <button type="button" class="gm-btn-action gm-btn-view" onclick="closeHoraireOverlay()">
+                <i class="fas fa-times"></i> Fermer
+            </button>
+        </footer>
+    </section>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function openMatieresOverlay(event, element) {
+        event.preventDefault();
+
+        const overlay = document.getElementById('matieresOverlay');
+        const body = document.getElementById('matieresOverlayBody');
+        const pageLink = document.getElementById('matieresPageLink');
+        const classeLibelle = element.dataset.classeLibelle;
+        const listeUrl = element.dataset.listeUrl;
+
+        document.getElementById('matieresOverlayTitle').textContent = 'Matières — ' + classeLibelle;
+        document.getElementById('matieresOverlaySubtitle').textContent = 'Liste des cours et des pondérations';
+        pageLink.href = listeUrl;
+        body.innerHTML = '<div class="gm-loading">Chargement des matières...</div>';
+        overlay.classList.add('open');
+        overlay.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('gm-overlay-open');
+
+        fetch(listeUrl + '?format=modal')
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('Erreur lors du chargement');
+                }
+                return response.text();
+            })
+            .then(function (html) {
+                body.innerHTML = html;
+            })
+            .catch(function () {
+                body.innerHTML = '<div class="gm-error">Impossible de charger la liste des matières.</div>';
+            });
+    }
+
+    function closeMatieresOverlay() {
+        const overlay = document.getElementById('matieresOverlay');
+        overlay.classList.remove('open');
+        overlay.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('gm-overlay-open');
+    }
+
+    const overlayElement = document.getElementById('matieresOverlay');
+    if (overlayElement) {
+        overlayElement.addEventListener('click', function (event) {
+            if (event.target === event.currentTarget) {
+                closeMatieresOverlay();
+            }
+        });
+    }
+
+    document.addEventListener('keydown', function (event) {
+        const overlay = document.getElementById('matieresOverlay');
+        if (overlay && event.key === 'Escape' && overlay.classList.contains('open')) {
+            closeMatieresOverlay();
+        }
+    });
+
+    function openHorairePopup(event, element) {
+        event.preventDefault();
+
+        const overlay = document.getElementById('horaireOverlay');
+        const body = document.getElementById('horaireOverlayBody');
+        const classeId = element.dataset.classeId;
+        const classeLibelle = element.dataset.classeLibelle;
+
+        document.getElementById('horaireOverlayTitle').textContent = 'Horaire — ' + classeLibelle;
+        document.getElementById('horaireOverlaySubtitle').textContent = 'Emploi du temps de la classe';
+        body.innerHTML = '<div class="gm-loading">Chargement de l\'horaire...</div>';
+        overlay.classList.add('open');
+        overlay.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('gm-overlay-open');
+
+        fetch("{% url 'ajax_horaire_classe' 0 %}".replace('/0/', '/' + classeId + '/'))
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('Erreur lors du chargement');
+                }
+                return response.json();
+            })
+            .then(function (data) {
+                if (data.success) {
+                    const jours = data.jours || [];
+                    const creneaux = data.creneaux || [];
+                    const emploi = data.emploi || {};
+
+                    let html = '<div class="gm-emplois-du-temps"><table class="gm-table gm-grid-table">';
+                    html += '<thead><tr><th>Créneau</th>';
+                    for (const jour of jours) {
+                        html += '<th>' + jour + '</th>';
+                    }
+                    html += '</tr></thead><tbody>';
+
+                    if (creneaux.length === 0) {
+                        html += '<tr><td colspan="' + (jours.length + 1) + '" class="gm-empty">Aucun créneau horaire configuré pour cette classe.</td></tr>';
+                    } else {
+                        for (const creneau of creneaux) {
+                            html += '<tr>';
+                            html += '<td class="gm-creneau-cell">' + creneau.heure_debut + ' - ' + creneau.heure_fin + '</td>';
+                            for (const jour of jours) {
+                                const cours = emploi[jour] && emploi[jour][creneau.ordre];
+                                if (cours) {
+                                    html += '<td class="gm-cours-cell">' + cours.matiere + '</td>';
+                                } else {
+                                    html += '<td class="gm-cours-cell gm-cours-vide">-</td>';
+                                }
+                            }
+                            html += '</tr>';
+                        }
+                    }
+                    html += '</tbody></table></div>';
+                    body.innerHTML = html;
+                } else {
+                    body.innerHTML = '<div class="gm-error">' + (data.error || 'Erreur lors du chargement') + '</div>';
+                }
+            })
+            .catch(function () {
+                body.innerHTML = '<div class="gm-error">Impossible de charger l\'horaire de la classe.</div>';
+            });
+    }
+
+    function closeHoraireOverlay() {
+        const overlay = document.getElementById('horaireOverlay');
+        overlay.classList.remove('open');
+        overlay.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('gm-overlay-open');
+    }
+
+    const horaireOverlay = document.getElementById('horaireOverlay');
+    if (horaireOverlay) {
+        horaireOverlay.addEventListener('click', function (event) {
+            if (event.target === event.currentTarget) {
+                closeHoraireOverlay();
+            }
+        });
+    }
+
+    document.addEventListener('keydown', function (event) {
+        const overlay = document.getElementById('horaireOverlay');
+        if (overlay && event.key === 'Escape' && overlay.classList.contains('open')) {
+            closeHoraireOverlay();
+        }
+    });
+    </script>
+    {% endblock %}

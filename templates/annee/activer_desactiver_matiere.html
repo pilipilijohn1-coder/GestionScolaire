@@ -1,0 +1,294 @@
+{% extends base_template %}
+{% load static %}
+
+
+{% block title %}
+
+    {% if matiere.actif %}
+        Désactiver une matière
+    {% else %}
+        Activer une matière
+    {% endif %}
+
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/activer_desactiver_matiere.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="status-page">
+
+
+    <!-- =====================================================
+         EN-TÊTE
+    ====================================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <a
+                href="{% url 'detail_matiere' matiere.id %}"
+                class="back-link"
+            >
+                ← Retour au détail de la matière
+            </a>
+
+
+            <h1>
+
+                {% if matiere.actif %}
+                    Désactiver la matière
+                {% else %}
+                    Activer la matière
+                {% endif %}
+
+            </h1>
+
+
+            <p>
+                Confirmez le changement du statut de cette
+                matière.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         CARTE DE CONFIRMATION
+    ====================================================== -->
+
+    <div
+        class="confirmation-card
+        {% if matiere.actif %}
+            danger-card
+        {% else %}
+            success-card
+        {% endif %}"
+    >
+
+
+        <!-- =================================================
+             ICÔNE
+        ================================================== -->
+
+        <div
+            class="status-icon
+            {% if matiere.actif %}
+                danger-icon
+            {% else %}
+                success-icon
+            {% endif %}"
+        >
+
+            {% if matiere.actif %}
+                !
+            {% else %}
+                ✓
+            {% endif %}
+
+        </div>
+
+
+        <!-- =================================================
+             CONTENU
+        ================================================== -->
+
+        <div class="confirmation-content">
+
+
+            <h2>
+
+                {% if matiere.actif %}
+                    Voulez-vous désactiver cette matière ?
+                {% else %}
+                    Voulez-vous activer cette matière ?
+                {% endif %}
+
+            </h2>
+
+
+            <p class="confirmation-text">
+
+                {% if matiere.actif %}
+
+                    La matière
+                    <strong>
+                        {{ matiere.libelle }}
+                    </strong>
+                    sera marquée comme désactivée.
+
+                {% else %}
+
+                    La matière
+                    <strong>
+                        {{ matiere.libelle }}
+                    </strong>
+                    sera de nouveau disponible dans le système.
+
+                {% endif %}
+
+            </p>
+
+
+            <!-- =============================================
+                 INFORMATIONS DE LA MATIÈRE
+            ============================================== -->
+
+            <div class="matiere-summary">
+
+
+                <div class="summary-item">
+
+                    <span>
+                        Code
+                    </span>
+
+                    <strong>
+                        {{ matiere.code }}
+                    </strong>
+
+                </div>
+
+
+                <div class="summary-item">
+
+                    <span>
+                        Matière
+                    </span>
+
+                    <strong>
+                        {{ matiere.libelle }}
+                    </strong>
+
+                </div>
+
+
+                <div class="summary-item">
+
+                    <span>
+                        Statut actuel
+                    </span>
+
+
+                    {% if matiere.actif %}
+
+                        <span class="status active">
+                            Active
+                        </span>
+
+                    {% else %}
+
+                        <span class="status inactive">
+                            Désactivée
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+            </div>
+
+
+            <!-- =============================================
+                 MESSAGE D'ATTENTION
+            ============================================== -->
+
+            {% if matiere.actif %}
+
+                <div class="warning-box">
+
+                    <strong>
+                        Attention :
+                    </strong>
+
+                    Une matière désactivée ne devra plus être
+                    disponible pour de nouvelles affectations.
+
+                </div>
+
+            {% else %}
+
+                <div class="success-box">
+
+                    <strong>
+                        Information :
+                    </strong>
+
+                    La matière pourra à nouveau être utilisée
+                    dans les nouvelles affectations.
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- =============================================
+                 FORMULAIRE DE CONFIRMATION
+            ============================================== -->
+
+            <form
+                method="post"
+                class="confirmation-form"
+            >
+
+                {% csrf_token %}
+
+
+                <div class="form-actions">
+
+
+                    <a
+                        href="{% url 'detail_matiere' matiere.id %}"
+                        class="btn btn-secondary"
+                    >
+                        Annuler
+                    </a>
+
+
+                    {% if matiere.actif %}
+
+                        <button
+                            type="submit"
+                            class="btn btn-danger"
+                        >
+                            Oui, désactiver
+                        </button>
+
+                    {% else %}
+
+                        <button
+                            type="submit"
+                            class="btn btn-success"
+                        >
+                            Oui, activer
+                        </button>
+
+                    {% endif %}
+
+
+                </div>
+
+            </form>
+
+
+        </div>
+
+    </div>
+
+
+</div>
+
+{% endblock %}

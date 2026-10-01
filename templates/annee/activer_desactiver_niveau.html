@@ -1,0 +1,213 @@
+{% extends base_template %}
+{% load static %}
+
+
+{% block title %}
+    Gestion du statut du niveau
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/activer_desactiver_niveau.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="niveau-status-page">
+
+    <!-- ================================================ -->
+    <!-- EN-TÊTE -->
+    <!-- ================================================ -->
+
+    <div class="page-header">
+
+        <div>
+
+            <a
+                href="{% url 'detail_niveau' niveau.id %}"
+                class="back-link"
+            >
+                ← Retour aux détails
+            </a>
+
+            <h1>
+                Gestion du statut
+            </h1>
+
+            <p>
+                Activez ou désactivez le niveau
+                <strong>{{ niveau.libelle }}</strong>.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================ -->
+    <!-- CARTE -->
+    <!-- ================================================ -->
+
+    <div class="status-card">
+
+
+        <!-- INFORMATIONS DU NIVEAU -->
+
+        <div class="niveau-info">
+
+            <div class="niveau-icon">
+                N
+            </div>
+
+            <div>
+
+                <span class="niveau-label">
+                    Niveau académique
+                </span>
+
+                <h2>
+                    {{ niveau.libelle }}
+                </h2>
+
+                <p>
+                    Code : <strong>{{ niveau.code }}</strong>
+                    <span class="separator">•</span>
+                    Ordre : <strong>{{ niveau.ordre }}</strong>
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- STATUT ACTUEL -->
+
+        <div class="current-status">
+
+            <span class="status-label">
+                Statut actuel
+            </span>
+
+            {% if niveau.actif %}
+
+                <span class="status active">
+                    ● Actif
+                </span>
+
+            {% else %}
+
+                <span class="status inactive">
+                    ● Désactivé
+                </span>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- ============================================ -->
+        <!-- CAS : NIVEAU ACTIF -->
+        <!-- ============================================ -->
+
+        {% if niveau.actif %}
+
+            <div class="action-zone danger-zone">
+
+                <div class="action-text">
+
+                    <h3>
+                        Désactiver ce niveau
+                    </h3>
+
+                    <p>
+                        Le niveau ne pourra plus être utilisé
+                        pour créer de nouvelles classes.
+                        Les informations historiques seront
+                        conservées.
+                    </p>
+
+                </div>
+
+
+                <form method="post">
+
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="btn btn-danger"
+                    >
+                        Désactiver le niveau
+                    </button>
+
+                </form>
+
+            </div>
+
+
+        <!-- ============================================ -->
+        <!-- CAS : NIVEAU DÉSACTIVÉ -->
+        <!-- ============================================ -->
+
+        {% else %}
+
+            <div class="action-zone success-zone">
+
+                <div class="action-text">
+
+                    <h3>
+                        Activer ce niveau
+                    </h3>
+
+                    <p>
+                        Le niveau pourra à nouveau être utilisé
+                        dans la structure académique de l'école.
+                    </p>
+
+                </div>
+
+
+                <form method="post">
+
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="btn btn-success"
+                    >
+                        Activer le niveau
+                    </button>
+
+                </form>
+
+            </div>
+
+        {% endif %}
+
+
+        <!-- ============================================ -->
+        <!-- ACTIONS -->
+        <!-- ============================================ -->
+
+        <div class="card-actions">
+
+            <a
+                href="{% url 'detail_niveau' niveau.id %}"
+                class="btn btn-secondary"
+            >
+                Annuler
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

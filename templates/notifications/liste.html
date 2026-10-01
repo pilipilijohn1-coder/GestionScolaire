@@ -1,0 +1,87 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+Notifications
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/notifications.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="notifications-page">
+
+    <div class="page-header">
+        <h1>Notifications</h1>
+        <p>Vos notifications récentes et messages du système.</p>
+    </div>
+
+    {% if notifications %}
+    <div class="notifications-list">
+        {% for notif in notifications %}
+        <div class="notification-card {% if not notif.lu %}notification-card--unread{% endif %}">
+            <div class="notification-card__header">
+                <span class="notification-type {{ notif.notification.type_notification.code|lower }}">
+                    {{ notif.notification.type_notification.libelle }}
+                </span>
+                <span class="notification-date">
+                    {{ notif.notification.date_creation|date:"d/m/Y H:i" }}
+                </span>
+            </div>
+            <div class="notification-card__content">
+                <h3>{{ notif.notification.objet }}</h3>
+                <p>{{ notif.notification.contenu }}</p>
+            </div>
+            <div class="notification-card__actions">
+                {% if notif.notification.utilisateur_createur %}
+                <span class="notification-creator">
+                    Par : {{ notif.notification.utilisateur_createur }}
+                </span>
+                {% endif %}
+                {% if not notif.lu %}
+                <button
+                    type="button"
+                    class="btn btn-sm btn-outline"
+                    onclick="marquerLue({{ notif.id }})"
+                >
+                    Marquer comme lue
+                </button>
+                {% else %}
+                <span class="badge badge-read">Lue</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="notifications-empty">
+        <i class="fas fa-inbox"></i>
+        <p>Aucune notification pour le moment.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function marquerLue(destinataireId) {
+    fetch("/notifications/lue/" + destinataireId + "/", {
+        method: "POST",
+        headers: {
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+    })
+    .then(response => {
+        if (response.ok) {
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error("Erreur:", error);
+    });
+}
+</script>
+{% endblock %}

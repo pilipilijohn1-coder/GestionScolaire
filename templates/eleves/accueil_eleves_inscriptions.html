@@ -1,0 +1,152 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Élève & Inscriptions{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --ei-primary: #2563eb;
+        --ei-primary-dark: #1e40af;
+        --ei-bg: #f8fafc;
+        --ei-border: #e2e8f0;
+        --ei-text: #1e293b;
+        --ei-text-secondary: #64748b;
+        --ei-card-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+        --ei-card-shadow-hover: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+    }
+
+    .eleves-inscriptions-header {
+        max-width: 1200px;
+        margin: 0 auto 28px;
+    }
+
+    .eleves-inscriptions-header .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+
+    .eleves-inscriptions-header h1 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--ei-text);
+    }
+
+    .eleves-inscriptions-grid {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px;
+    }
+
+    .ei-card {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        background: #ffffff;
+        border: 1px solid var(--ei-border);
+        border-radius: 16px;
+        padding: 24px;
+        text-decoration: none;
+        color: var(--ei-text);
+        box-shadow: var(--ei-card-shadow);
+        transition: all 0.2s ease;
+    }
+
+    .ei-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--ei-card-shadow-hover);
+        border-color: var(--ei-primary);
+    }
+
+    .ei-card-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        background: #eef2ff;
+        color: var(--ei-primary);
+    }
+
+    .ei-card h2 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .ei-card p {
+        margin: 0;
+        color: var(--ei-text-secondary);
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .ei-card-arrow {
+        margin-top: auto;
+        color: #cbd5e1;
+        font-size: 18px;
+        transition: all 0.2s ease;
+    }
+
+    .ei-card:hover .ei-card-arrow {
+        color: var(--ei-primary);
+        transform: translateX(4px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="eleves-inscriptions-header">
+    <div class="header-content">
+        <div>
+            <h1>Élève & Inscriptions</h1>
+        </div>
+    </div>
+</div>
+
+<section class="eleves-inscriptions-grid">
+    <a href="{% url 'liste_eleves' %}" class="ei-card">
+        <div class="ei-card-icon">👨‍🎓</div>
+        <div>
+            <h2>Élèves</h2>
+            <p>Consulter, inscrire et gérer les dossiers élèves.</p>
+        </div>
+        <div class="ei-card-arrow">→</div>
+    </a>
+
+    <a href="{% url 'creer_eleve' %}" class="ei-card">
+        <div class="ei-card-icon">➕</div>
+        <div>
+            <h2>Nouvel élève</h2>
+            <p>Créer un nouveau dossier élève.</p>
+        </div>
+        <div class="ei-card-arrow">→</div>
+    </a>
+
+    <a href="{% url 'liste_inscriptions' %}" class="ei-card">
+        <div class="ei-card-icon">📋</div>
+        <div>
+            <h2>Inscriptions</h2>
+            <p>Suivre les inscriptions et réinscriptions de l'année.</p>
+        </div>
+        <div class="ei-card-arrow">→</div>
+    </a>
+
+    <a href="{% url 'reinscription' %}" class="ei-card">
+        <div class="ei-card-icon">🔄</div>
+        <div>
+            <h2>Réinscription</h2>
+            <p>Gérer le processus de réinscription des élèves.</p>
+        </div>
+        <div class="ei-card-arrow">→</div>
+    </a>
+</section>
+{% endblock %}

@@ -1,0 +1,92 @@
+<table class="data-table eleves-table" style="border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden;">
+    <thead>
+        <tr>
+            <th style="width: 60px; border-right: 1px solid #e5e7eb;">Photo</th>
+            <th style="border-right: 1px solid #e5e7eb;">Matricule</th>
+            <th style="border-right: 1px solid #e5e7eb;">Nom</th>
+            <th style="border-right: 1px solid #e5e7eb;">Postnom</th>
+            <th style="border-right: 1px solid #e5e7eb;">Prénom</th>
+            <th style="border-right: 1px solid #e5e7eb;">Sexe</th>
+            <th style="border-right: 1px solid #e5e7eb;">Date de naissance</th>
+            <th style="border-right: 1px solid #e5e7eb;">Contact</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for inscription in inscriptions %}
+            <tr>
+                <td style="border-right: 1px solid #e5e7eb;">
+                    {% if inscription.eleve.photo %}
+                        <img src="{{ inscription.eleve.photo.url }}" alt="Photo" class="eleve-photo">
+                    {% else %}
+                        <div class="eleve-photo-placeholder">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                    {% endif %}
+                </td>
+                <td style="border-right: 1px solid #e5e7eb;">{{ inscription.eleve.matricule }}</td>
+                <td style="border-right: 1px solid #e5e7eb;">{{ inscription.eleve.nom }}</td>
+                <td style="border-right: 1px solid #e5e7eb;">{{ inscription.eleve.postnom|default:"—" }}</td>
+                <td style="border-right: 1px solid #e5e7eb;">{{ inscription.eleve.prenom }}</td>
+                <td style="border-right: 1px solid #e5e7eb;">
+                    {% if inscription.eleve.sexe == "M" %}
+                        Masculin
+                    {% elif inscription.eleve.sexe == "F" %}
+                        Féminin
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td style="border-right: 1px solid #e5e7eb;">
+                    {{ inscription.eleve.date_naissance|date:"d/m/Y"|default:"—" }}
+                </td>
+                <td style="border-right: 1px solid #e5e7eb;">
+                    {% if inscription.eleve.telephone %}
+                        {{ inscription.eleve.telephone }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'detail_eleve' inscription.eleve.id %}" class="btn btn-sm btn-primary" style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;background:#eef2ff;color:#2563eb;text-decoration:none;">
+                        <i class="fa-solid fa-eye"></i>
+                    </a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="9" style="text-align:center;color:#6b7280; border-top: 1px solid #e5e7eb;">Aucun élève inscrit dans cette classe.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<style>
+.eleves-table .eleve-photo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e5e7eb;
+    display: block;
+}
+.eleves-table .eleve-photo-placeholder {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #e5e7eb;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    font-size: 12px;
+}
+.eleves-table th,
+.eleves-table td {
+    border-right: 1px solid #e5e7eb;
+}
+.eleves-table th:last-child,
+.eleves-table td:last-child {
+    border-right: none;
+}
+</style>

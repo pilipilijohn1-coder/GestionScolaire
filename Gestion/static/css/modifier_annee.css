@@ -1,0 +1,478 @@
+/* ============================================================
+   PAGE MODIFICATION D'UNE ANNÉE SCOLAIRE
+   ============================================================ */
+
+.annee-form-page {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+
+/* ============================================================
+   EN-TÊTE
+   ============================================================ */
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+
+    margin-bottom: 28px;
+}
+
+.page-header h1 {
+    margin: 0;
+
+    color: #1f2937;
+
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.page-header p {
+    margin: 8px 0 0;
+
+    color: #6b7280;
+
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.page-header strong {
+    color: #374151;
+}
+
+
+/* ============================================================
+   CARTE DU FORMULAIRE
+   ============================================================ */
+
+.form-card {
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    overflow: hidden;
+
+    margin-bottom: 24px;
+}
+
+
+/* ============================================================
+   EN-TÊTE DE LA CARTE
+   ============================================================ */
+
+.form-card-header {
+    padding: 22px 28px;
+
+    background: #fafafa;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.form-card-header h2 {
+    margin: 0;
+
+    color: #1f2937;
+
+    font-size: 19px;
+    font-weight: 600;
+}
+
+.form-card-header p {
+    margin: 6px 0 0;
+
+    color: #6b7280;
+
+    font-size: 14px;
+}
+
+
+/* ============================================================
+   FORMULAIRE
+   ============================================================ */
+
+.annee-form {
+    padding: 28px;
+}
+
+
+/* ============================================================
+   GROUPE DE CHAMP
+   ============================================================ */
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+
+    margin-bottom: 22px;
+}
+
+.form-group label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #374151;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+/* ============================================================
+   CHAMPS
+   ============================================================ */
+
+.form-group input,
+.form-group select {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 11px 13px;
+
+    background: #ffffff;
+
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+
+    color: #1f2937;
+
+    font-size: 15px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+}
+
+
+/* Focus */
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+
+/* Champs désactivés */
+
+.form-group input:disabled,
+.form-group select:disabled {
+    background: #f3f4f6;
+
+    color: #6b7280;
+
+    cursor: not-allowed;
+}
+
+
+/* ============================================================
+   LIGNE DE FORMULAIRE
+   ============================================================ */
+
+.form-row {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 20px;
+}
+
+
+/* ============================================================
+   TEXTE D'AIDE
+   ============================================================ */
+
+.field-help {
+    margin-top: 7px;
+
+    color: #6b7280;
+
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   ERREURS GÉNÉRALES
+   ============================================================ */
+
+.form-errors {
+    margin-bottom: 22px;
+
+    padding: 13px 16px;
+
+    background: #fef2f2;
+
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+
+    color: #991b1b;
+}
+
+.form-errors p {
+    margin: 4px 0;
+
+    font-size: 14px;
+}
+
+
+/* ============================================================
+   ERREURS DES CHAMPS
+   ============================================================ */
+
+.field-error {
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+
+    margin-top: 7px;
+
+    color: #dc2626;
+
+    font-size: 12px;
+}
+
+
+/* ============================================================
+   CHAMP AVEC ERREUR
+   ============================================================ */
+
+.form-group input:has(+ .field-error),
+.form-group select:has(+ .field-error) {
+    border-color: #dc2626;
+}
+
+
+/* ============================================================
+   ACTIONS DU FORMULAIRE
+   ============================================================ */
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    gap: 12px;
+
+    margin-top: 30px;
+    padding-top: 24px;
+
+    border-top: 1px solid #e5e7eb;
+}
+
+
+/* ============================================================
+   CARTE D'INFORMATION
+   ============================================================ */
+
+.info-card {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 14px;
+
+    padding: 18px 20px;
+
+    background: #eff6ff;
+
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+}
+
+.info-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    width: 28px;
+    height: 28px;
+
+    background: #2563eb;
+
+    border-radius: 50%;
+
+    color: #ffffff;
+
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.info-card h3 {
+    margin: 0 0 5px;
+
+    color: #1e40af;
+
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.info-card p {
+    margin: 0;
+
+    color: #1e3a8a;
+
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+
+/* ============================================================
+   BOUTONS
+   ============================================================ */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+
+    padding: 10px 18px;
+
+    border: none;
+    border-radius: 7px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.15s ease,
+        box-shadow 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+
+/* Bouton principal */
+
+.btn-primary {
+    background: #2563eb;
+
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background: #1d4ed8;
+}
+
+
+/* Bouton secondaire */
+
+.btn-secondary {
+    background: #ffffff;
+
+    border: 1px solid #d1d5db;
+
+    color: #374151;
+}
+
+.btn-secondary:hover {
+    background: #f9fafb;
+
+    border-color: #9ca3af;
+}
+
+
+/* ============================================================
+   RESPONSIVE TABLETTE
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+    .page-header {
+        flex-direction: column;
+    }
+
+    .page-header > .btn {
+        width: 100%;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .form-card-header {
+        padding: 20px;
+    }
+
+    .annee-form {
+        padding: 22px;
+    }
+
+    .form-actions {
+        justify-content: stretch;
+    }
+
+    .form-actions .btn {
+        flex: 1;
+    }
+}
+
+
+/* ============================================================
+   RESPONSIVE MOBILE
+   ============================================================ */
+
+@media (max-width: 480px) {
+
+    .page-header h1 {
+        font-size: 23px;
+    }
+
+    .page-header p {
+        font-size: 14px;
+    }
+
+    .form-card {
+        border-radius: 9px;
+    }
+
+    .form-card-header {
+        padding: 16px;
+    }
+
+    .annee-form {
+        padding: 18px;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+    }
+
+    .info-card {
+        padding: 16px;
+
+        gap: 10px;
+    }
+
+    .info-card p {
+        font-size: 13px;
+    }
+}

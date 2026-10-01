@@ -1,0 +1,229 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+    Modifier une section
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/modifier_section.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="modifier-section">
+
+    <!-- ================================================== -->
+    <!-- EN-TÊTE -->
+    <!-- ================================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>
+                Modifier la section
+            </h1>
+
+            <p>
+                Modifiez les informations générales de cette section.
+            </p>
+
+        </div>
+
+
+        <div class="header-actions">
+
+            <a
+                href="{% url 'detail_section' section.id %}"
+                class="btn btn-secondary"
+            >
+                Annuler
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- FORMULAIRE -->
+    <!-- ================================================== -->
+
+    <div class="form-card">
+
+        <div class="form-card-header">
+
+            <h2>
+                Informations de la section
+            </h2>
+
+            <p>
+                Les champs marqués d'un astérisque (*) sont obligatoires.
+            </p>
+
+        </div>
+
+
+        <form method="post">
+
+            {% csrf_token %}
+
+
+            <!-- ============================================== -->
+            <!-- ERREURS GÉNÉRALES -->
+            <!-- ============================================== -->
+
+            {% if erreurs %}
+
+                <div class="form-errors">
+
+                    <ul>
+
+                        {% for erreur in erreurs.values %}
+
+                            <li>
+                                {{ erreur }}
+                            </li>
+
+                        {% endfor %}
+
+                    </ul>
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- ============================================== -->
+            <!-- CODE -->
+            <!-- ============================================== -->
+
+            <div class="form-group">
+
+                <label for="code">
+
+                    Code
+                    <span class="required">
+                        *
+                    </span>
+
+                </label>
+
+
+                <input
+                    type="text"
+                    id="code"
+                    name="code"
+                    maxlength="30"
+                    value="{{ donnees.code }}"
+                    required
+                    autocomplete="off"
+                >
+
+
+                <small>
+                    Utilisez un code court et facilement identifiable.
+                </small>
+
+            </div>
+
+
+            <!-- ============================================== -->
+            <!-- LIBELLÉ -->
+            <!-- ============================================== -->
+
+            <div class="form-group">
+
+                <label for="libelle">
+
+                    Libellé
+                    <span class="required">
+                        *
+                    </span>
+
+                </label>
+
+
+                <input
+                    type="text"
+                    id="libelle"
+                    name="libelle"
+                    maxlength="100"
+                    value="{{ donnees.libelle }}"
+                    required
+                >
+
+
+                <small>
+                    Indiquez le nom complet de la section.
+                </small>
+
+            </div>
+
+
+            <!-- ============================================== -->
+            <!-- STATUT ACTUEL -->
+            <!-- ============================================== -->
+
+            <div class="current-status">
+
+                <span class="status-label">
+                    Statut actuel
+                </span>
+
+
+                {% if section.actif %}
+
+                    <span class="status status-active">
+                        Active
+                    </span>
+
+                {% else %}
+
+                    <span class="status status-inactive">
+                        Désactivée
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- ============================================== -->
+            <!-- ACTIONS -->
+            <!-- ============================================== -->
+
+            <div class="form-actions">
+
+                <a
+                    href="{% url 'detail_section' section.id %}"
+                    class="btn btn-secondary"
+                >
+                    Annuler
+                </a>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Enregistrer les modifications
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,223 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+    Nouvelle section
+{% endblock %}
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/creer_section.css' %}"
+>
+{% endblock %}
+
+{% block content %}
+
+<div class="creer-section">
+
+    <!-- ================================================== -->
+    <!-- EN-TÊTE -->
+    <!-- ================================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>Nouvelle section</h1>
+
+            <p>
+                Ajoutez une nouvelle section à la structure
+                académique de l'établissement.
+            </p>
+
+        </div>
+
+
+        <a
+            href="{% url 'liste_sections' %}"
+            class="btn btn-secondary"
+        >
+            Retour
+        </a>
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- FORMULAIRE -->
+    <!-- ================================================== -->
+
+    <div class="form-card">
+
+        <div class="form-card-header">
+
+            <h2>
+                Informations de la section
+            </h2>
+
+            <p>
+                Les champs marqués d'un astérisque (*) sont obligatoires.
+            </p>
+
+        </div>
+
+
+        <form method="post">
+
+            {% csrf_token %}
+
+
+            <!-- ========================================== -->
+            <!-- ERREURS GÉNÉRALES -->
+            <!-- ========================================== -->
+
+            {% if erreurs.generale %}
+
+                <div class="alert alert-danger">
+
+                    {{ erreurs.generale }}
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- ========================================== -->
+            <!-- CODE -->
+            <!-- ========================================== -->
+
+            <div class="form-group">
+
+                <label for="code">
+
+                    Code <span>*</span>
+
+                </label>
+
+                <input
+                    type="text"
+                    id="code"
+                    name="code"
+                    value="{{ donnees.code|default:'' }}"
+                    maxlength="30"
+                    placeholder="Ex. SCI, LIT, COMM"
+                    required
+                >
+
+                {% if erreurs.code %}
+
+                    <div class="field-error">
+
+                        {{ erreurs.code }}
+
+                    </div>
+
+                {% endif %}
+
+                <small>
+                    Utilisez un code court et unique pour identifier
+                    la section.
+                </small>
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- LIBELLÉ -->
+            <!-- ========================================== -->
+
+            <div class="form-group">
+
+                <label for="libelle">
+
+                    Libellé <span>*</span>
+
+                </label>
+
+                <input
+                    type="text"
+                    id="libelle"
+                    name="libelle"
+                    value="{{ donnees.libelle|default:'' }}"
+                    maxlength="100"
+                    placeholder="Ex. Section scientifique"
+                    required
+                >
+
+                {% if erreurs.libelle %}
+
+                    <div class="field-error">
+
+                        {{ erreurs.libelle }}
+
+                    </div>
+
+                {% endif %}
+
+                <small>
+                    Indiquez le nom complet de la section.
+                </small>
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- STATUT -->
+            <!-- ========================================== -->
+
+            <div class="form-group form-check">
+
+                <label class="checkbox-label">
+
+                    <input
+                        type="checkbox"
+                        name="actif"
+                        {% if donnees.actif %}
+                            checked
+                        {% endif %}
+                    >
+
+                    <span>
+                        Activer cette section immédiatement
+                    </span>
+
+                </label>
+
+                <small>
+                    Une section active pourra être utilisée dans
+                    la structure académique.
+                </small>
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- ACTIONS -->
+            <!-- ========================================== -->
+
+            <div class="form-actions">
+
+                <a
+                    href="{% url 'liste_sections' %}"
+                    class="btn btn-secondary"
+                >
+                    Annuler
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Enregistrer la section
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

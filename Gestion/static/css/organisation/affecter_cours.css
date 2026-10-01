@@ -1,0 +1,484 @@
+/* =========================================================
+   PAGE : AFFECTER UN COURS
+   ========================================================= */
+
+.affectation-page {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 30px;
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   EN-TÊTE
+   ========================================================= */
+
+.page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 25px;
+    margin-bottom: 25px;
+}
+
+.page-header h1 {
+    margin: 0 0 8px;
+    font-size: 28px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.page-header p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   BOUTON RETOUR
+   ========================================================= */
+
+.btn-retour {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #374151;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.btn-retour:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+    color: #111827;
+}
+
+
+/* =========================================================
+   INFORMATIONS DU CRÉNEAU
+   ========================================================= */
+
+.context-card {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    margin-bottom: 25px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: #e5e7eb;
+}
+
+.context-item {
+    min-height: 85px;
+    padding: 18px 20px;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 7px;
+}
+
+.context-label {
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.context-item strong {
+    color: #111827;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   CARTE DU FORMULAIRE
+   ========================================================= */
+
+.form-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.form-card-header {
+    padding: 22px 25px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+.form-card-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 7px;
+    color: #1f2937;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.form-card-header h2 i {
+    color: #2563eb;
+}
+
+.form-card-header p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   FORMULAIRE
+   ========================================================= */
+
+.form-card form {
+    padding: 25px;
+}
+
+.form-group {
+    margin-bottom: 22px;
+}
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.form-group label i {
+    width: 17px;
+    color: #6b7280;
+    text-align: center;
+}
+
+
+/* =========================================================
+   CHAMPS
+   ========================================================= */
+
+.form-group select,
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="time"] {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    box-sizing: border-box;
+
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+
+    background: #ffffff;
+    color: #111827;
+
+    font-family: inherit;
+    font-size: 14px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.form-group select:focus,
+.form-group input[type="text"]:focus,
+.form-group input[type="number"]:focus,
+.form-group input[type="time"]:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+
+/* =========================================================
+   TEXTE D'AIDE
+   ========================================================= */
+
+.form-group .helptext {
+    display: block;
+    margin-top: 6px;
+    color: #6b7280;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   ERREURS GÉNÉRALES
+   ========================================================= */
+
+.form-errors {
+    margin-bottom: 20px;
+    padding: 13px 15px;
+
+    border: 1px solid #fecaca;
+    border-radius: 7px;
+
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+.form-errors p {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.form-errors i {
+    margin-top: 2px;
+}
+
+
+/* =========================================================
+   ERREURS DE CHAMP
+   ========================================================= */
+
+.field-error {
+    margin-top: 7px;
+    color: #dc2626;
+    font-size: 12px;
+}
+
+.field-error span {
+    display: block;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   CHAMP EN ERREUR
+   ========================================================= */
+
+.form-group:has(.field-error) select,
+.form-group:has(.field-error) input {
+    border-color: #ef4444;
+}
+
+.form-group:has(.field-error) select:focus,
+.form-group:has(.field-error) input:focus {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.10);
+}
+
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+
+    margin-top: 28px;
+    padding-top: 20px;
+
+    border-top: 1px solid #e5e7eb;
+}
+
+
+/* =========================================================
+   BOUTON ANNULER
+   ========================================================= */
+
+.btn-cancel {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+    padding: 9px 18px;
+    box-sizing: border-box;
+
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+
+    background: #ffffff;
+    color: #374151;
+
+    text-decoration: none;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.btn-cancel:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+
+/* =========================================================
+   BOUTON ENREGISTRER
+   ========================================================= */
+
+.btn-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    min-height: 42px;
+    padding: 9px 19px;
+    box-sizing: border-box;
+
+    border: 1px solid #2563eb;
+    border-radius: 7px;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    cursor: pointer;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.1s ease;
+}
+
+.btn-submit:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+.btn-submit:active {
+    transform: translateY(1px);
+}
+
+
+/* =========================================================
+   BOUTON AFFECTER DANS LA GRILLE
+   ========================================================= */
+
+.btn-affecter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    padding: 7px 11px;
+
+    border: 1px solid #2563eb;
+    border-radius: 6px;
+
+    background: #ffffff;
+    color: #2563eb;
+
+    text-decoration: none;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.btn-affecter:hover {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   RESPONSIVE — TABLETTE
+   ========================================================= */
+
+@media (max-width: 850px) {
+
+    .affectation-page {
+        padding: 22px;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn-retour {
+        width: fit-content;
+    }
+
+    .context-card {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE — MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .affectation-page {
+        padding: 15px;
+    }
+
+    .page-header h1 {
+        font-size: 23px;
+    }
+
+    .context-card {
+        grid-template-columns: 1fr;
+    }
+
+    .context-item {
+        min-height: auto;
+        padding: 14px 16px;
+    }
+
+    .form-card-header {
+        padding: 18px;
+    }
+
+    .form-card form {
+        padding: 18px;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .btn-cancel,
+    .btn-submit {
+        width: 100%;
+    }
+}

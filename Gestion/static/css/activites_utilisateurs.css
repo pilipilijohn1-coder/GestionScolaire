@@ -1,0 +1,629 @@
+/* ============================================================
+   PAGE ACTIVITÉS UTILISATEUR
+   ============================================================ */
+
+.activites-page {
+    width: 100%;
+}
+
+
+/* ============================================================
+   EN-TÊTE DE LA PAGE
+   ============================================================ */
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 28px;
+}
+
+.page-header h1 {
+    margin: 0 0 6px;
+    color: #111827;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.page-header p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 15px;
+}
+
+
+/* ============================================================
+   BOUTONS
+   ============================================================ */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+.btn-secondary:hover {
+    background: #e5e7eb;
+}
+
+
+/* ============================================================
+   RÉSUMÉ UTILISATEUR
+   ============================================================ */
+
+.user-summary {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    padding: 20px;
+    margin-bottom: 24px;
+
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.04);
+}
+
+
+/* ------------------------------------------------------------
+   AVATAR
+   ------------------------------------------------------------ */
+
+.user-summary-avatar {
+    width: 52px;
+    height: 52px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    font-size: 17px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+
+/* ------------------------------------------------------------
+   INFORMATIONS
+   ------------------------------------------------------------ */
+
+.user-summary-info {
+    flex: 1;
+}
+
+.user-summary-info h2 {
+    margin: 0 0 5px;
+    color: #111827;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.user-summary-info p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+
+/* ------------------------------------------------------------
+   STATUT
+   ------------------------------------------------------------ */
+
+.user-summary-status {
+    display: flex;
+    align-items: center;
+}
+
+
+/* ============================================================
+   BADGES DE STATUT
+   ============================================================ */
+
+.status {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 5px 10px;
+
+    border-radius: 999px;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-inactive {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+
+/* ============================================================
+   CARTE DES ACTIVITÉS
+   ============================================================ */
+
+.activites-card {
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.04);
+}
+
+
+/* ============================================================
+   EN-TÊTE DE LA CARTE
+   ============================================================ */
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+
+    padding: 22px 24px;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.card-header h2 {
+    margin: 0 0 5px;
+
+    color: #111827;
+
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.card-header p {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 14px;
+}
+
+
+/* ------------------------------------------------------------
+   NOMBRE D'ACTIVITÉS
+   ------------------------------------------------------------ */
+
+.activity-count {
+    flex-shrink: 0;
+
+    padding: 7px 12px;
+
+    border-radius: 999px;
+
+    background: #eff6ff;
+    color: #1d4ed8;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+
+/* ============================================================
+   LISTE DES ACTIVITÉS
+   ============================================================ */
+
+.activities-list {
+    padding: 8px 24px;
+}
+
+
+/* ============================================================
+   ACTIVITÉ
+   ============================================================ */
+
+.activity-item {
+    display: flex;
+
+    position: relative;
+
+    padding: 24px 0;
+
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+
+/* ============================================================
+   INDICATEUR / LIGNE
+   ============================================================ */
+
+.activity-indicator {
+    position: relative;
+
+    width: 34px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    justify-content: center;
+}
+
+
+/* POINT */
+
+.activity-indicator span {
+    width: 12px;
+    height: 12px;
+
+    margin-top: 6px;
+
+    border-radius: 50%;
+
+    background: #2563eb;
+
+    box-shadow:
+        0 0 0 4px #dbeafe;
+
+    z-index: 2;
+}
+
+
+/* LIGNE VERTICALE */
+
+.activity-item:not(:last-child)
+.activity-indicator::after {
+    content: "";
+
+    position: absolute;
+
+    top: 20px;
+    bottom: -32px;
+
+    width: 2px;
+
+    background: #e5e7eb;
+}
+
+
+/* ============================================================
+   CONTENU ACTIVITÉ
+   ============================================================ */
+
+.activity-content {
+    flex: 1;
+
+    min-width: 0;
+}
+
+
+/* ============================================================
+   PARTIE PRINCIPALE
+   ============================================================ */
+
+.activity-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    gap: 20px;
+
+    margin-bottom: 14px;
+}
+
+.activity-main h3 {
+    margin: 0 0 5px;
+
+    color: #111827;
+
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.activity-date {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 13px;
+}
+
+
+/* ============================================================
+   AUTEUR
+   ============================================================ */
+
+.activity-author {
+    flex-shrink: 0;
+
+    text-align: right;
+
+    color: #6b7280;
+
+    font-size: 12px;
+}
+
+.activity-author strong {
+    display: block;
+
+    margin-top: 3px;
+
+    color: #374151;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+
+/* ============================================================
+   DÉTAILS DE L'ACTIVITÉ
+   ============================================================ */
+
+.activity-detail {
+    margin-top: 12px;
+
+    padding: 13px 15px;
+
+    background: #f8fafc;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+}
+
+.detail-title {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #374151;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.activity-detail p {
+    margin: 0;
+
+    color: #4b5563;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+}
+
+
+/* ============================================================
+   ANCIENNES / NOUVELLES VALEURS
+   ============================================================ */
+
+.activity-detail pre {
+    margin: 0;
+
+    padding: 12px;
+
+    overflow-x: auto;
+
+    white-space: pre-wrap;
+    word-break: break-word;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+
+    color: #374151;
+
+    font-family:
+        Consolas,
+        "Courier New",
+        monospace;
+
+    font-size: 12px;
+
+    line-height: 1.6;
+}
+
+
+/* ============================================================
+   ADRESSE IP
+   ============================================================ */
+
+.activity-ip {
+    margin-top: 12px;
+
+    color: #9ca3af;
+
+    font-size: 12px;
+}
+
+
+/* ============================================================
+   ÉTAT VIDE
+   ============================================================ */
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+
+    padding: 65px 25px;
+}
+
+.empty-icon {
+    width: 58px;
+    height: 58px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 18px;
+
+    border-radius: 50%;
+
+    background: #f3f4f6;
+
+    color: #6b7280;
+
+    font-size: 27px;
+}
+
+.empty-state h3 {
+    margin: 0 0 8px;
+
+    color: #374151;
+
+    font-size: 18px;
+}
+
+.empty-state p {
+    max-width: 420px;
+
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+}
+
+
+/* ============================================================
+   ACTIONS EN BAS
+   ============================================================ */
+
+.page-actions {
+    display: flex;
+    justify-content: flex-end;
+
+    margin-top: 24px;
+}
+
+
+/* ============================================================
+   RESPONSIVE - TABLETTE
+   ============================================================ */
+
+@media (max-width: 800px) {
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .page-header h1 {
+        font-size: 27px;
+    }
+
+    .user-summary {
+        flex-wrap: wrap;
+    }
+
+    .user-summary-status {
+        width: 100%;
+    }
+
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .activity-main {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .activity-author {
+        text-align: left;
+    }
+
+}
+
+
+/* ============================================================
+   RESPONSIVE - MOBILE
+   ============================================================ */
+
+@media (max-width: 560px) {
+
+    .activities-list {
+        padding: 6px 16px;
+    }
+
+    .card-header {
+        padding: 18px 16px;
+    }
+
+    .user-summary {
+        padding: 16px;
+    }
+
+    .activity-item {
+        padding: 20px 0;
+    }
+
+    .activity-indicator {
+        width: 27px;
+    }
+
+    .activity-indicator span {
+        width: 10px;
+        height: 10px;
+    }
+
+    .page-header h1 {
+        font-size: 24px;
+    }
+
+    .page-actions {
+        justify-content: stretch;
+    }
+
+    .page-actions .btn {
+        width: 100%;
+    }
+
+}

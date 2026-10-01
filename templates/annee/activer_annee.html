@@ -1,0 +1,239 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+    Activer une année scolaire
+{% endblock %}
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/activer_annee.css' %}"
+>
+{% endblock %}
+
+{% block content %}
+
+<div class="activation-page">
+
+    <!-- ================================================== -->
+    <!-- EN-TÊTE -->
+    <!-- ================================================== -->
+
+    <div class="page-header">
+
+        <div>
+            <h1>Activer l'année scolaire</h1>
+
+            <p>
+                Confirmez l'activation de cette année scolaire.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'detail_annee' annee_id=annee.id %}"
+            class="btn btn-secondary"
+        >
+            Retour
+        </a>
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- AVERTISSEMENT -->
+    <!-- ================================================== -->
+
+    <div class="warning-card">
+
+        <div class="warning-icon">
+            !
+        </div>
+
+        <div class="warning-content">
+
+            <h2>Confirmation requise</h2>
+
+            <p>
+                Vous êtes sur le point d'activer une nouvelle
+                année scolaire.
+            </p>
+
+            <p>
+                Une seule année scolaire peut être active
+                dans le système à la fois.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- INFORMATIONS DE L'ANNÉE -->
+    <!-- ================================================== -->
+
+    <div class="activation-card">
+
+        <div class="card-header">
+
+            <div>
+                <h2>Année scolaire à activer</h2>
+
+                <p>
+                    Vérifiez les informations avant de confirmer
+                    l'activation.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="annee-information">
+
+            <!-- Libellé -->
+
+            <div class="info-item">
+
+                <span class="info-label">
+                    Année scolaire
+                </span>
+
+                <span class="info-value info-main">
+                    {{ annee.libelle }}
+                </span>
+
+            </div>
+
+
+            <!-- Date de début -->
+
+            <div class="info-item">
+
+                <span class="info-label">
+                    Date de début
+                </span>
+
+                <span class="info-value">
+                    {{ annee.date_debut|date:"d/m/Y" }}
+                </span>
+
+            </div>
+
+
+            <!-- Date de fin -->
+
+            <div class="info-item">
+
+                <span class="info-label">
+                    Date de fin
+                </span>
+
+                <span class="info-value">
+                    {{ annee.date_fin|date:"d/m/Y" }}
+                </span>
+
+            </div>
+
+
+            <!-- Seuil de passage -->
+
+            <div class="info-item">
+
+                <span class="info-label">
+                    Seuil de passage
+                </span>
+
+                <span class="info-value">
+                    {{ annee.seuil_passage }} %
+                </span>
+
+            </div>
+
+
+            <!-- Statut actuel -->
+
+            <div class="info-item">
+
+                <span class="info-label">
+                    Statut actuel
+                </span>
+
+                <span class="info-value">
+
+                    {% if annee.statut == "PLANIFIEE" %}
+
+                        <span class="status status-planned">
+                            Planifiée
+                        </span>
+
+                    {% elif annee.statut == "ACTIVE" %}
+
+                        <span class="status status-active">
+                            Active
+                        </span>
+
+                    {% elif annee.statut == "CLOTUREE" %}
+
+                        <span class="status status-closed">
+                            Clôturée
+                        </span>
+
+                    {% endif %}
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================== -->
+        <!-- CONFIRMATION -->
+        <!-- ================================================== -->
+
+        <form
+            method="POST"
+            action="{% url 'activer_annee' annee_id=annee.id %}"
+            class="activation-form"
+        >
+
+            {% csrf_token %}
+
+            <div class="confirmation-message">
+
+                <strong>Attention :</strong>
+
+                Après confirmation, l'année scolaire
+                <strong>{{ annee.libelle }}</strong>
+                deviendra l'année scolaire active du système.
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <a
+                    href="{% url 'detail_annee' annee_id=annee.id %}"
+                    class="btn btn-secondary"
+                >
+                    Annuler
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn btn-success"
+                >
+                    Confirmer l'activation
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}
+ 

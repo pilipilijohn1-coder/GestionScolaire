@@ -1,0 +1,162 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Emploi du temps{% endblock %}
+
+{% block extra_css %}
+<style>
+    .schedule-toolbar {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+    .schedule-toolbar select {
+        padding: 8px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        background: #ffffff;
+        font-size: 14px;
+    }
+    .schedule-toolbar button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 8px;
+        background: #2563eb;
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .schedule-wrapper {
+        overflow-x: auto;
+    }
+    .schedule-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 15px;
+        min-width: 900px;
+    }
+    .schedule-day {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 15px;
+        min-height: 120px;
+    }
+    .schedule-day h3 {
+        margin: 0 0 12px 0;
+        font-size: 15px;
+        font-weight: 700;
+        color: #1f2937;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        border-bottom: 2px solid #2563eb;
+        padding-bottom: 8px;
+    }
+    .schedule-card {
+        background: #eff6ff;
+        border-left: 4px solid #2563eb;
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin-bottom: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .schedule-card strong {
+        font-size: 13px;
+        color: #1e40af;
+    }
+    .schedule-card span {
+        font-size: 13px;
+        font-weight: 600;
+        color: #111827;
+    }
+    .schedule-card small {
+        font-size: 11px;
+        color: #6b7280;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+    <div class="page-header">
+        <div>
+            <h1>Emploi du temps</h1>
+            <p style="color:#6b7280;">
+                {% if annee_active %}
+                    Année scolaire : {{ annee_active.libelle }}
+                {% else %}
+                    Aucune année scolaire active.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <form method="get" class="schedule-toolbar">
+        <select name="annee">
+            {% for annee in annees %}
+                <option
+                    value="{{ annee.id }}"
+                    {% if annee_active and annee.id == annee_active.id %}selected{% endif %}
+                >{{ annee.libelle }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Afficher</button>
+    </form>
+
+    {% if not utilisateur %}
+        <div class="empty-state">
+            <i class="fa-solid fa-user-slash"></i>
+            <h3>Aucun utilisateur</h3>
+            <p>Aucun utilisateur n'est connecté.</p>
+        </div>
+    {% elif not enseignant %}
+        <div class="empty-state">
+            <i class="fa-solid fa-chalkboard-user"></i>
+            <h3>Aucun profil enseignant</h3>
+            <p>Votre compte n'est associé à aucun profil enseignant actif.</p>
+        </div>
+    {% elif not annee_active %}
+        <div class="empty-state">
+            <i class="fa-solid fa-calendar-xmark"></i>
+            <h3>Aucune année active</h3>
+            <p>Aucune année scolaire n'est actuellement active.</p>
+        </div>
+    {% elif not horaires %}
+        <div class="empty-state">
+            <i class="fa-solid fa-calendar-days"></i>
+            <h3>Aucun cours planifié</h3>
+            <p>Vous n'avez pas encore d'emploi du temps défini.</p>
+        </div>
+    {% else %}
+        <div class="schedule-wrapper">
+            <div class="schedule-grid">
+                {% for jour_code, jour_label in jours %}
+                    <div class="schedule-day">
+                        <h3>{{ jour_label }}</h3>
+                        {% for horaire in horaires %}
+                            {% if horaire.jour_semaine == jour_code %}
+                                <div class="schedule-card">
+                                    <strong>{{ horaire.creneau }}</strong>
+                                    <span>{{ horaire.affectation.affectation_matiere.matiere.libelle }}</span>
+                                    <small>{{ horaire.classe.libelle }}</small>
+                                    {% if horaire.salle %}
+                                        <small><i class="fa-solid fa-location-dot"></i> {{ horaire.salle }}</small>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

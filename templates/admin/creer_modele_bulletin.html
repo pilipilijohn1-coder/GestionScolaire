@@ -1,0 +1,115 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Nouveau modèle de bulletin{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --form-primary: #2563eb;
+        --form-bg: #f8fafc;
+        --form-border: #e2e8f0;
+        --form-text: #1e293b;
+        --form-text-secondary: #64748b;
+    }
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: #ffffff;
+        border: 1px solid var(--form-border);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+    }
+    .form-container h1 {
+        margin: 0 0 20px;
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--form-text);
+    }
+    .form-group {
+        margin-bottom: 16px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+        font-size: 14px;
+        color: var(--form-text);
+    }
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--form-border);
+        font-size: 14px;
+        color: var(--form-text);
+        background: #ffffff;
+    }
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+    }
+    .btn {
+        padding: 10px 16px;
+        border-radius: 10px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn-primary {
+        background: var(--form-primary);
+        color: #ffffff;
+    }
+    .btn-secondary {
+        background: #e2e8f0;
+        color: var(--form-text);
+    }
+    .errors {
+        background: #fee2e2;
+        color: #991b1b;
+        padding: 12px;
+        border-radius: 10px;
+        margin-bottom: 16px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Nouveau modèle de bulletin</h1>
+
+    
+
+    {% if form.errors %}
+        <div class="errors">
+            Veuillez corriger les erreurs ci-dessous.
+        </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <div style="color:#dc2626; font-size: 12px; margin-top: 4px;">
+                        {{ field.errors|join:", " }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Enregistrer</button>
+            <a href="{% url 'liste_modeles_bulletins' %}" class="btn btn-secondary">Annuler</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

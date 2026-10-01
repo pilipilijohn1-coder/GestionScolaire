@@ -1,0 +1,537 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+Modifier utilisateur
+{% endblock %}
+
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/modification_utilisateur.css' %}"
+>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="user-edit-page">
+
+    <!-- =====================================================
+         EN-TÊTE
+         ====================================================== -->
+
+    <div class="edit-page-header">
+
+        <div class="header-content">
+
+            <div class="header-icon">
+                ✎
+            </div>
+
+            <div>
+                <h1>
+                    Modifier l'utilisateur
+                </h1>
+
+                <p>
+                    Modifiez les informations et les paramètres
+                    du compte utilisateur.
+                </p>
+            </div>
+
+        </div>
+
+
+        <a
+            href="{% url 'liste_utilisateurs' %}"
+            class="back-button"
+        >
+            ← Retour à la liste
+        </a>
+
+    </div>
+
+
+    <!-- =====================================================
+         FORMULAIRE
+         ====================================================== -->
+
+    <form
+        method="POST"
+        class="user-edit-form"
+    >
+
+        {% csrf_token %}
+
+
+        <!-- =================================================
+             MESSAGES
+             ================================================== -->
+
+        
+
+
+        <!-- =================================================
+             CARTE UTILISATEUR
+             ================================================== -->
+
+        <div class="user-summary-card">
+
+            <div class="user-avatar">
+
+                {{ utilisateur.prenom|first|upper }}{{ utilisateur.nom|first|upper }}
+
+            </div>
+
+
+            <div class="user-summary-info">
+
+                <h2>
+
+                    {{ utilisateur.prenom }}
+                    {{ utilisateur.nom }}
+
+                </h2>
+
+
+                {% if attribution_role %}
+
+                    <span class="role-badge">
+
+                        {{ attribution_role.role.libelle }}
+
+                    </span>
+
+                {% else %}
+
+                    <span class="role-badge role-empty">
+
+                        Aucun rôle
+
+                    </span>
+
+                {% endif %}
+
+
+            </div>
+
+
+            <div class="user-status">
+
+                {% if utilisateur.actif %}
+
+                    <span class="status active">
+                        ● Compte actif
+                    </span>
+
+                {% else %}
+
+                    <span class="status inactive">
+                        ● Compte désactivé
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             INFORMATIONS PERSONNELLES
+             ================================================== -->
+
+        <section class="form-card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        Informations personnelles
+                    </h2>
+
+                    <p>
+                        Informations générales concernant
+                        l'utilisateur.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-grid">
+
+
+                <!-- NOM -->
+
+                <div class="form-field">
+
+                    <label for="nom">
+                        Nom
+                    </label>
+
+                    <input
+                        type="text"
+                        id="nom"
+                        name="nom"
+                        value="{{ utilisateur.nom }}"
+                        required
+                    >
+
+                </div>
+
+
+
+                <!-- POSTNOM -->
+
+                <div class="form-field">
+
+                    <label for="postnom">
+                        Postnom
+                    </label>
+
+                    <input
+                        type="text"
+                        id="postnom"
+                        name="postnom"
+                        value="{{ utilisateur.postnom|default:'' }}"
+                    >
+
+                </div>
+
+
+
+                <!-- PRENOM -->
+
+                <div class="form-field">
+
+                    <label for="prenom">
+                        Prénom
+                    </label>
+
+                    <input
+                        type="text"
+                        id="prenom"
+                        name="prenom"
+                        value="{{ utilisateur.prenom }}"
+                        required
+                    >
+
+                </div>
+
+
+
+                <!-- TELEPHONE -->
+
+                <div class="form-field">
+
+                    <label for="telephone">
+                        Téléphone
+                    </label>
+
+                    <input
+                        type="text"
+                        id="telephone"
+                        name="telephone"
+                        value="{{ utilisateur.telephone|default:'' }}"
+                    >
+
+                </div>
+
+
+
+                <!-- EMAIL -->
+
+                <div class="form-field full-field">
+
+                    <label for="email">
+                        Adresse e-mail
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value="{{ utilisateur.email|default:'' }}"
+                        required
+                    >
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             ACCÈS AU SYSTÈME
+             ================================================== -->
+
+        <section class="form-card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        Accès au système
+                    </h2>
+
+                    <p>
+                        Paramètres utilisés pour l'authentification.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-grid">
+
+
+                <!-- LOGIN -->
+
+                <div class="form-field">
+
+                    <label for="login">
+                        Identifiant de connexion
+                    </label>
+
+                    <input
+                        type="text"
+                        id="login"
+                        name="login"
+                        value="{{ compte.login|default:'' }}"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- INFORMATION MOT DE PASSE -->
+
+                <div class="security-info">
+
+                    <div class="security-icon">
+                        🔒
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Mot de passe protégé
+                        </strong>
+
+                        <p>
+                            Le mot de passe ne peut pas être modifié
+                            depuis cette page.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             RÔLE
+             ================================================== -->
+
+        <section class="form-card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        Rôle et autorisations
+                    </h2>
+
+                    <p>
+                        Définissez le rôle attribué à cet utilisateur.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="role-selection">
+
+
+                <label for="role">
+
+                    Rôle attribué
+
+                </label>
+
+
+                <select
+                    id="role"
+                    name="role"
+                    required
+                >
+
+                    <option value="">
+
+                        -- Sélectionner un rôle --
+
+                    </option>
+
+
+                    {% for role in roles %}
+
+                        <option
+                            value="{{ role.id }}"
+
+                            {% if attribution_role and attribution_role.role.id == role.id %}
+
+                                selected
+
+                            {% endif %}
+
+                        >
+
+                            {{ role.libelle }}
+
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+
+                <p class="field-description">
+
+                    Les permissions de l'utilisateur dépendent
+                    du rôle qui lui est attribué.
+
+                </p>
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             STATUT
+             ================================================== -->
+
+        <section class="form-card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        Statut du compte
+                    </h2>
+
+                    <p>
+                        Consultez l'état actuel du compte.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="status-information">
+
+                {% if utilisateur.actif %}
+
+                    <div class="status-box status-box-active">
+
+                        <div>
+
+                            <strong>
+                                Compte actuellement actif
+                            </strong>
+
+                            <p>
+                                Cet utilisateur peut accéder au système
+                                selon les permissions de son rôle.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="status-box status-box-inactive">
+
+                        <div>
+
+                            <strong>
+                                Compte actuellement désactivé
+                            </strong>
+
+                            <p>
+                                Cet utilisateur ne peut actuellement
+                                pas accéder au système.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!--
+                Le statut n'est volontairement pas modifiable ici.
+
+                L'activation et la désactivation seront effectuées
+                depuis la page de détail avec confirmation.
+            -->
+
+        </section>
+
+
+
+        <!-- =================================================
+             ACTIONS
+             ================================================== -->
+
+        <div class="form-actions">
+
+            <a
+                href="{% url 'detail_utilisateur' utilisateur.id %}"
+                class="cancel-button"
+            >
+                Annuler
+            </a>
+
+
+            <button
+                type="submit"
+                class="save-button"
+            >
+                Enregistrer les modifications
+            </button>
+
+        </div>
+
+
+    </form>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,273 @@
+{% extends base_template %}
+{% load static %}
+
+
+{% block title %}
+    Nouveau niveau
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/creer_niveau.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="niveau-form-page">
+
+    <!-- ================================================== -->
+    <!-- EN-TÊTE -->
+    <!-- ================================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>
+                Nouveau niveau
+            </h1>
+
+            <p>
+                Ajoutez un nouveau niveau à la structure académique.
+            </p>
+
+        </div>
+
+
+        <a
+            href="{% url 'liste_niveaux' %}"
+            class="btn btn-secondary"
+        >
+            Retour à la liste
+        </a>
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- FORMULAIRE -->
+    <!-- ================================================== -->
+
+    <div class="form-card">
+
+        <div class="form-card-header">
+
+            <h2>
+                Informations du niveau
+            </h2>
+
+            <p>
+                Les informations définies ici seront utilisées
+                dans l'organisation académique de l'école.
+            </p>
+
+        </div>
+
+
+        <form
+            method="post"
+            class="niveau-form"
+        >
+
+            {% csrf_token %}
+
+
+            <!-- ========================================== -->
+            <!-- ERREURS GÉNÉRALES -->
+            <!-- ========================================== -->
+
+            {% if form.non_field_errors %}
+
+                <div class="form-errors">
+
+                    {{ form.non_field_errors }}
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- ========================================== -->
+            <!-- CODE -->
+            <!-- ========================================== -->
+
+            <div class="form-group">
+
+                <label for="{{ form.code.id_for_label }}">
+                    Code du niveau
+                </label>
+
+                {{ form.code }}
+
+                {% if form.code.errors %}
+
+                    <div class="field-error">
+
+                        {{ form.code.errors }}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- LIBELLÉ -->
+            <!-- ========================================== -->
+
+            <div class="form-group">
+
+                <label for="{{ form.libelle.id_for_label }}">
+                    Libellé du niveau
+                </label>
+
+                {{ form.libelle }}
+
+                {% if form.libelle.errors %}
+
+                    <div class="field-error">
+
+                        {{ form.libelle.errors }}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- ORDRE -->
+            <!-- ========================================== -->
+
+            <div class="form-group">
+
+                <label for="{{ form.ordre.id_for_label }}">
+                    Ordre du niveau
+                </label>
+
+                {{ form.ordre }}
+
+                <small class="form-help">
+
+                    L'ordre détermine la position du niveau
+                    dans la progression scolaire.
+
+                </small>
+
+
+                {% if form.ordre.errors %}
+
+                    <div class="field-error">
+
+                        {{ form.ordre.errors }}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- ÉCOLE DE BASE -->
+            <!-- ========================================== -->
+
+            <div class="form-group checkbox-group">
+
+                <label
+                    for="{{ form.est_ecole_base.id_for_label }}"
+                    class="checkbox-label"
+                >
+
+                    {{ form.est_ecole_base }}
+
+                    <span>
+
+                        <strong>
+                            Niveau de l'École de base
+                        </strong>
+
+                        <small>
+                            Cochez cette option si ce niveau
+                            appartient à la période commune
+                            avant le choix d'une section.
+                        </small>
+
+                    </span>
+
+                </label>
+
+
+                {% if form.est_ecole_base.errors %}
+
+                    <div class="field-error">
+
+                        {{ form.est_ecole_base.errors }}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- INFORMATION IMPORTANTE -->
+            <!-- ========================================== -->
+
+            <div class="info-box">
+
+                <strong>
+                    Règle académique
+                </strong>
+
+                <p>
+
+                    Les niveaux de l'École de base sont communs
+                    à tous les élèves et ne sont associés à aucune
+                    section. Pour les autres niveaux, une section
+                    sera obligatoire lors de la création des classes.
+
+                </p>
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- ACTIONS -->
+            <!-- ========================================== -->
+
+            <div class="form-actions">
+
+                <a
+                    href="{% url 'liste_niveaux' %}"
+                    class="btn btn-secondary"
+                >
+                    Annuler
+                </a>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Enregistrer le niveau
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

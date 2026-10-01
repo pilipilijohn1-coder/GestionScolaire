@@ -1,0 +1,146 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ titre }}</title>
+
+    <link rel="stylesheet"
+          href="{% static 'css/bulletin/bulletins.css' %}">
+</head>
+
+<body>
+
+<div class="bulletin-page">
+
+    <!-- EN-TÊTE -->
+    <header class="page-header">
+
+        <div>
+            <h1>Modèles de bulletins</h1>
+            <p>
+                Consultation des modèles officiels utilisés
+                pour les différents niveaux.
+            </p>
+        </div>
+
+        <a href="{% url 'dashboard_admin' %}"
+           class="btn btn-secondary">
+            Retour au tableau de bord
+        </a>
+
+    </header>
+
+
+    <!-- CONTENU -->
+    <main class="content-container">
+
+        {% if modeles %}
+
+            <div class="modeles-grid">
+
+                {% for modele in modeles %}
+
+                    <article class="modele-card">
+
+                        <div class="modele-header">
+
+                            <span class="modele-code">
+                                {{ modele.code }}
+                            </span>
+
+                            <span class="status active">
+                                Actif
+                            </span>
+
+                        </div>
+
+
+                        <div class="modele-body">
+
+                            <h2>
+                                {{ modele.libelle }}
+                            </h2>
+
+                            {% if modele.niveau %}
+
+                                <p>
+                                    <strong>Niveau :</strong>
+                                    {{ modele.niveau.libelle }}
+                                </p>
+
+                            {% else %}
+
+                                <p>
+                                    <strong>Niveau :</strong>
+                                    Non défini
+                                </p>
+
+                            {% endif %}
+
+
+                            {% if modele.section %}
+
+                                <p>
+                                    <strong>Section :</strong>
+                                    {{ modele.section.libelle }}
+                                </p>
+
+                            {% else %}
+
+                                <p>
+                                    <strong>Section :</strong>
+                                    Toutes les sections
+                                </p>
+
+                            {% endif %}
+
+
+                            <p>
+                                <strong>Version :</strong>
+                                {{ modele.version }}
+                            </p>
+
+                        </div>
+
+
+                        <div class="modele-footer">
+
+                            <a href="{% url 'detail_modele_bulletin' modele.pk %}"
+                               class="btn btn-primary">
+
+                                Consulter le modèle
+
+                            </a>
+
+                        </div>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <h2>Aucun modèle disponible</h2>
+
+                <p>
+                    Aucun modèle de bulletin actif n'a été trouvé.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </main>
+
+</div>
+
+</body>
+</html>

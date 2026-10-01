@@ -1,0 +1,423 @@
+{% extends base_template %}
+{% load static %}
+
+
+{% block title %}
+    Liste des enseignants
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/liste_enseignants.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="enseignants-page">
+
+
+    <!-- =====================================================
+         EN-TÊTE DE LA PAGE
+    ====================================================== -->
+
+    <div class="page-header">
+
+        <div class="header-content">
+
+            <span class="header-icon">
+                <i class="fa-solid fa-chalkboard-user"></i>
+            </span>
+
+            <div>
+
+                <h1>
+                    Gestion des enseignants
+                </h1>
+
+                <p>
+                    Consultez et gérez les enseignants
+                    enregistrés dans le système.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <a
+            href="{% url 'creer_enseignant' %}"
+            class="btn btn-primary"
+        >
+            <i class="fa-solid fa-plus"></i>
+
+            <span>
+                Nouvel enseignant
+            </span>
+        </a>
+        <a
+            href="{% url 'liste_affectations' %}"
+            class="btn btn-primary"
+        >
+            <i class="fa-solid fa-plus"></i>
+
+            <span>
+                Nouvel Affectation
+            </span>
+        </a>
+
+    </div>
+
+
+    <!-- =====================================================
+         MESSAGES
+    ====================================================== -->
+
+    
+
+
+    <!-- =====================================================
+         LISTE DES ENSEIGNANTS
+    ====================================================== -->
+
+    <div class="enseignants-card">
+
+
+        <!-- ================================================
+             EN-TÊTE DU TABLEAU
+        ================================================= -->
+
+        <div class="card-header">
+
+            <div>
+
+                <h2>
+                    Liste des enseignants
+                </h2>
+
+                <p>
+                    {{ enseignants|length }}
+                    enseignant{{ enseignants|length|pluralize }}
+                    enregistré{{ enseignants|length|pluralize }}
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================
+             TABLEAU
+        ================================================= -->
+
+        {% if enseignants %}
+
+            <div class="table-responsive">
+
+                <table class="enseignants-table">
+
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Enseignant
+                            </th>
+
+                            <th>
+                                Matricule
+                            </th>
+
+                            <th>
+                                Coordonnées
+                            </th>
+
+                            <th>
+                                Spécialité
+                            </th>
+
+                            <th>
+                                Statut
+                            </th>
+
+                            <th class="actions-column">
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for enseignant in enseignants %}
+
+                            <tr>
+
+
+                                <!-- =====================
+                                     PHOTO + IDENTITÉ
+                                ====================== -->
+
+                                <td>
+
+                                    <div class="enseignant-identite">
+
+
+                                        <div class="photo-container">
+
+                                            {% if enseignant.utilisateur.photo_profil %}
+
+                                                <img
+                                                    src="{{ enseignant.utilisateur.photo_profil.url }}"
+                                                    alt="Photo de {{ enseignant.utilisateur.nom }}"
+                                                    class="photo-profil"
+                                                >
+
+                                            {% else %}
+
+                                                <div class="photo-placeholder">
+
+                                                    <i class="fa-solid fa-user"></i>
+
+                                                </div>
+
+                                            {% endif %}
+
+                                        </div>
+
+
+                                        <div class="identite-info">
+
+                                            <strong>
+
+                                                {{ enseignant.utilisateur.nom }}
+
+                                                {% if enseignant.utilisateur.postnom %}
+
+                                                    {{ enseignant.utilisateur.postnom }}
+
+                                                {% endif %}
+
+                                                {{ enseignant.utilisateur.prenom }}
+
+                                            </strong>
+
+
+                                            {% if enseignant.grade %}
+
+                                                <span>
+                                                    {{ enseignant.grade }}
+                                                </span>
+
+                                            {% endif %}
+
+                                        </div>
+
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- =====================
+                                     MATRICULE
+                                ====================== -->
+
+                                <td>
+
+                                    <span class="matricule">
+                                        {{ enseignant.matricule }}
+                                    </span>
+
+                                </td>
+
+
+                                <!-- =====================
+                                     COORDONNÉES
+                                ====================== -->
+
+                                <td>
+
+                                    <div class="coordonnees">
+
+
+                                        {% if enseignant.utilisateur.email %}
+
+                                            <span>
+
+                                                <i class="fa-solid fa-envelope"></i>
+
+                                                {{ enseignant.utilisateur.email }}
+
+                                            </span>
+
+                                        {% endif %}
+
+
+                                        {% if enseignant.utilisateur.telephone %}
+
+                                            <span>
+
+                                                <i class="fa-solid fa-phone"></i>
+
+                                                {{ enseignant.utilisateur.telephone }}
+
+                                            </span>
+
+                                        {% endif %}
+
+
+                                        {% if not enseignant.utilisateur.email and not enseignant.utilisateur.telephone %}
+
+                                            <span class="empty-value">
+                                                Non renseigné
+                                            </span>
+
+                                        {% endif %}
+
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- =====================
+                                     SPÉCIALITÉ
+                                ====================== -->
+
+                                <td>
+
+                                    {% if enseignant.specialite %}
+
+                                        <span class="specialite">
+                                            {{ enseignant.specialite }}
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="empty-value">
+                                            Non renseignée
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- =====================
+                                     STATUT
+                                ====================== -->
+
+                                <td>
+
+                                    {% if enseignant.actif %}
+
+                                        <span class="status active">
+
+                                            <i class="fa-solid fa-circle-check"></i>
+
+                                            Actif
+
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="status inactive">
+
+                                            <i class="fa-solid fa-circle-xmark"></i>
+
+                                            Inactif
+
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- =====================
+                                     ACTIONS
+                                ====================== -->
+
+                                <td class="actions-column">
+
+                                    <a
+                                        href="{% url 'detail_enseignant' enseignant.id %}"
+                                        class="action-btn"
+                                        title="Voir le détail"
+                                    >
+
+                                        <i class="fa-solid fa-eye"></i>
+
+                                    </a>
+
+                                </td>
+
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+        <!-- ================================================
+             AUCUN ENSEIGNANT
+        ================================================= -->
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <div class="empty-icon">
+
+                    <i class="fa-solid fa-chalkboard-user"></i>
+
+                </div>
+
+
+                <h2>
+                    Aucun enseignant enregistré
+                </h2>
+
+
+                <p>
+                    Aucun enseignant n'a encore été ajouté
+                    dans le système.
+                </p>
+
+
+                <a
+                    href="{% url 'creer_enseignant' %}"
+                    class="btn btn-primary"
+                >
+
+                    <i class="fa-solid fa-plus"></i>
+
+                    Ajouter un enseignant
+
+                </a>
+
+            </div>
+
+        {% endif %}
+
+
+    </div>
+
+
+</div>
+
+{% endblock %}

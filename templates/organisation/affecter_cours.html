@@ -1,0 +1,280 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+    Affecter un cours
+{% endblock %}
+
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/organisation/affecter_cours.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="affectation-page">
+
+    <!-- =====================================================
+         EN-TÊTE
+    ====================================================== -->
+
+    <div class="page-header">
+
+        <div>
+            <h1>
+                Affecter un cours
+            </h1>
+
+            <p>
+                Sélectionnez l'affectation à placer dans ce
+                créneau horaire.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'repartition_horaire' %}?annee_id={{ annee.id }}"
+            class="btn-retour"
+        >
+            <i class="fa-solid fa-arrow-left"></i>
+            Retour à la répartition
+        </a>
+
+    </div>
+
+
+    <!-- =====================================================
+         INFORMATIONS DU CRÉNEAU
+    ====================================================== -->
+
+    <div class="context-card">
+
+        <div class="context-item">
+
+            <span class="context-label">
+                Année scolaire
+            </span>
+
+            <strong>
+                {{ annee.libelle }}
+            </strong>
+
+        </div>
+
+
+        <div class="context-item">
+
+            <span class="context-label">
+                Classe
+            </span>
+
+            <strong>
+                {{ classe.libelle }}
+            </strong>
+
+        </div>
+
+
+        <div class="context-item">
+
+            <span class="context-label">
+                Jour
+            </span>
+
+            <strong>
+
+                {% if jour == 1 %}
+                    Lundi
+                {% elif jour == 2 %}
+                    Mardi
+                {% elif jour == 3 %}
+                    Mercredi
+                {% elif jour == 4 %}
+                    Jeudi
+                {% elif jour == 5 %}
+                    Vendredi
+                {% elif jour == 6 %}
+                    Samedi
+                {% endif %}
+
+            </strong>
+
+        </div>
+
+
+        <div class="context-item">
+
+            <span class="context-label">
+                Créneau
+            </span>
+
+            <strong>
+                {{ creneau.heure_debut|time:"H:i" }}
+                –
+                {{ creneau.heure_fin|time:"H:i" }}
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         FORMULAIRE
+    ====================================================== -->
+
+    <div class="form-card">
+
+        <div class="form-card-header">
+
+            <div>
+
+                <h2>
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                    Choisir le cours
+                </h2>
+
+                <p>
+                    Seules les affectations actives de cette
+                    classe sont proposées.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <form method="post">
+
+            {% csrf_token %}
+
+
+            <!-- =================================================
+                 ERREURS GÉNÉRALES
+            ================================================== -->
+
+            {% if form.non_field_errors %}
+
+                <div class="form-errors">
+
+                    {% for error in form.non_field_errors %}
+
+                        <p>
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            {{ error }}
+                        </p>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- =================================================
+                 AFFECTATION
+            ================================================== -->
+
+            <div class="form-group">
+
+                <label for="{{ form.affectation.id_for_label }}">
+
+                    <i class="fa-solid fa-user-tie"></i>
+
+                    {{ form.affectation.label }}
+
+                </label>
+
+
+                {{ form.affectation }}
+
+
+                {% if form.affectation.errors %}
+
+                    <div class="field-error">
+
+                        {% for error in form.affectation.errors %}
+
+                            <span>
+                                {{ error }}
+                            </span>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- =================================================
+                 SALLE
+            ================================================== -->
+
+            <div class="form-group">
+
+                <label for="{{ form.salle.id_for_label }}">
+
+                    <i class="fa-solid fa-door-open"></i>
+
+                    {{ form.salle.label }}
+
+                </label>
+
+
+                {{ form.salle }}
+
+
+                {% if form.salle.errors %}
+
+                    <div class="field-error">
+
+                        {% for error in form.salle.errors %}
+
+                            <span>
+                                {{ error }}
+                            </span>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- =================================================
+                 ACTIONS
+            ================================================== -->
+
+            <div class="form-actions">
+
+                <a
+                    href="{% url 'repartition_horaire' %}?annee_id={{ annee.id }}"
+                    class="btn-cancel"
+                >
+                    Annuler
+                </a>
+
+
+                <button
+                    type="submit"
+                    class="btn-submit"
+                >
+
+                    <i class="fa-solid fa-calendar-plus"></i>
+
+                    Affecter le cours
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

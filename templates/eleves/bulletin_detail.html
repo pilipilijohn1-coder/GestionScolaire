@@ -1,0 +1,504 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>
+        Bulletin scolaire
+    </title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .bulletin-container {
+            max-width: 1200px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            margin: 5px 0;
+        }
+
+        .header h2 {
+            font-size: 16px;
+            margin: 5px 0;
+        }
+
+        .student-info {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .student-info div {
+            padding: 5px;
+        }
+
+        .table-container {
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        th,
+        td {
+            border: 1px solid #000;
+            padding: 5px;
+            text-align: center;
+        }
+
+        th {
+            background: #eee;
+        }
+
+        .domaine {
+            background: #ddd;
+            font-weight: bold;
+            text-align: left;
+        }
+
+        .subtotal {
+            font-weight: bold;
+            background: #f0f0f0;
+        }
+
+        .total-general {
+            margin-top: 20px;
+            border: 2px solid #000;
+            padding: 15px;
+        }
+
+        .decision {
+            margin-top: 20px;
+            border: 1px solid #000;
+            padding: 15px;
+        }
+
+        .actions {
+            margin-bottom: 20px;
+        }
+
+        .actions a,
+        .actions button {
+            padding: 10px 15px;
+            border: none;
+            text-decoration: none;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        @media print {
+
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .actions {
+                display: none;
+            }
+
+            .bulletin-container {
+                max-width: none;
+                padding: 0;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="bulletin-container">
+
+    <div class="actions">
+
+        <button onclick="window.print()">
+            Imprimer
+        </button>
+
+        <a href="{% url 'dashboard_admin' %}">
+            Retour
+        </a>
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!-- EN-TÊTE -->
+    <!-- ============================= -->
+
+    <div class="header">
+
+        <h1>
+            RÉPUBLIQUE DÉMOCRATIQUE DU CONGO
+        </h1>
+
+        <h2>
+            MINISTÈRE DE L'ENSEIGNEMENT PRIMAIRE,
+            SECONDAIRE ET PROFESSIONNEL
+        </h2>
+
+        <h2>
+            BULLETIN DE LA 7ᵉ ANNÉE
+        </h2>
+
+        <p>
+            ANNÉE SCOLAIRE :
+            {{ bulletin.annee_scolaire.libelle }}
+        </p>
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!-- INFORMATIONS ÉLÈVE -->
+    <!-- ============================= -->
+
+    <div class="student-info">
+
+        <div>
+            <strong>Élève :</strong>
+            {{ bulletin.inscription.eleve.nom }}
+            {{ bulletin.inscription.eleve.postnom }}
+            {{ bulletin.inscription.eleve.prenom }}
+        </div>
+
+        <div>
+            <strong>Matricule :</strong>
+            {{ bulletin.inscription.eleve.matricule }}
+        </div>
+
+        <div>
+            <strong>Classe :</strong>
+            {{ bulletin.inscription.classe.libelle }}
+        </div>
+
+        <div>
+            <strong>Année scolaire :</strong>
+            {{ bulletin.annee_scolaire.libelle }}
+        </div>
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!-- TABLEAU -->
+    <!-- ============================= -->
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th rowspan="2">
+                        Matière
+                    </th>
+
+                    <th colspan="3">
+                        PREMIER SEMESTRE
+                    </th>
+
+                    <th colspan="3">
+                        SECOND SEMESTRE
+                    </th>
+
+                    <th rowspan="2">
+                        T.A.
+                    </th>
+
+                    <th rowspan="2">
+                        REPÊCHAGE
+                    </th>
+
+                </tr>
+
+                <tr>
+
+                    <th>
+                        Travaux<br>
+                        journaliers
+                    </th>
+
+                    <th>
+                        Examen
+                    </th>
+
+                    <th>
+                        Total
+                    </th>
+
+                    <th>
+                        Travaux<br>
+                        journaliers
+                    </th>
+
+                    <th>
+                        Examen
+                    </th>
+
+                    <th>
+                        Total
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            {% for ligne in bulletin.lignes.all %}
+
+                <tr>
+
+                    <td style="text-align:left;">
+                        {{ ligne.matiere.libelle }}
+                    </td>
+
+                    <td>
+                        {{ ligne.s1_travaux_journaliers_obtenu }}
+                        /
+                        {{ ligne.s1_travaux_journaliers_max }}
+                    </td>
+
+                    <td>
+                        {{ ligne.s1_examen_obtenu }}
+                        /
+                        {{ ligne.s1_examen_max }}
+                    </td>
+
+                    <td>
+                        {{ ligne.s1_total_obtenu }}
+                        /
+                        {{ ligne.s1_total_max }}
+                    </td>
+
+                    <td>
+                        {{ ligne.s2_travaux_journaliers_obtenu }}
+                        /
+                        {{ ligne.s2_travaux_journaliers_max }}
+                    </td>
+
+                    <td>
+                        {{ ligne.s2_examen_obtenu }}
+                        /
+                        {{ ligne.s2_examen_max }}
+                    </td>
+
+                    <td>
+                        {{ ligne.s2_total_obtenu }}
+                        /
+                        {{ ligne.s2_total_max }}
+                    </td>
+
+                    <td>
+                        {{ ligne.total_annuel_obtenu }}
+                    </td>
+
+                    <td>
+                        {{ ligne.examen_repechage_obtenu }}
+                    </td>
+
+                </tr>
+
+            {% empty %}
+
+                <tr>
+
+                    <td colspan="9">
+                        Aucune matière n'est encore enregistrée
+                        dans ce bulletin.
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!-- TOTAUX -->
+    <!-- ============================= -->
+
+    <div class="total-general">
+
+        <p>
+            <strong>
+                Total premier semestre :
+            </strong>
+
+            {{ bulletin.total_semestre_1 }}
+            / 1520
+        </p>
+
+        <p>
+            <strong>
+                Total deuxième semestre :
+            </strong>
+
+            {{ bulletin.total_semestre_2 }}
+            / 1520
+        </p>
+
+        <p>
+            <strong>
+                TOTAL ANNUEL :
+            </strong>
+
+            {{ bulletin.total_annuel }}
+            /
+            {{ bulletin.maximum_annuel }}
+        </p>
+
+        <p>
+            <strong>
+                POURCENTAGE :
+            </strong>
+
+            {{ bulletin.pourcentage }} %
+        </p>
+
+        <p>
+            <strong>
+                PLACE :
+            </strong>
+
+            {% if bulletin.place %}
+                {{ bulletin.place }}
+                /
+                {{ bulletin.nombre_eleves }}
+            {% else %}
+                Non déterminée
+            {% endif %}
+
+        </p>
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!-- APPLICATION / CONDUITE -->
+    <!-- ============================= -->
+
+    <div class="decision">
+
+        <p>
+            <strong>Application :</strong>
+
+            {% if bulletin.application %}
+                {{ bulletin.application }}
+            {% else %}
+                —
+            {% endif %}
+        </p>
+
+        <p>
+            <strong>Conduite :</strong>
+
+            {% if bulletin.conduite %}
+                {{ bulletin.conduite }}
+            {% else %}
+                —
+            {% endif %}
+        </p>
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!-- DECISION -->
+    <!-- ============================= -->
+
+    <div class="decision">
+
+        <p>
+            <strong>
+                Décision :
+            </strong>
+
+            {% if bulletin.decision %}
+                {{ bulletin.get_decision_display }}
+            {% else %}
+                À déterminer
+            {% endif %}
+        </p>
+
+        {% if bulletin.observation_decision %}
+
+            <p>
+                {{ bulletin.observation_decision }}
+            </p>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!-- SIGNATURES -->
+    <!-- ============================= -->
+
+    <div
+        style="
+            display:grid;
+            grid-template-columns:1fr 1fr 1fr;
+            margin-top:60px;
+            text-align:center;
+        "
+    >
+
+        <div>
+            Signature de l'élève
+        </div>
+
+        <div>
+            Sceau de l'école
+        </div>
+
+        <div>
+            Le chef d'établissement
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

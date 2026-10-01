@@ -1,0 +1,234 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+Réinitialiser le mot de passe
+{% endblock %}
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/reinitialiser_mot_de_passe.css' %}"
+>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+        <h1>Réinitialiser le mot de passe</h1>
+        <p>
+            Définissez un nouveau mot de passe temporaire
+            pour cet utilisateur.
+        </p>
+    </div>
+
+    <a
+        href="{% url 'detail_utilisateur' utilisateur.id %}"
+        class="btn btn-secondary"
+    >
+        Retour aux détails
+    </a>
+
+</div>
+
+
+<div class="reset-layout">
+
+    <!-- ================================================
+         INFORMATIONS DE L'UTILISATEUR
+         ================================================ -->
+
+    <div class="user-card">
+
+        <div class="user-avatar">
+            {{ utilisateur.prenom|first|upper }}{{ utilisateur.nom|first|upper }}
+        </div>
+
+        <div class="user-information">
+
+            <h2>
+                {{ utilisateur.prenom }}
+                {{ utilisateur.nom }}
+            </h2>
+
+            {% if utilisateur.postnom %}
+                <p class="user-postnom">
+                    {{ utilisateur.postnom }}
+                </p>
+            {% endif %}
+
+            <div class="user-details">
+
+                <div class="user-detail">
+
+                    <span class="detail-label">
+                        Identifiant
+                    </span>
+
+                    <strong>
+                        {{ compte.login }}
+                    </strong>
+
+                </div>
+
+
+                <div class="user-detail">
+
+                    <span class="detail-label">
+                        Adresse e-mail
+                    </span>
+
+                    <strong>
+                        {{ utilisateur.email|default:"Non renseignée" }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================
+         FORMULAIRE
+         ================================================ -->
+
+    <div class="reset-card">
+
+        <div class="reset-card-header">
+
+            <h2>
+                Nouveau mot de passe
+            </h2>
+
+            <p>
+                Le mot de passe défini ici sera temporaire.
+                L'utilisateur devra le modifier lors de sa
+                prochaine connexion.
+            </p>
+
+        </div>
+
+
+        <!-- ============================================
+             MESSAGES DJANGO
+             ============================================ -->
+
+        
+
+
+        <form method="post">
+
+            {% csrf_token %}
+
+
+            <!-- ========================================
+                 NOUVEAU MOT DE PASSE
+                 ======================================== -->
+
+            <div class="form-group">
+
+                <label for="nouveau_mot_de_passe">
+                    Nouveau mot de passe
+                </label>
+
+                <input
+                    type="password"
+                    id="nouveau_mot_de_passe"
+                    name="nouveau_mot_de_passe"
+                    placeholder="Saisissez le nouveau mot de passe"
+                    autocomplete="new-password"
+                    required
+                >
+
+                <p class="field-help">
+                    Le mot de passe doit contenir au moins
+                    8 caractères.
+                </p>
+
+            </div>
+
+
+            <!-- ========================================
+                 CONFIRMATION
+                 ======================================== -->
+
+            <div class="form-group">
+
+                <label for="confirmation_mot_de_passe">
+                    Confirmer le mot de passe
+                </label>
+
+                <input
+                    type="password"
+                    id="confirmation_mot_de_passe"
+                    name="confirmation_mot_de_passe"
+                    placeholder="Saisissez à nouveau le mot de passe"
+                    autocomplete="new-password"
+                    required
+                >
+
+            </div>
+
+
+            <!-- ========================================
+                 INFORMATION IMPORTANTE
+                 ======================================== -->
+
+            <div class="security-information">
+
+                <div class="security-icon">
+                    !
+                </div>
+
+                <div>
+
+                    <strong>
+                        Information importante
+                    </strong>
+
+                    <p>
+                        Cette action remplace immédiatement
+                        l'ancien mot de passe de l'utilisateur.
+                        Le nouveau mot de passe devra être
+                        communiqué de manière sécurisée.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================================
+                 ACTIONS
+                 ======================================== -->
+
+            <div class="form-actions">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Réinitialiser le mot de passe
+                </button>
+
+                <a
+                    href="{% url 'detail_utilisateur' utilisateur.id %}"
+                    class="btn btn-secondary"
+                >
+                    Annuler
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

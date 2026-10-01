@@ -1,0 +1,496 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Tous les élèves — avec leur classe{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tous-page {
+        max-width: 1250px;
+        margin: 0 auto;
+    }
+
+    /* ---------- En-tête ---------- */
+    .tous-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .tous-header h1 {
+        margin: 6px 0 0;
+        color: #1e293b;
+        font-size: 26px;
+        line-height: 1.25;
+    }
+
+    .tous-header p {
+        margin: 6px 0 0;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    .tous-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    /* ---------- Compteurs ---------- */
+    .tous-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+
+    .tous-stat {
+        padding: 16px 18px;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        background: #ffffff;
+    }
+
+    .tous-stat-value {
+        display: block;
+        color: #1e293b;
+        font-size: 26px;
+        font-weight: 700;
+        line-height: 1.1;
+    }
+
+    .tous-stat-label {
+        color: #64748b;
+        font-size: 13px;
+    }
+
+    .tous-stat.warn {
+        border-color: #fed7aa;
+        background: #fff7ed;
+    }
+
+    .tous-stat.warn .tous-stat-value {
+        color: #b45309;
+    }
+
+    /* ---------- Filtres ---------- */
+    .tous-filters {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        align-items: end;
+        gap: 14px;
+        padding: 18px;
+        margin-bottom: 18px;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        background: #f8fafc;
+    }
+
+    .tous-filters label {
+        display: block;
+        margin-bottom: 6px;
+        color: #475569;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .tous-filters input,
+    .tous-filters select {
+        width: 100%;
+        padding: 9px 11px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #1e293b;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    .tous-filters input:focus,
+    .tous-filters select:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .tous-check {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-bottom: 9px;
+        color: #475569;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .tous-check input {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+
+    .tous-filter-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .tous-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 9px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .tous-btn-primary {
+        background: #2563eb;
+        color: #ffffff;
+    }
+
+    .tous-btn-primary:hover {
+        background: #1d4ed8;
+    }
+
+    .tous-btn-ghost {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        color: #475569;
+    }
+
+    .tous-btn-ghost:hover {
+        background: #f1f5f9;
+    }
+
+    /* ---------- Tableau ---------- */
+    .tous-card {
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        background: #ffffff;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+
+    .tous-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .tous-table th {
+        padding: 13px 14px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 700;
+        text-align: left;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        white-space: nowrap;
+    }
+
+    .tous-table td {
+        padding: 12px 14px;
+        border-bottom: 1px solid #f1f5f9;
+        color: #334155;
+        font-size: 14px;
+        vertical-align: middle;
+    }
+
+    .tous-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .tous-table tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    .tous-matricule {
+        color: #64748b;
+        font-size: 12px;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .tous-nom {
+        color: #1e293b;
+        font-weight: 600;
+    }
+
+    .tous-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .tous-pill-classe {
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
+    .tous-pill-none {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+
+    .tous-pill-niveau {
+        background: #f5f3ff;
+        color: #6d28d9;
+    }
+
+    .tous-pill-type {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .tous-empty {
+        padding: 48px 20px;
+        color: #64748b;
+        text-align: center;
+    }
+
+    .tous-empty i {
+        display: block;
+        margin-bottom: 10px;
+        color: #94a3b8;
+        font-size: 30px;
+    }
+
+    .tous-empty strong {
+        display: block;
+        margin-bottom: 6px;
+        color: #475569;
+    }
+
+    @media (max-width: 720px) {
+        .tous-table thead {
+            display: none;
+        }
+
+        .tous-table,
+        .tous-table tbody,
+        .tous-table tr,
+        .tous-table td {
+            display: block;
+            width: 100%;
+        }
+
+        .tous-table tr {
+            padding: 12px 4px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .tous-table td {
+            border: none;
+            padding: 5px 12px;
+        }
+
+        .tous-table td::before {
+            content: attr(data-label);
+            display: block;
+            color: #94a3b8;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+    }
+
+    @media print {
+        .tous-header,
+        .tous-stats,
+        .tous-filters,
+        .tous-actions {
+            display: none !important;
+        }
+
+        .tous-card {
+            border: none;
+            box-shadow: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tous-page">
+
+    <div class="tous-header">
+        <div>
+            <a href="{% url 'liste_eleves' %}" style="color:#2563eb;font-size:13px;font-weight:600;text-decoration:none;">
+                <i class="fas fa-arrow-left"></i> Retour aux classes
+            </a>
+            <h1>Tous les élèves</h1>
+            <p>
+                Un élève par ligne, avec la classe affectée.
+                {% if annee_active %}Année active : {{ annee_active.libelle }}.{% endif %}
+            </p>
+        </div>
+        <div class="tous-actions">
+            <a href="{% url 'creer_eleve' %}" class="tous-btn tous-btn-primary">
+                <i class="fas fa-plus"></i> Nouvel élève
+            </a>
+            <a href="{% url 'reinscription' %}" class="tous-btn tous-btn-ghost">
+                <i class="fas fa-rotate-right"></i> Réinscription
+            </a>
+            <a href="{% url 'creer_inscription' %}" class="tous-btn tous-btn-ghost">
+                <i class="fas fa-file-signature"></i> Nouvelle inscription
+            </a>
+        </div>
+    </div>
+
+    <div class="tous-stats">
+        <div class="tous-stat">
+            <span class="tous-stat-value">{{ total_eleves }}</span>
+            <span class="tous-stat-label">élève{{ total_eleves|pluralize }} actif{{ total_eleves|pluralize }}</span>
+        </div>
+        <div class="tous-stat">
+            <span class="tous-stat-value">{{ total }}</span>
+            <span class="tous-stat-label">élève{{ total|pluralize }} affiché{{ total|pluralize }}</span>
+        </div>
+        <div class="tous-stat {% if non_affectes %}warn{% endif %}">
+            <span class="tous-stat-value">{{ non_affectes }}</span>
+            <span class="tous-stat-label">sans classe affectée</span>
+        </div>
+        <div class="tous-stat">
+            <span class="tous-stat-value">{{ classes|length }}</span>
+            <span class="tous-stat-label">classe{{ classes|length|pluralize }} active{{ classes|length|pluralize }}</span>
+        </div>
+    </div>
+
+    <form method="get" class="tous-filters">
+        <div>
+            <label for="tous-q">Rechercher</label>
+            <input type="text" id="tous-q" name="q" value="{{ q }}"
+                   placeholder="Nom, prénom, matricule ou classe">
+        </div>
+        <div>
+            <label for="tous-classe">Classe</label>
+            <select id="tous-classe" name="classe">
+                <option value="">Toutes les classes</option>
+                {% for classe in classes %}
+                    <option value="{{ classe.id }}" {% if classe_id == classe.id|stringformat:"s" %}selected{% endif %}>
+                        {{ classe.libelle }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="tous-annee">Année scolaire</label>
+            <select id="tous-annee" name="annee">
+                <option value="">Toutes les années</option>
+                {% for annee in annees %}
+                    <option value="{{ annee.id }}" {% if annee_id == annee.id|stringformat:"s" %}selected{% endif %}>
+                        {{ annee.libelle }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="tous-check">
+            <input type="checkbox" id="tous-sans" name="sans_classe" value="1"
+                   {% if seulement_sans_classe %}checked{% endif %}>
+            <label for="tous-sans" style="margin:0;">Sans classe</label>
+        </div>
+        <div class="tous-filter-actions">
+            <button type="submit" class="tous-btn tous-btn-primary">
+                <i class="fas fa-filter"></i> Filtrer
+            </button>
+            <a href="{% url 'liste_tous_eleves' %}" class="tous-btn tous-btn-ghost">
+                <i class="fas fa-rotate-left"></i> Réinitialiser
+            </a>
+        </div>
+    </form>
+
+    <div class="tous-card">
+        <table class="tous-table">
+            <thead>
+                <tr>
+                    <th>Matricule</th>
+                    <th>Élève</th>
+                    <th>Sexe</th>
+                    <th>Classe affectée</th>
+                    <th>Niveau</th>
+                    <th>Type d'inscription</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ligne in lignes %}
+                    <tr>
+                        <td data-label="Matricule">
+                            <span class="tous-matricule">{{ ligne.eleve.matricule }}</span>
+                        </td>
+                        <td data-label="Élève">
+                            <span class="tous-nom">{{ ligne.nom_complet }}</span>
+                            {% if ligne.eleve.date_naissance %}
+                                <br>
+                                <span class="tous-matricule">
+                                    Né{{ ligne.eleve.date_naissance|date:"d/m/Y" }}
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td data-label="Sexe">
+                            {% if ligne.eleve.sexe == "M" %}Masculin
+                            {% elif ligne.eleve.sexe == "F" %}Féminin
+                            {% else %}—{% endif %}
+                        </td>
+                        <td data-label="Classe affectée">
+                            {% if ligne.classe %}
+                                <span class="tous-pill tous-pill-classe">
+                                    <i class="fas fa-school"></i> {{ ligne.classe.libelle }}
+                                </span>
+                            {% else %}
+                                <span class="tous-pill tous-pill-none">
+                                    <i class="fas fa-exclamation-triangle"></i> Non affecté
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td data-label="Niveau">
+                            {% if ligne.classe.niveau %}
+                                <span class="tous-pill tous-pill-niveau">{{ ligne.classe.niveau.code }}</span>
+                            {% else %}—{% endif %}
+                        </td>
+                        <td data-label="Type d'inscription">
+                            {% if ligne.inscription %}
+                                <span class="tous-pill tous-pill-type">{{ ligne.inscription.get_type_inscription_display }}</span>
+                            {% else %}—{% endif %}
+                        </td>
+                        <td data-label="Actions">
+                            <a href="{% url 'detail_eleve' ligne.eleve.id %}"
+                               class="tous-btn tous-btn-ghost" style="padding:6px 12px;font-size:13px;">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7">
+                            <div class="tous-empty">
+                                <i class="fas fa-inbox"></i>
+                                <strong>Aucun élève ne correspond aux filtres.</strong>
+                                {% if q or classe_id or annee_id or seulement_sans_classe %}
+                                    Modifiez ou réinitialisez les filtres pour voir
+                                    tous les élèves.
+                                {% else %}
+                                    Créez un élève pour commencer.
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

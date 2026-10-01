@@ -1,0 +1,330 @@
+/* =========================================================
+   MODIFIER UNE SECTION
+   ========================================================= */
+
+.modifier-section {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px;
+}
+
+
+/* =========================================================
+   EN-TÊTE
+   ========================================================= */
+
+.page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+
+    margin-bottom: 25px;
+}
+
+.page-header h1 {
+    margin: 0 0 8px;
+
+    color: #111827;
+
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.page-header p {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+
+/* =========================================================
+   CARTE DU FORMULAIRE
+   ========================================================= */
+
+.form-card {
+    overflow: hidden;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    box-shadow:
+        0 2px 10px
+        rgba(0, 0, 0, 0.04);
+}
+
+
+/* =========================================================
+   EN-TÊTE DU FORMULAIRE
+   ========================================================= */
+
+.form-card-header {
+    padding: 22px 25px;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.form-card-header h2 {
+    margin: 0 0 6px;
+
+    color: #111827;
+
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.form-card-header p {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   FORMULAIRE
+   ========================================================= */
+
+.form-card form {
+    padding: 25px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+
+    margin-bottom: 22px;
+}
+
+.form-group label {
+    margin-bottom: 8px;
+
+    color: #374151;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.required {
+    color: #dc2626;
+}
+
+
+/* =========================================================
+   CHAMPS
+   ========================================================= */
+
+.form-group input {
+    width: 100%;
+    height: 45px;
+
+    padding: 0 14px;
+
+    color: #111827;
+
+    background: #ffffff;
+
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+
+    outline: none;
+
+    font-size: 14px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.form-group input:focus {
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37, 99, 235, 0.12);
+}
+
+.form-group input:hover {
+    border-color: #9ca3af;
+}
+
+
+/* =========================================================
+   AIDE DES CHAMPS
+   ========================================================= */
+
+.form-group small {
+    margin-top: 7px;
+
+    color: #6b7280;
+
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   ERREURS
+   ========================================================= */
+
+.form-errors {
+    margin-bottom: 22px;
+    padding: 14px 18px;
+
+    color: #991b1b;
+
+    background: #fef2f2;
+
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+
+    font-size: 14px;
+}
+
+.form-errors ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.form-errors li {
+    margin-bottom: 5px;
+}
+
+.form-errors li:last-child {
+    margin-bottom: 0;
+}
+
+
+/* =========================================================
+   STATUT ACTUEL
+   ========================================================= */
+
+.current-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+
+    margin-top: 10px;
+    margin-bottom: 25px;
+    padding: 16px 18px;
+
+    background: #f9fafb;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+}
+
+.status-label {
+    color: #374151;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 6px 12px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-active {
+    color: #166534;
+
+    background: #dcfce7;
+}
+
+.status-inactive {
+    color: #991b1b;
+
+    background: #fee2e2;
+}
+
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+
+    padding-top: 22px;
+
+    border-top: 1px solid #e5e7eb;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media screen and (max-width: 700px) {
+
+    .modifier-section {
+        padding: 15px;
+    }
+
+    .page-header {
+        flex-direction: column;
+    }
+
+    .page-header h1 {
+        font-size: 24px;
+    }
+
+    .header-actions {
+        width: 100%;
+    }
+
+    .header-actions .btn {
+        width: 100%;
+
+        text-align: center;
+    }
+
+    .form-card form {
+        padding: 18px;
+    }
+
+    .form-card-header {
+        padding: 18px;
+    }
+
+    .current-status {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+
+        text-align: center;
+    }
+}

@@ -1,0 +1,522 @@
+/* ============================================================
+   PAGE : LISTE DES CLASSES
+   ============================================================ */
+
+.classes-page {
+    width: 100%;
+    max-width: 1400px;
+
+    margin: 0 auto;
+    padding: 30px;
+}
+
+
+/* ============================================================
+   EN-TÊTE
+   ============================================================ */
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 28px;
+}
+
+.page-header h1 {
+    margin: 0 0 8px;
+
+    color: #111827;
+
+    font-size: 30px;
+    font-weight: 700;
+}
+
+.page-header p {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 14px;
+}
+
+
+/* ============================================================
+   BOUTONS
+   ============================================================ */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+
+    padding: 10px 18px;
+
+    border: none;
+    border-radius: 7px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease,
+        box-shadow 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+
+/* BOUTON PRINCIPAL */
+
+.btn-primary {
+    color: #ffffff;
+    background: #2563eb;
+
+    box-shadow:
+        0 4px 10px
+        rgba(37, 99, 235, 0.15);
+}
+
+.btn-primary:hover {
+    background: #1d4ed8;
+}
+
+
+/* BOUTON FILTRER */
+
+.btn-filter {
+    color: #ffffff;
+    background: #374151;
+}
+
+.btn-filter:hover {
+    background: #1f2937;
+}
+
+
+/* BOUTON RÉINITIALISER */
+
+.btn-reset {
+    color: #374151;
+    background: #e5e7eb;
+}
+
+.btn-reset:hover {
+    background: #d1d5db;
+}
+
+
+/* ============================================================
+   STATISTIQUES
+   ============================================================ */
+
+.stats-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 18px;
+
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    padding: 22px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+
+    box-shadow:
+        0 2px 10px
+        rgba(0, 0, 0, 0.04);
+}
+
+.stat-label {
+    display: block;
+
+    margin-bottom: 10px;
+
+    color: #6b7280;
+
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.stat-number {
+    display: block;
+
+    color: #111827;
+
+    font-size: 28px;
+    font-weight: 700;
+}
+
+/* ============================================================
+   FILTRES
+   ============================================================ */
+
+.filters-form {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(150px, 1fr));
+
+    gap: 18px;
+
+    align-items: end;
+
+    margin-bottom: 25px;
+    padding: 22px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+
+    gap: 7px;
+}
+
+.filter-group label {
+    color: #374151;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.filter-group select {
+    width: 100%;
+    height: 42px;
+
+    padding: 0 12px;
+
+    color: #374151;
+    background: #ffffff;
+
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+
+    outline: none;
+
+    font-size: 14px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.filter-group select:focus {
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37, 99, 235, 0.1);
+}
+
+
+/* ACTIONS DES FILTRES */
+
+.filter-actions {
+    display: flex;
+
+    gap: 10px;
+}
+
+
+/* ============================================================
+   TABLEAU
+   ============================================================ */
+
+.table-container {
+    width: 100%;
+
+    overflow-x: auto;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+
+    box-shadow:
+        0 2px 10px
+        rgba(0, 0, 0, 0.04);
+}
+
+.classes-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    white-space: nowrap;
+}
+
+.classes-table th {
+    padding: 15px 18px;
+
+    color: #6b7280;
+    background: #f9fafb;
+
+    border-bottom: 1px solid #e5e7eb;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    text-align: left;
+    text-transform: uppercase;
+
+    letter-spacing: 0.4px;
+}
+
+.classes-table td {
+    padding: 16px 18px;
+
+    color: #374151;
+
+    border-bottom: 1px solid #f1f5f9;
+
+    font-size: 14px;
+}
+
+.classes-table tbody tr {
+    transition:
+        background 0.15s ease;
+}
+
+.classes-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.classes-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* ============================================================
+   CODE DE LA CLASSE
+   ============================================================ */
+
+.classe-code {
+    display: inline-block;
+
+    padding: 5px 9px;
+
+    color: #1d4ed8;
+    background: #eff6ff;
+
+    border-radius: 5px;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+
+/* ============================================================
+   SECTION ABSENTE
+   ============================================================ */
+
+.no-section {
+    color: #9ca3af;
+
+    font-weight: 600;
+}
+
+
+/* ============================================================
+   STATUT
+   ============================================================ */
+
+.status {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 6px 11px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status.active {
+    color: #166534;
+    background: #dcfce7;
+}
+
+.status.inactive {
+    color: #991b1b;
+    background: #fee2e2;
+}
+
+
+/* ============================================================
+   ACTION
+   ============================================================ */
+
+.action-link {
+    display: inline-flex;
+
+    color: #2563eb;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    text-decoration: none;
+}
+
+.action-link:hover {
+    color: #1d4ed8;
+
+    text-decoration: underline;
+}
+
+
+/* ============================================================
+   AUCUNE DONNÉE
+   ============================================================ */
+
+.empty-state {
+    padding: 55px 20px !important;
+
+    text-align: center !important;
+}
+
+.empty-state strong {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #374151;
+
+    font-size: 16px;
+}
+
+.empty-state p {
+    margin: 0;
+
+    color: #9ca3af;
+
+    font-size: 13px;
+}
+
+
+/* ============================================================
+   INFORMATION EN BAS DE PAGE
+   ============================================================ */
+
+.page-info {
+    margin-top: 20px;
+    padding: 15px 18px;
+
+    color: #6b7280;
+    background: #f8fafc;
+
+    border-left:
+        4px solid #2563eb;
+
+    border-radius: 6px;
+
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.page-info p {
+    margin: 0;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media screen and (max-width: 1100px) {
+
+    .filters-form {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .filter-actions {
+        grid-column: span 2;
+    }
+
+}
+
+
+@media screen and (max-width: 750px) {
+
+    .classes-page {
+        padding: 20px;
+    }
+
+    .page-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .page-header .btn-primary {
+        width: 100%;
+    }
+
+    .stats-grid {
+        grid-template-columns:
+            1fr;
+    }
+
+}
+
+
+@media screen and (max-width: 600px) {
+
+    .classes-page {
+        padding: 15px;
+    }
+
+    .page-header h1 {
+        font-size: 25px;
+    }
+
+    .filters-form {
+        grid-template-columns:
+            1fr;
+
+        padding: 18px;
+    }
+
+    .filter-actions {
+        grid-column: auto;
+
+        flex-direction: column;
+    }
+
+    .filter-actions .btn {
+        width: 100%;
+    }
+
+    .stat-card {
+        padding: 18px;
+    }
+
+    .classes-table th,
+    .classes-table td {
+        padding: 14px 15px;
+    }
+
+}

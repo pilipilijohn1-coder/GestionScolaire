@@ -1,0 +1,391 @@
+{% extends base_template %}
+{% load static %}
+
+
+{% block title %}
+    Détail de l'année scolaire
+{% endblock %}
+
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/detail_annee.css' %}"
+>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="detail-annee-container">
+
+    <!-- ================================================ -->
+    <!-- EN-TÊTE -->
+    <!-- ================================================ -->
+
+    <div class="detail-header">
+
+        <div class="detail-header-text">
+
+            <div class="breadcrumb">
+                <a href="{% url 'liste_annees' %}">
+                    Années scolaires
+                </a>
+
+                <span>/</span>
+
+                <span>
+                    Détail
+                </span>
+            </div>
+
+            <h1>
+                {{ annee.libelle }}
+            </h1>
+
+            <p>
+                Informations et configuration de l'année scolaire.
+            </p>
+
+        </div>
+
+
+        <div class="detail-header-actions">
+
+            <a
+                href="{% url 'liste_annees' %}"
+                class="btn btn-secondary"
+            >
+                Retour
+            </a>
+
+            {% if annee.statut != "CLOTUREE" %}
+
+                <a
+                    href="{% url 'modifier_annee' annee.id %}"
+                    class="btn btn-primary"
+                >
+                    Modifier
+                </a>
+
+            {% endif %}
+            {% if annee.statut == "PLANIFIEE" %}
+                <a
+                    href="{% url 'activer_annee' annee_id=annee.id %}"
+                    class="btn btn-success"
+                >
+                    Activer l'année
+                </a>
+            {% endif %}
+            {% if annee.statut == "ACTIVE" %}
+
+                <a
+                    href="{% url 'cloturer_annee' annee_id=annee.id %}"
+                    class="btn btn-danger"
+                >
+                    Suivre la clôture
+                </a>
+
+            {% endif %}
+        </div>
+
+    </div>
+
+
+    <!-- ================================================ -->
+    <!-- STATUT PRINCIPAL -->
+    <!-- ================================================ -->
+
+    <div class="status-overview-card">
+
+        <div class="status-overview-content">
+
+            <span class="status-overview-label">
+                Statut actuel
+            </span>
+
+
+            {% if annee.statut == "ACTIVE" %}
+
+                <div class="status status-active">
+                    <span class="status-dot"></span>
+                    Année active
+                </div>
+
+            {% elif annee.statut == "PLANIFIEE" %}
+
+                <div class="status status-planned">
+                    <span class="status-dot"></span>
+                    Année planifiée
+                </div>
+
+            {% elif annee.statut == "CLOTUREE" %}
+
+                <div class="status status-closed">
+                    <span class="status-dot"></span>
+                    Année clôturée
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="status-description">
+
+            {% if annee.statut == "ACTIVE" %}
+
+                Cette année scolaire est actuellement utilisée
+                par le système.
+
+            {% elif annee.statut == "PLANIFIEE" %}
+
+                Cette année scolaire est créée et prête à être
+                préparée avant son activation.
+
+            {% elif annee.statut == "CLOTUREE" %}
+
+                Cette année scolaire est terminée et ses
+                informations sont conservées dans l'historique.
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================ -->
+    <!-- INFORMATIONS GÉNÉRALES -->
+    <!-- ================================================ -->
+
+    <div class="detail-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <h2>
+                    Informations générales
+                </h2>
+
+                <p>
+                    Configuration principale de l'année scolaire.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="detail-grid">
+
+            <!-- LIBELLÉ -->
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Libellé
+                </span>
+
+                <span class="detail-value">
+                    {{ annee.libelle }}
+                </span>
+
+            </div>
+
+
+            <!-- STATUT -->
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Statut
+                </span>
+
+                <span class="detail-value">
+
+                    {% if annee.statut == "ACTIVE" %}
+
+                        <span class="status status-active">
+                            Active
+                        </span>
+
+                    {% elif annee.statut == "PLANIFIEE" %}
+
+                        <span class="status status-planned">
+                            Planifiée
+                        </span>
+
+                    {% elif annee.statut == "CLOTUREE" %}
+
+                        <span class="status status-closed">
+                            Clôturée
+                        </span>
+
+                    {% endif %}
+
+                </span>
+
+            </div>
+
+
+            <!-- DATE DE DÉBUT -->
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Date de début
+                </span>
+
+                <span class="detail-value">
+                    {{ annee.date_debut|date:"d/m/Y" }}
+                </span>
+
+            </div>
+
+
+            <!-- DATE DE FIN -->
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Date de fin
+                </span>
+
+                <span class="detail-value">
+                    {{ annee.date_fin|date:"d/m/Y" }}
+                </span>
+
+            </div>
+
+
+            <!-- SEUIL -->
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Seuil de passage
+                </span>
+
+                <span class="detail-value">
+                    {{ annee.seuil_passage }} %
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================ -->
+    <!-- PÉRIODE DE L'ANNÉE -->
+    <!-- ================================================ -->
+
+    <div class="detail-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <h2>
+                    Période scolaire
+                </h2>
+
+                <p>
+                    Durée prévue pour cette année scolaire.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="period-summary">
+
+            <div class="period-date">
+
+                <span class="period-label">
+                    Début
+                </span>
+
+                <strong>
+                    {{ annee.date_debut|date:"d F Y" }}
+                </strong>
+
+            </div>
+
+
+            <div class="period-line">
+
+                <span class="period-line-start"></span>
+
+                <span class="period-line-middle"></span>
+
+                <span class="period-line-end"></span>
+
+            </div>
+
+
+            <div class="period-date period-date-end">
+
+                <span class="period-label">
+                    Fin
+                </span>
+
+                <strong>
+                    {{ annee.date_fin|date:"d F Y" }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================ -->
+    <!-- ACTIONS -->
+    <!-- ================================================ -->
+
+    <div class="detail-footer">
+
+        <a
+            href="{% url 'liste_annees' %}"
+            class="btn btn-secondary"
+        >
+            Retour à la liste
+        </a>
+
+
+        <div class="footer-actions">
+
+            {% if annee.statut == "PLANIFIEE" %}
+
+                <!--
+                    Le bouton Activer sera ajouté lorsque
+                    la fonctionnalité d'activation sera créée.
+                -->
+
+            {% endif %}
+
+
+            {% if annee.statut != "CLOTUREE" %}
+
+                <a
+                    href="{% url 'modifier_annee' annee.id %}"
+                    class="btn btn-primary"
+                >
+                    Modifier l'année
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

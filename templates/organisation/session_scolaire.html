@@ -1,0 +1,97 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Session scolaire{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --ses-primary: #2563eb;
+        --ses-primary-dark: #1e40af;
+        --ses-bg: #f8fafc;
+        --ses-border: #e2e8f0;
+        --ses-text: #1e293b;
+        --ses-text-secondary: #64748b;
+    }
+
+    .session-header {
+        max-width: 1200px;
+        margin: 0 auto 28px;
+    }
+
+    .session-header h1 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--ses-text);
+    }
+
+    .session-header p {
+        margin: 8px 0 0;
+        color: var(--ses-text-secondary);
+        font-size: 14px;
+    }
+
+    .session-card {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: #ffffff;
+        border: 1px solid var(--ses-border);
+        border-radius: 16px;
+        padding: 24px 28px;
+        box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+    }
+
+    .session-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 14px 0;
+        border-bottom: 1px solid var(--ses-border);
+        font-size: 14px;
+    }
+
+    .session-row:last-child {
+        border-bottom: none;
+    }
+
+    .session-label {
+        color: var(--ses-text-secondary);
+        font-weight: 500;
+    }
+
+    .session-value {
+        color: var(--ses-text);
+        font-weight: 700;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="session-header">
+    <h1>Session scolaire</h1>
+    <p>Informations sur la session scolaire en cours.</p>
+</div>
+
+<div class="session-card">
+    {% if annee_active %}
+        <div class="session-row">
+            <span class="session-label">Année scolaire</span>
+            <span class="session-value">{{ annee_active.libelle }}</span>
+        </div>
+        <div class="session-row">
+            <span class="session-label">Date de début</span>
+            <span class="session-value">{{ annee_active.date_debut|date:"d/m/Y" }}</span>
+        </div>
+        <div class="session-row">
+            <span class="session-label">Date de fin</span>
+            <span class="session-value">{{ annee_active.date_fin|date:"d/m/Y" }}</span>
+        </div>
+        <div class="session-row">
+            <span class="session-label">Statut</span>
+            <span class="session-value">{{ annee_active.get_statut_display }}</span>
+        </div>
+    {% else %}
+        <p>Aucune année scolaire active n'est définie pour le moment.</p>
+    {% endif %}
+</div>
+{% endblock %}

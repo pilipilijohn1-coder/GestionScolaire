@@ -1,0 +1,809 @@
+{% extends base_template %}
+
+{% load static %}
+
+{% block title %}Tableau de bord - Administrateur{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --admin-bg: #f3f6fb;
+        --admin-surface: #ffffff;
+        --admin-border: #e4eaf2;
+        --admin-text: #172033;
+        --admin-muted: #69758a;
+        --admin-blue: #2563eb;
+        --admin-blue-soft: #eaf1ff;
+        --admin-violet: #7c3aed;
+        --admin-violet-soft: #f1eaff;
+        --admin-teal: #0f766e;
+        --admin-teal-soft: #e6f7f4;
+        --admin-amber: #b45309;
+        --admin-amber-soft: #fff4dc;
+        --admin-green: #15803d;
+        --admin-green-soft: #eaf8ee;
+        --admin-rose: #be123c;
+        --admin-rose-soft: #ffedf1;
+        --admin-indigo: #4338ca;
+        --admin-indigo-soft: #eeeeff;
+        --admin-cyan: #0e7490;
+        --admin-cyan-soft: #e6f7fb;
+        --admin-shadow: 0 10px 28px rgba(31, 41, 55, 0.07);
+        --admin-shadow-hover: 0 16px 36px rgba(31, 41, 55, 0.12);
+    }
+
+    .admin-dashboard {
+        width: 100%;
+        max-width: 1480px;
+        margin: 0 auto;
+        padding: 28px;
+        color: var(--admin-text);
+        background:
+            radial-gradient(circle at 8% 0%, rgba(37, 99, 235, 0.07), transparent 28%),
+            radial-gradient(circle at 92% 8%, rgba(124, 58, 237, 0.06), transparent 26%),
+            var(--admin-bg);
+    }
+
+    .admin-page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 22px;
+        margin-bottom: 26px;
+        padding: 24px 26px;
+        border: 1px solid rgba(228, 234, 242, 0.9);
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: var(--admin-shadow);
+    }
+
+    .admin-page-heading {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        min-width: 0;
+    }
+
+    .admin-page-heading-icon {
+        width: 54px;
+        height: 54px;
+        flex: 0 0 54px;
+        display: grid;
+        place-items: center;
+        border-radius: 16px;
+        color: #ffffff;
+        background: linear-gradient(135deg, var(--admin-blue), #4f46e5);
+        box-shadow: 0 10px 22px rgba(37, 99, 235, 0.25);
+        font-size: 23px;
+    }
+
+    .admin-eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin-bottom: 4px;
+        color: var(--admin-blue);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .admin-page-title {
+        margin: 0;
+        color: var(--admin-text);
+        font-size: clamp(24px, 3vw, 32px);
+        font-weight: 750;
+        letter-spacing: -0.03em;
+    }
+
+    .admin-page-subtitle {
+        margin: 6px 0 0;
+        color: var(--admin-muted);
+        font-size: 14px;
+        line-height: 1.55;
+    }
+
+    .admin-page-subtitle strong {
+        color: var(--admin-text);
+    }
+
+    .admin-context-pill {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        padding: 10px 14px;
+        border: 1px solid #dbe7ff;
+        border-radius: 999px;
+        color: #1d4ed8;
+        background: #f5f8ff;
+        font-size: 13px;
+        font-weight: 650;
+        white-space: nowrap;
+    }
+
+    .admin-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+        margin-bottom: 22px;
+    }
+
+    .admin-stat-card {
+        position: relative;
+        min-height: 154px;
+        overflow: hidden;
+        padding: 20px;
+        border: 1px solid var(--admin-border);
+        border-radius: 18px;
+        background: var(--admin-surface);
+        box-shadow: var(--admin-shadow);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .admin-stat-card::after {
+        position: absolute;
+        top: -34px;
+        right: -30px;
+        width: 105px;
+        height: 105px;
+        border-radius: 50%;
+        background: var(--stat-soft, var(--admin-blue-soft));
+        content: "";
+        opacity: 0.72;
+    }
+
+    .admin-stat-card:hover {
+        transform: translateY(-3px);
+        border-color: #cdd9ea;
+        box-shadow: var(--admin-shadow-hover);
+    }
+
+    .admin-stat-card.admin-stat-blue { --stat: var(--admin-blue); --stat-soft: var(--admin-blue-soft); }
+    .admin-stat-card.admin-stat-violet { --stat: var(--admin-violet); --stat-soft: var(--admin-violet-soft); }
+    .admin-stat-card.admin-stat-teal { --stat: var(--admin-teal); --stat-soft: var(--admin-teal-soft); }
+    .admin-stat-card.admin-stat-amber { --stat: var(--admin-amber); --stat-soft: var(--admin-amber-soft); }
+    .admin-stat-card.admin-stat-green { --stat: var(--admin-green); --stat-soft: var(--admin-green-soft); }
+    .admin-stat-card.admin-stat-indigo { --stat: var(--admin-indigo); --stat-soft: var(--admin-indigo-soft); }
+    .admin-stat-card.admin-stat-cyan { --stat: var(--admin-cyan); --stat-soft: var(--admin-cyan-soft); }
+    .admin-stat-card.admin-stat-rose { --stat: var(--admin-rose); --stat-soft: var(--admin-rose-soft); }
+
+    .admin-stat-top {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .admin-stat-icon {
+        width: 46px;
+        height: 46px;
+        display: grid;
+        place-items: center;
+        border-radius: 13px;
+        color: var(--stat);
+        background: var(--stat-soft);
+        font-size: 20px;
+    }
+
+    .admin-stat-label {
+        color: var(--admin-muted);
+        font-size: 13px;
+        font-weight: 650;
+        line-height: 1.35;
+    }
+
+    .admin-stat-value {
+        position: relative;
+        z-index: 1;
+        margin-top: 18px;
+        color: var(--admin-text);
+        font-size: clamp(25px, 2.4vw, 32px);
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        line-height: 1;
+    }
+
+    .admin-stat-footer {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 11px;
+        color: var(--admin-muted);
+        font-size: 12px;
+    }
+
+    .admin-stat-footer i {
+        color: var(--stat);
+    }
+
+    .admin-dashboard-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.75fr) minmax(300px, 0.75fr);
+        gap: 20px;
+        align-items: start;
+    }
+
+    .admin-card {
+        border: 1px solid var(--admin-border);
+        border-radius: 19px;
+        background: var(--admin-surface);
+        box-shadow: var(--admin-shadow);
+    }
+
+    .admin-card-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 21px 22px;
+        border-bottom: 1px solid var(--admin-border);
+    }
+
+    .admin-card-title-wrap {
+        min-width: 0;
+    }
+
+    .admin-card-kicker {
+        margin: 0 0 4px;
+        color: var(--admin-blue);
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .admin-card-title {
+        margin: 0;
+        color: var(--admin-text);
+        font-size: 18px;
+        font-weight: 750;
+        letter-spacing: -0.02em;
+    }
+
+    .admin-card-subtitle {
+        margin: 5px 0 0;
+        color: var(--admin-muted);
+        font-size: 12px;
+        line-height: 1.45;
+    }
+
+    .admin-card-badge {
+        flex: 0 0 auto;
+        padding: 6px 10px;
+        border-radius: 999px;
+        color: #475569;
+        background: #f1f5f9;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .admin-card-body {
+        padding: 12px 22px 22px;
+    }
+
+    .admin-activity-list {
+        display: grid;
+    }
+
+    .admin-activity-item {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 13px 0;
+        border-bottom: 1px solid #edf1f6;
+    }
+
+    .admin-activity-item:last-child {
+        border-bottom: 0;
+    }
+
+    .admin-activity-icon {
+        width: 39px;
+        height: 39px;
+        flex: 0 0 39px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        color: var(--admin-blue);
+        background: var(--admin-blue-soft);
+        font-size: 16px;
+    }
+
+    .admin-activity-main {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .admin-activity-title {
+        display: block;
+        overflow: hidden;
+        color: var(--admin-text);
+        font-size: 13px;
+        font-weight: 700;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .admin-activity-meta {
+        display: block;
+        margin-top: 4px;
+        color: var(--admin-muted);
+        font-size: 11px;
+    }
+
+    .admin-empty {
+        padding: 26px 10px 18px;
+        color: var(--admin-muted);
+        text-align: center;
+        font-size: 13px;
+    }
+
+    .admin-empty i {
+        display: block;
+        margin-bottom: 9px;
+        color: #94a3b8;
+        font-size: 25px;
+    }
+
+    .admin-side-stack {
+        display: grid;
+        gap: 20px;
+    }
+
+    .admin-quick-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 11px;
+    }
+
+    .admin-quick-action {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        min-height: 66px;
+        padding: 12px;
+        border: 1px solid #e5ebf3;
+        border-radius: 13px;
+        color: var(--admin-text);
+        background: #fbfcfe;
+        text-decoration: none;
+        transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .admin-quick-action:hover {
+        transform: translateY(-2px);
+        border-color: #bfd2f8;
+        background: #f6f9ff;
+        box-shadow: 0 8px 18px rgba(37, 99, 235, 0.1);
+    }
+
+    .admin-quick-icon {
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
+        display: grid;
+        place-items: center;
+        border-radius: 11px;
+        color: var(--admin-blue);
+        background: var(--admin-blue-soft);
+        font-size: 16px;
+    }
+
+    .admin-quick-action:nth-child(2) .admin-quick-icon {
+        color: var(--admin-green);
+        background: var(--admin-green-soft);
+    }
+
+    .admin-quick-action:nth-child(3) .admin-quick-icon {
+        color: var(--admin-violet);
+        background: var(--admin-violet-soft);
+    }
+
+    .admin-quick-action:nth-child(4) .admin-quick-icon {
+        color: var(--admin-amber);
+        background: var(--admin-amber-soft);
+    }
+
+    .admin-quick-label {
+        min-width: 0;
+    }
+
+    .admin-quick-label strong {
+        display: block;
+        overflow: hidden;
+        font-size: 12px;
+        font-weight: 750;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .admin-quick-label span {
+        display: block;
+        margin-top: 3px;
+        color: var(--admin-muted);
+        font-size: 10px;
+    }
+
+    .admin-alert-list {
+        display: grid;
+        gap: 10px;
+    }
+
+    .admin-alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+        padding: 13px;
+        border: 1px solid;
+        border-radius: 13px;
+        font-size: 12px;
+        line-height: 1.45;
+    }
+
+    .admin-alert i {
+        flex: 0 0 19px;
+        margin-top: 1px;
+        font-size: 16px;
+    }
+
+    .admin-alert strong {
+        display: block;
+        margin-bottom: 2px;
+        font-size: 12px;
+    }
+
+    .admin-alert-warning {
+        border-color: #f5d8ad;
+        color: #92400e;
+        background: #fff9ef;
+    }
+
+    .admin-alert-danger {
+        border-color: #f7c7cd;
+        color: #9f1239;
+        background: #fff4f6;
+    }
+
+    .admin-alert-success {
+        border-color: #c9e9d2;
+        color: #166534;
+        background: #f3fbf6;
+    }
+
+    .admin-side-stat {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid #edf1f6;
+    }
+
+    .admin-side-stat:last-child {
+        border-bottom: 0;
+    }
+
+    .admin-side-stat-label {
+        color: var(--admin-muted);
+        font-size: 12px;
+    }
+
+    .admin-side-stat-value {
+        color: var(--admin-text);
+        font-size: 16px;
+        font-weight: 800;
+    }
+
+    .admin-side-stat-value.admin-value-blue { color: var(--admin-blue); }
+    .admin-side-stat-value.admin-value-amber { color: var(--admin-amber); }
+    .admin-side-stat-value.admin-value-rose { color: var(--admin-rose); }
+
+    @media (max-width: 1180px) {
+        .admin-stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .admin-dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .admin-side-stack {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 720px) {
+        .admin-dashboard {
+            padding: 16px;
+        }
+
+        .admin-page-header {
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .admin-context-pill {
+            white-space: normal;
+        }
+
+        .admin-stats-grid,
+        .admin-side-stack {
+            grid-template-columns: 1fr;
+        }
+
+        .admin-stat-card {
+            min-height: 142px;
+        }
+
+        .admin-card-header,
+        .admin-card-body {
+            padding-right: 16px;
+            padding-left: 16px;
+        }
+
+        .admin-quick-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard">
+
+    <header class="admin-page-header">
+        <div class="admin-page-heading">
+            <div class="admin-page-heading-icon" aria-hidden="true">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <div>
+                <div class="admin-eyebrow">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    Espace administrateur
+                </div>
+                <h1 class="admin-page-title">Tableau de bord</h1>
+                <p class="admin-page-subtitle">
+                    Bienvenue, <strong>{{ utilisateur.prenom }} {{ utilisateur.nom }}</strong>.
+                    Retrouvez ici les indicateurs essentiels de l’établissement.
+                </p>
+            </div>
+        </div>
+
+        <div class="admin-context-pill">
+            <i class="fa-regular fa-calendar"></i>
+            {% if annee_active %}
+                Année {{ annee_active.date_debut|date:"Y" }} - {{ annee_active.date_fin|date:"Y" }}
+            {% else %}
+                Année scolaire non définie
+            {% endif %}
+        </div>
+    </header>
+
+    <section class="admin-stats-grid" aria-label="Statistiques principales">
+        <article class="admin-stat-card admin-stat-blue">
+            <div class="admin-stat-top">
+                <span class="admin-stat-label">Élèves actifs</span>
+                <span class="admin-stat-icon"><i class="fa-solid fa-user-graduate"></i></span>
+            </div>
+            <div class="admin-stat-value">{{ nombre_eleves|default:"0" }}</div>
+            <div class="admin-stat-footer"><i class="fa-solid fa-arrow-trend-up"></i> Effectif actif</div>
+        </article>
+
+        <article class="admin-stat-card admin-stat-violet">
+            <div class="admin-stat-top">
+                <span class="admin-stat-label">Enseignants</span>
+                <span class="admin-stat-icon"><i class="fa-solid fa-chalkboard-user"></i></span>
+            </div>
+            <div class="admin-stat-value">{{ nombre_enseignants|default:"0" }}</div>
+            <div class="admin-stat-footer"><i class="fa-solid fa-users-line"></i> Équipe pédagogique</div>
+        </article>
+
+        <article class="admin-stat-card admin-stat-teal">
+            <div class="admin-stat-top">
+                <span class="admin-stat-label">Classes actives</span>
+                <span class="admin-stat-icon"><i class="fa-solid fa-school"></i></span>
+            </div>
+            <div class="admin-stat-value">{{ nombre_classes|default:"0" }}</div>
+            <div class="admin-stat-footer"><i class="fa-solid fa-diagram-project"></i> Organisation scolaire</div>
+        </article>
+
+        <article class="admin-stat-card admin-stat-amber">
+            <div class="admin-stat-top">
+                <span class="admin-stat-label">Utilisateurs actifs</span>
+                <span class="admin-stat-icon"><i class="fa-solid fa-users"></i></span>
+            </div>
+            <div class="admin-stat-value">{{ nombre_utilisateurs|default:"0" }}</div>
+            <div class="admin-stat-footer"><i class="fa-solid fa-user-gear"></i> Comptes disponibles</div>
+        </article>
+
+        <article class="admin-stat-card admin-stat-green">
+            <div class="admin-stat-top">
+                <span class="admin-stat-label">Nouvelles inscriptions</span>
+                <span class="admin-stat-icon"><i class="fa-solid fa-user-plus"></i></span>
+            </div>
+            <div class="admin-stat-value">{{ eleves_nouveaux|default:"0" }}</div>
+            <div class="admin-stat-footer"><i class="fa-solid fa-circle-plus"></i> Inscriptions nouvelles</div>
+        </article>
+
+        <article class="admin-stat-card admin-stat-cyan">
+            <div class="admin-stat-top">
+                <span class="admin-stat-label">Réinscriptions</span>
+                <span class="admin-stat-icon"><i class="fa-solid fa-rotate"></i></span>
+            </div>
+            <div class="admin-stat-value">{{ eleves_anciens|default:"0" }}</div>
+            <div class="admin-stat-footer"><i class="fa-solid fa-rotate-left"></i> Élèves réinscrits</div>
+        </article>
+
+        <article class="admin-stat-card admin-stat-indigo">
+            <div class="admin-stat-top">
+                <span class="admin-stat-label">Paiements validés</span>
+                <span class="admin-stat-icon"><i class="fa-solid fa-circle-check"></i></span>
+            </div>
+            <div class="admin-stat-value">{{ paiements_valides|default:"0" }}</div>
+            <div class="admin-stat-footer"><i class="fa-solid fa-receipt"></i> Transactions confirmées</div>
+        </article>
+
+        <article class="admin-stat-card admin-stat-rose">
+            <div class="admin-stat-top">
+                <span class="admin-stat-label">Montant en caisse</span>
+                <span class="admin-stat-icon"><i class="fa-solid fa-wallet"></i></span>
+            </div>
+            <div class="admin-stat-value">{{ montant_caisse|floatformat:2|default:"0" }}</div>
+            <div class="admin-stat-footer"><i class="fa-solid fa-coins"></i> Caisse ouverte</div>
+        </article>
+    </section>
+
+    <div class="admin-dashboard-grid">
+        <section class="admin-card">
+            <header class="admin-card-header">
+                <div class="admin-card-title-wrap">
+                    <p class="admin-card-kicker">Suivi en temps réel</p>
+                    <h2 class="admin-card-title">Activités récentes</h2>
+                    <p class="admin-card-subtitle">Dernières actions enregistrées dans l’établissement.</p>
+                </div>
+                <span class="admin-card-badge">
+                    <i class="fa-regular fa-clock"></i>
+                    {% if activites_recentes %}{{ activites_recentes|length }} récentes{% else %}Aucune activité{% endif %}
+                </span>
+            </header>
+
+            <div class="admin-card-body">
+                {% if activites_recentes %}
+                    <div class="admin-activity-list">
+                        {% for activite in activites_recentes %}
+                            <div class="admin-activity-item">
+                                <div class="admin-activity-icon" aria-hidden="true">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </div>
+                                <div class="admin-activity-main">
+                                    <strong class="admin-activity-title">{{ activite.type_action.libelle }}</strong>
+                                    <span class="admin-activity-meta">
+                                        <i class="fa-regular fa-calendar"></i>
+                                        {{ activite.date_action|date:"d/m/Y à H:i" }}
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="admin-empty">
+                        <i class="fa-regular fa-folder-open"></i>
+                        Aucune activité récente n’a encore été enregistrée.
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <aside class="admin-side-stack">
+            <section class="admin-card">
+                <header class="admin-card-header">
+                    <div class="admin-card-title-wrap">
+                        <p class="admin-card-kicker">Navigation</p>
+                        <h2 class="admin-card-title">Actions rapides</h2>
+                    </div>
+                    <span class="admin-card-badge"><i class="fa-solid fa-bolt"></i> 4 accès</span>
+                </header>
+
+                <div class="admin-card-body">
+                    <div class="admin-quick-grid">
+                        <a href="{% url 'liste_utilisateurs' %}" class="admin-quick-action">
+                            <span class="admin-quick-icon"><i class="fa-solid fa-users-gear"></i></span>
+                            <span class="admin-quick-label"><strong>Utilisateurs</strong><span>Gérer les accès</span></span>
+                        </a>
+                        <a href="{% url 'creer_inscription' %}" class="admin-quick-action">
+                            <span class="admin-quick-icon"><i class="fa-solid fa-user-plus"></i></span>
+                            <span class="admin-quick-label"><strong>Nouvelle inscription</strong><span>Ajouter un élève</span></span>
+                        </a>
+                        <a href="{% url 'structure_academique' %}" class="admin-quick-action">
+                            <span class="admin-quick-icon"><i class="fa-solid fa-school"></i></span>
+                            <span class="admin-quick-label"><strong>Structure</strong><span>Classes et niveaux</span></span>
+                        </a>
+                        <a href="{% url 'administration' %}" class="admin-quick-action">
+                            <span class="admin-quick-icon"><i class="fa-solid fa-sliders"></i></span>
+                            <span class="admin-quick-label"><strong>Administration</strong><span>Paramètres système</span></span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <section class="admin-card">
+                <header class="admin-card-header">
+                    <div class="admin-card-title-wrap">
+                        <p class="admin-card-kicker">Indicateurs</p>
+                        <h2 class="admin-card-title">Synthèse</h2>
+                    </div>
+                    <span class="admin-card-badge"><i class="fa-solid fa-chart-pie"></i> Vue globale</span>
+                </header>
+
+                <div class="admin-card-body">
+                    <div class="admin-side-stat">
+                        <span class="admin-side-stat-label">Inscriptions actives</span>
+                        <strong class="admin-side-stat-value admin-value-blue">{{ nombre_inscriptions_actives|default:"0" }}</strong>
+                    </div>
+                    <div class="admin-side-stat">
+                        <span class="admin-side-stat-label">Paiements en attente</span>
+                        <strong class="admin-side-stat-value admin-value-amber">{{ paiements_en_attente|default:"0" }}</strong>
+                    </div>
+                    <div class="admin-side-stat">
+                        <span class="admin-side-stat-label">Montant des paiements validés</span>
+                        <strong class="admin-side-stat-value admin-value-blue">{{ montant_paiements_valides|floatformat:2|default:"0" }}</strong>
+                    </div>
+                    <div class="admin-side-stat">
+                        <span class="admin-side-stat-label">Taux de réinscription</span>
+                        <strong class="admin-side-stat-value">{{ taux_reinscription|floatformat:1|default:"0" }} %</strong>
+                    </div>
+                </div>
+            </section>
+
+            <section class="admin-card">
+                <header class="admin-card-header">
+                    <div class="admin-card-title-wrap">
+                        <p class="admin-card-kicker">Vigilance</p>
+                        <h2 class="admin-card-title">Alertes</h2>
+                    </div>
+                    <span class="admin-card-badge"><i class="fa-solid fa-bell"></i> Priorité</span>
+                </header>
+
+                <div class="admin-card-body">
+                    <div class="admin-alert-list">
+                        {% if demandes_autorisation %}
+                            <div class="admin-alert admin-alert-warning">
+                                <i class="fa-solid fa-hourglass-half"></i>
+                                <div><strong>Demandes en attente</strong>{{ demandes_autorisation }} demande(s) d’autorisation attend(ent) une validation.</div>
+                            </div>
+                        {% endif %}
+
+                        {% if anomalies_critiques %}
+                            <div class="admin-alert admin-alert-danger">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                <div><strong>Anomalies critiques</strong>{{ anomalies_critiques }} anomalie(s) nécessite(nt) une intervention.</div>
+                            </div>
+                        {% endif %}
+
+                        {% if not demandes_autorisation and not anomalies_critiques %}
+                            <div class="admin-alert admin-alert-success">
+                                <i class="fa-solid fa-circle-check"></i>
+                                <div><strong>Situation normale</strong>Aucune alerte importante ne nécessite votre attention.</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+        </aside>
+    </div>
+</div>
+
+<!-- BOUTON FLOTTANT : MON PROFIL -->
+<div class="profile-float">
+    <a href="{% url 'mon_profil' %}" class="profile-float-btn" title="Mon profil">
+        <i class="fa-solid fa-user"></i>
+    </a>
+</div>
+{% endblock %}

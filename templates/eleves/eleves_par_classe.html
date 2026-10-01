@@ -1,0 +1,163 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Élèves de {{ classe.libelle }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .eleves-par-classe-page {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .classe-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    .classe-header h1 {
+        margin: 0;
+        font-size: 24px;
+    }
+    .classe-header p {
+        margin: 4px 0 0;
+        color: #6b7280;
+    }
+    .actions-print {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .eleves-table .photo {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #e5e7eb;
+    }
+    td img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #e5e7eb;
+    }
+    .eleves-table .eleve-photo-placeholder {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #e5e7eb;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #6b7280;
+        font-size: 14px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="eleves-par-classe-page">
+
+    <div class="page-header">
+        <div>
+            <h1>Élèves — {{ classe.libelle }}</h1>
+            <p style="color:#6b7280;">
+                {{ inscriptions|length }} élève{{ inscriptions|length|pluralize }}
+                inscrit{{ inscriptions|length|pluralize }}
+            </p>
+        </div>
+        <div class="actions-print">
+            <a href="{% url 'eleves_par_classe_pdf' classe.id %}" target="_blank" class="btn btn-primary">
+                <i class="fa-solid fa-file-pdf"></i> Exporter PDF
+            </a>
+            <button onclick="window.print()" class="btn btn-primary">
+                <i class="fa-solid fa-print"></i> Imprimer
+            </button>
+            <a href="{% url 'liste_eleves' %}" class="btn btn-secondary">
+                <i class="fa-solid fa-arrow-left"></i> Retour
+            </a>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <div class="table-header">
+            <div>
+                <h2>Liste des élèves</h2>
+                <p>Année : {{ classe.annee_scolaire.libelle|default:"—" }}</p>
+            </div>
+        </div>
+
+        {% if inscriptions %}
+            <div class="table-responsive">
+                <table class="data-table eleves-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;height: 60px;">Photo</th>
+                            <th>Matricule</th>
+                            <th>Nom</th>
+                            <th>Postnom</th>
+                            <th>Prénom</th>
+                            <th>Sexe</th>
+                            <th>Date de naissance</th>
+                            <th>Contact</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inscription in inscriptions %}
+                            <tr>
+                                <td>
+                                    {% if inscription.eleve.photo %}
+                                        <img src="{{ inscription.eleve.photo.url }}" alt="Photo" class="eleve-photo">
+                                    {% else %}
+                                        <div class="eleve-photo-placeholder">
+                                            <i class="fa-solid fa-user"></i>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td>{{ inscription.eleve.matricule }}</td>
+                                <td>{{ inscription.eleve.nom }}</td>
+                                <td>{{ inscription.eleve.postnom|default:"—" }}</td>
+                                <td>{{ inscription.eleve.prenom }}</td>
+                                <td>
+                                    {% if inscription.eleve.sexe == "M" %}
+                                        Masculin
+                                    {% elif inscription.eleve.sexe == "F" %}
+                                        Féminin
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ inscription.eleve.date_naissance|date:"d/m/Y"|default:"—" }}
+                                </td>
+                                <td>
+                                    {% if inscription.eleve.telephone %}
+                                        {{ inscription.eleve.telephone }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'detail_eleve' inscription.eleve.id %}" class="btn btn-sm btn-primary">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fa-solid fa-user-graduate"></i>
+                <h3>Aucun élève</h3>
+                <p>Aucun élève n'est inscrit dans cette classe.</p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

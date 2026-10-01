@@ -1,0 +1,511 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+Détail de l'affectation
+{% endblock %}
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/affectations/detail_affectation.css' %}"
+>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-container">
+
+    <!-- ============================================== -->
+    <!-- EN-TÊTE -->
+    <!-- ============================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>Détail de l'affectation</h1>
+
+            <p>
+                Consultez les informations complètes
+                de cette affectation.
+            </p>
+
+        </div>
+
+
+        <a
+            href="{% url 'liste_affectations' %}"
+            class="btn btn-secondary"
+        >
+            <i class="fa-solid fa-arrow-left"></i>
+            Retour à la liste
+        </a>
+
+    </div>
+
+
+    <!-- ================================================ -->
+
+    <!-- ============================================== -->
+    <!-- RÉSUMÉ DE L'AFFECTATION -->
+    <!-- ============================================== -->
+
+    <div class="summary-card">
+
+        <div class="summary-icon">
+
+            <i class="fa-solid fa-person-chalkboard"></i>
+
+        </div>
+
+
+        <div class="summary-content">
+
+            <span class="summary-label">
+                Affectation
+            </span>
+
+            <h2>
+
+                {{ affectation.enseignant }}
+
+                <span class="summary-separator">
+                    —
+                </span>
+
+                {{ affectation.affectation_matiere.matiere }}
+
+            </h2>
+
+
+            <p>
+
+                {{ affectation.affectation_matiere.classe }}
+                ·
+                {{ affectation.affectation_matiere.annee }}
+
+            </p>
+
+        </div>
+
+
+        <div class="summary-status">
+
+            {% if affectation.actif %}
+
+                <span class="status status-active">
+
+                    <i class="fa-solid fa-circle-check"></i>
+                    Affectation active
+
+                </span>
+
+            {% else %}
+
+                <span class="status status-inactive">
+
+                    <i class="fa-solid fa-circle-xmark"></i>
+                    Affectation inactive
+
+                </span>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================================== -->
+    <!-- CONTENU -->
+    <!-- ============================================== -->
+
+    <div class="details-grid">
+
+
+        <!-- ========================================== -->
+        <!-- INFORMATIONS DE L'AFFECTATION -->
+        <!-- ========================================== -->
+
+        <div class="detail-card">
+
+            <div class="card-header">
+
+                <h2>
+
+                    <i class="fa-solid fa-clipboard-list"></i>
+                    Informations de l'affectation
+
+                </h2>
+
+            </div>
+
+
+            <div class="detail-list">
+
+
+                <!-- ANNÉE -->
+
+                <div class="detail-item">
+
+                    <div class="detail-icon">
+
+                        <i class="fa-solid fa-calendar-days"></i>
+
+                    </div>
+
+
+                    <div class="detail-content">
+
+                        <span>
+                            Année scolaire
+                        </span>
+
+                        <strong>
+
+                            {{ affectation.affectation_matiere.annee }}
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CLASSE -->
+
+                <div class="detail-item">
+
+                    <div class="detail-icon">
+
+                        <i class="fa-solid fa-chalkboard"></i>
+
+                    </div>
+
+
+                    <div class="detail-content">
+
+                        <span>
+                            Classe
+                        </span>
+
+                        <strong>
+
+                            {{ affectation.affectation_matiere.classe }}
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- MATIÈRE -->
+
+                <div class="detail-item">
+
+                    <div class="detail-icon">
+
+                        <i class="fa-solid fa-book"></i>
+
+                    </div>
+
+
+                    <div class="detail-content">
+
+                        <span>
+                            Matière
+                        </span>
+
+                        <strong>
+
+                            {{ affectation.affectation_matiere.matiere }}
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- STATUT -->
+
+                <div class="detail-item">
+
+                    <div class="detail-icon">
+
+                        <i class="fa-solid fa-toggle-on"></i>
+
+                    </div>
+
+
+                    <div class="detail-content">
+
+                        <span>
+                            Statut
+                        </span>
+
+                        <strong>
+
+                            {% if affectation.actif %}
+                                Active
+                            {% else %}
+                                Inactive
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- ========================================== -->
+        <!-- ENSEIGNANT -->
+        <!-- ========================================== -->
+
+        <div class="detail-card">
+
+            <div class="card-header">
+
+                <h2>
+
+                    <i class="fa-solid fa-user-tie"></i>
+                    Enseignant concerné
+
+                </h2>
+
+            </div>
+
+
+            <div class="teacher-profile">
+
+
+                <!-- PHOTO -->
+
+                {% if affectation.enseignant.utilisateur.photo %}
+
+                    <img
+                        src="{{ affectation.enseignant.utilisateur.photo.url }}"
+                        alt="Photo de {{ affectation.enseignant }}"
+                        class="teacher-photo"
+                    >
+
+                {% else %}
+
+                    <div class="teacher-avatar">
+
+                        <i class="fa-solid fa-user"></i>
+
+                    </div>
+
+                {% endif %}
+
+
+                <!-- IDENTITÉ -->
+
+                <div class="teacher-name">
+
+                    <h3>
+
+                        {{ affectation.enseignant.utilisateur.nom }}
+                        {{ affectation.enseignant.utilisateur.postnom }}
+                        {{ affectation.enseignant.utilisateur.prenom }}
+
+                    </h3>
+
+
+                    <p>
+
+                        {{ affectation.enseignant.matricule }}
+
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="teacher-details">
+
+
+                <!-- GRADE -->
+
+                <div class="teacher-detail">
+
+                    <span>
+
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        Grade
+
+                    </span>
+
+                    <strong>
+
+                        {% if affectation.enseignant.grade %}
+
+                            {{ affectation.enseignant.grade }}
+
+                        {% else %}
+
+                            Non renseigné
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <!-- SPÉCIALITÉ -->
+
+                <div class="teacher-detail">
+
+                    <span>
+
+                        <i class="fa-solid fa-award"></i>
+                        Spécialité
+
+                    </span>
+
+                    <strong>
+
+                        {% if affectation.enseignant.specialite %}
+
+                            {{ affectation.enseignant.specialite }}
+
+                        {% else %}
+
+                            Non renseignée
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <!-- TÉLÉPHONE -->
+
+                <div class="teacher-detail">
+
+                    <span>
+
+                        <i class="fa-solid fa-phone"></i>
+                        Téléphone
+
+                    </span>
+
+                    <strong>
+
+                        {% if affectation.enseignant.utilisateur.telephone %}
+
+                            {{ affectation.enseignant.utilisateur.telephone }}
+
+                        {% else %}
+
+                            Non renseigné
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <!-- EMAIL -->
+
+                <div class="teacher-detail">
+
+                    <span>
+
+                        <i class="fa-solid fa-envelope"></i>
+                        Adresse e-mail
+
+                    </span>
+
+                    <strong>
+
+                        {% if affectation.enseignant.utilisateur.email %}
+
+                            {{ affectation.enseignant.utilisateur.email }}
+
+                        {% else %}
+
+                            Non renseignée
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================================== -->
+    <!-- ACTIONS -->
+    <!-- ============================================== -->
+
+    <div class="page-actions">
+
+        <a
+            href="{% url 'liste_affectations' %}"
+            class="btn btn-secondary"
+        >
+
+            <i class="fa-solid fa-arrow-left"></i>
+            Retour
+
+        </a>
+
+
+        <div class="right-actions">
+
+            <a
+                href="{% url 'modifier_affectation' affectation.id %}"
+                class="btn btn-primary"
+            >
+
+                <i class="fa-solid fa-pen"></i>
+                Modifier
+
+            </a>
+
+
+            <a
+                href="{% url 'activer_desactiver_affectation' affectation.id %}"
+                class="btn btn-status"
+            >
+
+                {% if affectation.actif %}
+
+                    <i class="fa-solid fa-toggle-on"></i>
+                    Désactiver
+
+                {% else %}
+
+                    <i class="fa-solid fa-toggle-off"></i>
+                    Activer
+
+                {% endif %}
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

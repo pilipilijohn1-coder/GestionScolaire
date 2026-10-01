@@ -1,0 +1,551 @@
+{% extends base_template %}
+{% load static %}
+
+
+{% block title %}
+    Détail de l'enseignant
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/detail_enseignant.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="detail-page">
+
+
+    <!-- =====================================================
+         NAVIGATION ET ACTIONS
+    ====================================================== -->
+
+    <div class="top-bar">
+
+        <a
+            href="{% url 'liste_enseignants' %}"
+            class="back-link"
+        >
+            <i class="fa-solid fa-arrow-left"></i>
+
+            Retour à la liste
+        </a>
+
+
+        <div class="top-actions">
+
+            <a
+                href="{% url 'modifier_enseignant' enseignant.id %}"
+                class="btn btn-secondary"
+            >
+                <i class="fa-solid fa-pen"></i>
+
+                Modifier
+            </a>
+
+            <a
+                href="{% url 'carte_service_enseignant' enseignant.id %}"
+                class="btn btn-primary"
+                target="_blank"
+            >
+                <i class="fa-solid fa-id-card"></i>
+                Carte de service
+            </a>
+
+            <a
+                href="{% url 'activer_desactiver_enseignant' enseignant.id %}"
+                class="btn btn-status"
+            >
+                {% if enseignant.actif %}
+
+                    <i class="fa-solid fa-toggle-on"></i>
+
+                    Désactiver
+
+                {% else %}
+
+                    <i class="fa-solid fa-toggle-off"></i>
+
+                    Activer
+
+                {% endif %}
+            </a>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         PROFIL PRINCIPAL
+    ====================================================== -->
+
+    <section class="profile-card">
+
+
+        <div class="profile-photo-container">
+
+            {% if enseignant.utilisateur.photo_profil %}
+
+                <img
+                    src="{{ enseignant.utilisateur.photo_profil.url }}"
+                    alt="Photo de {{ enseignant.utilisateur.nom }}"
+                    class="profile-photo"
+                >
+
+            {% else %}
+
+                <div class="profile-placeholder">
+
+                    <i class="fa-solid fa-user"></i>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="profile-info">
+
+
+            <div class="profile-title">
+
+                <h1>
+
+                    {{ enseignant.utilisateur.nom }}
+
+                    {% if enseignant.utilisateur.postnom %}
+
+                        {{ enseignant.utilisateur.postnom }}
+
+                    {% endif %}
+
+                    {{ enseignant.utilisateur.prenom }}
+
+                </h1>
+
+
+                <span class="matricule">
+                    {{ enseignant.matricule }}
+                </span>
+
+            </div>
+
+
+            <div class="profile-status">
+
+                {% if enseignant.actif %}
+
+                    <span class="status active">
+
+                        <i class="fa-solid fa-circle-check"></i>
+
+                        Enseignant actif
+
+                    </span>
+
+                {% else %}
+
+                    <span class="status inactive">
+
+                        <i class="fa-solid fa-circle-xmark"></i>
+
+                        Enseignant inactif
+
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+
+            {% if enseignant.specialite %}
+
+                <p class="specialite">
+
+                    <i class="fa-solid fa-book-open"></i>
+
+                    {{ enseignant.specialite }}
+
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         INFORMATIONS
+    ====================================================== -->
+
+    <div class="details-grid">
+
+
+        <!-- ================================================
+             INFORMATIONS PERSONNELLES
+        ================================================= -->
+
+        <section class="details-card">
+
+            <div class="card-title">
+
+                <div class="card-icon">
+
+                    <i class="fa-solid fa-user"></i>
+
+                </div>
+
+                <div>
+
+                    <h2>
+                        Informations personnelles
+                    </h2>
+
+                    <p>
+                        Identité et coordonnées
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="details-list">
+
+
+                <!-- NOM -->
+
+                <div class="detail-row">
+
+                    <span class="detail-label">
+
+                        Nom complet
+
+                    </span>
+
+                    <span class="detail-value">
+
+                        {{ enseignant.utilisateur.nom }}
+
+                        {% if enseignant.utilisateur.postnom %}
+
+                            {{ enseignant.utilisateur.postnom }}
+
+                        {% endif %}
+
+                        {{ enseignant.utilisateur.prenom }}
+
+                    </span>
+
+                </div>
+
+
+                <!-- EMAIL -->
+
+                <div class="detail-row">
+
+                    <span class="detail-label">
+
+                        <i class="fa-solid fa-envelope"></i>
+
+                        Adresse email
+
+                    </span>
+
+                    <span class="detail-value">
+
+                        {% if enseignant.utilisateur.email %}
+
+                            {{ enseignant.utilisateur.email }}
+
+                        {% else %}
+
+                            <span class="not-defined">
+                                Non renseignée
+                            </span>
+
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+
+                <!-- TELEPHONE -->
+
+                <div class="detail-row">
+
+                    <span class="detail-label">
+
+                        <i class="fa-solid fa-phone"></i>
+
+                        Téléphone
+
+                    </span>
+
+                    <span class="detail-value">
+
+                        {% if enseignant.utilisateur.telephone %}
+
+                            {{ enseignant.utilisateur.telephone }}
+
+                        {% else %}
+
+                            <span class="not-defined">
+                                Non renseigné
+                            </span>
+
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+
+                <!-- DATE CREATION -->
+
+                <div class="detail-row">
+
+                    <span class="detail-label">
+
+                        <i class="fa-solid fa-calendar"></i>
+
+                        Date d'enregistrement
+
+                    </span>
+
+                    <span class="detail-value">
+
+                        {{ enseignant.utilisateur.date_creation|date:"d/m/Y H:i" }}
+
+                    </span>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================================
+             INFORMATIONS PROFESSIONNELLES
+        ================================================= -->
+
+        <section class="details-card">
+
+            <div class="card-title">
+
+                <div class="card-icon">
+
+                    <i class="fa-solid fa-briefcase"></i>
+
+                </div>
+
+                <div>
+
+                    <h2>
+                        Informations professionnelles
+                    </h2>
+
+                    <p>
+                        Informations liées à l'activité
+                        d'enseignement
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="details-list">
+
+
+                <!-- MATRICULE -->
+
+                <div class="detail-row">
+
+                    <span class="detail-label">
+
+                        Matricule
+
+                    </span>
+
+                    <span class="detail-value">
+
+                        {{ enseignant.matricule }}
+
+                    </span>
+
+                </div>
+
+
+                <!-- GRADE -->
+
+                <div class="detail-row">
+
+                    <span class="detail-label">
+
+                        <i class="fa-solid fa-graduation-cap"></i>
+
+                        Grade
+
+                    </span>
+
+                    <span class="detail-value">
+
+                        {% if enseignant.grade %}
+
+                            {{ enseignant.grade }}
+
+                        {% else %}
+
+                            <span class="not-defined">
+                                Non renseigné
+                            </span>
+
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+
+                <!-- SPECIALITE -->
+
+                <div class="detail-row">
+
+                    <span class="detail-label">
+
+                        <i class="fa-solid fa-book-open"></i>
+
+                        Spécialité
+
+                    </span>
+
+                    <span class="detail-value">
+
+                        {% if enseignant.specialite %}
+
+                            {{ enseignant.specialite }}
+
+                        {% else %}
+
+                            <span class="not-defined">
+                                Non renseignée
+                            </span>
+
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+
+                <!-- STATUT -->
+
+                <div class="detail-row">
+
+                    <span class="detail-label">
+
+                        <i class="fa-solid fa-circle-info"></i>
+
+                        Statut
+
+                    </span>
+
+                    <span class="detail-value">
+
+                        {% if enseignant.actif %}
+
+                            <span class="status active">
+
+                                <i class="fa-solid fa-circle-check"></i>
+
+                                Actif
+
+                            </span>
+
+                        {% else %}
+
+                            <span class="status inactive">
+
+                                <i class="fa-solid fa-circle-xmark"></i>
+
+                                Inactif
+
+                            </span>
+
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         RÉSUMÉ DES ACTIVITÉS
+         Prévu pour les prochaines fonctionnalités
+    ====================================================== -->
+
+    <section class="activity-card">
+
+        <div class="activity-title">
+
+            <div class="card-icon">
+
+                <i class="fa-solid fa-chart-column"></i>
+
+            </div>
+
+            <div>
+
+                <h2>
+                    Activités pédagogiques
+                </h2>
+
+                <p>
+                    Les affectations et activités de
+                    l'enseignant apparaîtront ici.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="activity-empty">
+
+            <i class="fa-solid fa-circle-info"></i>
+
+            <span>
+                Aucune activité pédagogique à afficher
+                pour le moment.
+            </span>
+
+        </div>
+
+    </section>
+
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,215 @@
+<div class="mcl-modal-list">
+    <div class="mcl-modal-summary">
+        <span class="mcl-modal-badge">
+            <i class="fas fa-scale-balanced"></i>
+            Programme officiel du niveau
+        </span>
+        <span class="mcl-modal-count">
+            {{ nb_cours|default:matieres|length }} cours
+            &mdash; {{ nb_affectes|default:0 }} affect&eacute;s
+        </span>
+    </div>
+
+    <div class="mcl-modal-cards">
+        {% for ligne in matieres %}
+            <article class="mcl-modal-card{% if not ligne.affectation %} is-unassigned{% endif %}">
+                <div class="mcl-modal-card-main">
+                    <div class="mcl-modal-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div>
+                        <h2>{{ ligne.matiere.libelle }}</h2>
+                        <p>{{ ligne.matiere.code }}</p>
+                    </div>
+                </div>
+
+                <div class="mcl-modal-meta">
+                    {% if ligne.ponderation %}
+                        <span>
+                            <i class="fas fa-pen-line"></i>
+                            TJ : {{ ligne.ponderation.travaux_journaliers_max }}
+                        </span>
+                        <span>
+                            <i class="fas fa-file-pen"></i>
+                            Examen : {{ ligne.ponderation.examen_max }}
+                        </span>
+                        <span>
+                            <i class="fas fa-star"></i>
+                            Total : {{ ligne.ponderation.total_semestre_max }}
+                        </span>
+                    {% endif %}
+                    {% if ligne.affectation %}
+                        <span class="ok">
+                            <i class="fas fa-user-check"></i>
+                            {{ ligne.affectation.heures_par_semaine }} h/semaine
+                        </span>
+                    {% else %}
+                        <span class="warn">
+                            <i class="fas fa-user-slash"></i>
+                            Sans enseignant
+                        </span>
+                    {% endif %}
+                </div>
+            </article>
+        {% empty %}
+            <div class="mcl-modal-empty">
+                <i class="fas fa-inbox"></i>
+                <p>Aucun cours défini pour le niveau de cette classe.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .mcl-modal-list {
+        width: 100%;
+    }
+
+    .mcl-modal-summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .mcl-modal-badge,
+    .mcl-modal-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .mcl-modal-badge {
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
+    .mcl-modal-count {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .mcl-modal-cards {
+        display: grid;
+        gap: 10px;
+    }
+
+    .mcl-modal-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 13px;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        background: #ffffff;
+    }
+
+    .mcl-modal-card-main {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        min-width: 0;
+    }
+
+    .mcl-modal-icon {
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #eef2ff;
+        color: #2563eb;
+    }
+
+    .mcl-modal-card h2 {
+        margin: 0;
+        overflow-wrap: anywhere;
+        color: #1e293b;
+        font-size: 15px;
+        line-height: 1.35;
+    }
+
+    .mcl-modal-card p {
+        margin: 3px 0 0;
+        color: #64748b;
+        font-size: 12px;
+    }
+
+    .mcl-modal-meta {
+        display: flex;
+        flex: 0 0 auto;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 6px;
+    }
+
+    .mcl-modal-meta span {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 5px 7px;
+        border-radius: 999px;
+        background: #f8fafc;
+        color: #475569;
+        font-size: 11px;
+        white-space: nowrap;
+    }
+
+    .mcl-modal-meta span.ok {
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+    .mcl-modal-meta span.warn {
+        background: #fff7ed;
+        color: #b45309;
+    }
+
+    .mcl-modal-card.is-unassigned {
+        border-left: 3px solid #fdba74;
+    }
+
+    .mcl-modal-empty {
+        padding: 30px 16px;
+        border: 1px dashed #cbd5e1;
+        border-radius: 12px;
+        color: #64748b;
+        text-align: center;
+    }
+
+    .mcl-modal-empty i {
+        display: block;
+        margin-bottom: 8px;
+        color: #94a3b8;
+        font-size: 24px;
+    }
+
+    .mcl-modal-empty p {
+        margin: 0;
+        font-size: 13px;
+    }
+
+    @media (max-width: 640px) {
+        .mcl-modal-card {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .mcl-modal-meta {
+            justify-content: flex-start;
+        }
+
+        .mcl-modal-summary {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+</style>

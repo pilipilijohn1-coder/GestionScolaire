@@ -1,0 +1,79 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Mes évaluations{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+    <div class="page-header">
+        <div>
+            <h1>Mes évaluations</h1>
+            <p style="color:#6b7280;">Consultez les évaluations liées à vos enseignements.</p>
+        </div>
+    </div>
+
+    
+
+    <div class="table-card">
+        <div class="table-header">
+            <div>
+                <h2>Liste des évaluations</h2>
+                <p>{{ evaluations|length }} évaluation{{ evaluations|length|pluralize }}</p>
+            </div>
+        </div>
+
+        {% if evaluations %}
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Libellé</th>
+                            <th>Classe</th>
+                            <th>Matière</th>
+                            <th>Date</th>
+                            <th>Barème</th>
+                            <th>Période</th>
+                            <th class="text-center">Statut</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for evaluation in evaluations %}
+                            <tr>
+                                <td><strong>{{ evaluation.libelle }}</strong></td>
+                                <td>{{ evaluation.affectation.affectation_matiere.classe.libelle }}</td>
+                                <td>{{ evaluation.affectation.affectation_matiere.matiere.libelle }}</td>
+                                <td>{{ evaluation.date_evaluation|date:"d/m/Y" }}</td>
+                                <td>{{ evaluation.bareme }}</td>
+                                <td>{{ evaluation.periode }}</td>
+                                <td class="text-center">
+                                    {% if evaluation.statut == "OUVERTE" %}
+                                        <span class="status status-active">Ouverte</span>
+                                    {% elif evaluation.statut == "CLOTUREE" %}
+                                        <span class="status status-inactive">Clôturée</span>
+                                    {% else %}
+                                        <span class="status status-inactive">Verrouillée</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <a href="{% url 'saisie_notes' evaluation.id %}" class="btn btn-sm btn-primary">
+                                        <i class="fa-solid fa-pen-to-square"></i> Notes
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fa-solid fa-clipboard-check"></i>
+                <h3>Aucune évaluation</h3>
+                <p>Vous n'avez pas encore créé d'évaluation.</p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Saisie des présences - {{ classe.libelle }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .presence-page {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .back-link {
+        display: inline-block;
+        margin-bottom: 16px;
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    .filters {
+        background: #fff;
+        padding: 20px;
+        border-radius: 14px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+    }
+    .table-wrap {
+        overflow-x: auto;
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    th {
+        background: #f9fafb;
+        font-weight: 600;
+        color: #374151;
+        font-size: 13px;
+    }
+    select, input {
+        padding: 8px 10px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+    .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+    }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-warning { background: #f59e0b; color: #fff; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="presence-page">
+    <a href="{% url 'presences_classe' classe.id %}" class="back-link">← Retour</a>
+    <h1>Saisie des présences - {{ classe.libelle }}</h1>
+
+    <div class="filters">
+        <form method="get">
+            <label for="date_presence">Date</label>
+            <input type="date" name="date" id="date_presence" value="{{ date_presence|date:"Y-m-d" }}">
+            <button type="submit" class="btn btn-primary">Changer la date</button>
+        </form>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="date_presence" value="{{ date_presence|date:"Y-m-d" }}">
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Éève</th>
+                        <th>Statut</th>
+                        <th>Justification</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in eleves_data %}
+                    <tr>
+                        <td>{{ item.inscription.eleve.nom }} {{ item.inscription.eleve.prenom }}</td>
+                        <input type="hidden" name="inscription_id" value="{{ item.inscription.id }}">
+                        <td>
+                            <select name="statut">
+                                <option value="PRESENT" {% if item.statut == "PRESENT" %}selected{% endif %}>Présent</option>
+                                <option value="ABSENT" {% if item.statut == "ABSENT" %}selected{% endif %}>Absent</option>
+                                <option value="RETARD" {% if item.statut == "RETARD" %}selected{% endif %}>En retard</option>
+                                <option value="JUSTIFIE" {% if item.statut == "JUSTIFIE" %}selected{% endif %}>Justifié</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" name="justification" value="{{ item.justification }}" placeholder="Motif (optionnel)">
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" style="text-align:center; padding: 20px;">
+                            Aucun élève inscrit.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div style="margin-top:20px;">
+            <button type="submit" class="btn btn-primary">Enregistrer les présences</button>
+            <a href="{% url 'presences_classe' classe.id %}" class="btn btn-warning" style="margin-left:8px;">Annuler</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

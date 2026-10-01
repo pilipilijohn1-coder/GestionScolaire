@@ -1,0 +1,652 @@
+/* ============================================================
+   PAGE : CRÉATION D'UN ENSEIGNANT
+   ============================================================ */
+
+.creation-page {
+    width: 100%;
+    max-width: 1100px;
+
+    margin: 0 auto;
+    padding: 35px 25px;
+}
+
+
+/* ============================================================
+   EN-TÊTE
+   ============================================================ */
+
+.page-header {
+    margin-bottom: 30px;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 16px;
+
+    color: #6b7280;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    text-decoration: none;
+
+    transition:
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.back-link:hover {
+    color: #2563eb;
+
+    transform: translateX(-2px);
+}
+
+.page-header h1 {
+    margin: 0 0 7px;
+
+    color: #111827;
+
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.page-header p {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+
+/* ============================================================
+   FORMULAIRE
+   ============================================================ */
+
+.enseignant-form {
+    display: flex;
+    flex-direction: column;
+
+    gap: 25px;
+}
+
+
+/* ============================================================
+   CARTES
+   ============================================================ */
+
+.form-card {
+    overflow: hidden;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    box-shadow:
+        0 4px 18px
+        rgba(0, 0, 0, 0.04);
+}
+
+
+/* ============================================================
+   EN-TÊTE DES SECTIONS
+   ============================================================ */
+
+.form-section-header {
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+
+    padding: 22px 25px;
+
+    background: #f9fafb;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.section-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 44px;
+    height: 44px;
+
+    flex-shrink: 0;
+
+    color: #2563eb;
+    background: #eff6ff;
+
+    border-radius: 9px;
+
+    font-size: 18px;
+}
+
+.form-section-header h2 {
+    margin: 0 0 4px;
+
+    color: #1f2937;
+
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.form-section-header p {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 13px;
+}
+
+
+/* ============================================================
+   GRILLE DU FORMULAIRE
+   ============================================================ */
+
+.form-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 22px;
+
+    padding: 25px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+.form-group-full {
+    grid-column: 1 / -1;
+}
+
+
+/* ============================================================
+   LABELS
+   ============================================================ */
+
+.form-group label {
+    color: #374151;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.required {
+    margin-left: 2px;
+
+    color: #dc2626;
+}
+
+
+/* ============================================================
+   CHAMPS
+   ============================================================ */
+
+.form-control {
+    width: 100%;
+
+    height: 44px;
+
+    box-sizing: border-box;
+
+    padding: 0 13px;
+
+    color: #1f2937;
+    background: #ffffff;
+
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+
+    outline: none;
+
+    font-family: inherit;
+    font-size: 14px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.form-control::placeholder {
+    color: #9ca3af;
+}
+
+.form-control:focus {
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37, 99, 235, 0.10);
+}
+
+
+/* ============================================================
+   PHOTO
+   ============================================================ */
+
+.photo-field {
+    display: flex;
+    align-items: center;
+
+    gap: 16px;
+
+    padding: 15px;
+
+    background: #f9fafb;
+
+    border: 1px dashed #cbd5e1;
+    border-radius: 9px;
+}
+
+.photo-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 48px;
+    height: 48px;
+
+    flex-shrink: 0;
+
+    color: #2563eb;
+    background: #eff6ff;
+
+    border-radius: 50%;
+
+    font-size: 18px;
+}
+
+.photo-input {
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+
+    gap: 7px;
+}
+
+.photo-input input[type="file"] {
+    width: 100%;
+
+    color: #4b5563;
+
+    font-size: 13px;
+
+    cursor: pointer;
+}
+
+.photo-input small {
+    color: #9ca3af;
+
+    font-size: 12px;
+}
+
+
+/* ============================================================
+   ERREURS DES CHAMPS
+   ============================================================ */
+
+.field-errors {
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+
+    margin-top: 2px;
+}
+
+.field-errors span {
+    color: #dc2626;
+
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+
+/* ============================================================
+   ERREURS GÉNÉRALES
+   ============================================================ */
+
+.form-alert {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 10px;
+
+    padding: 15px 18px;
+
+    color: #991b1b;
+    background: #fef2f2;
+
+    border-left: 4px solid #dc2626;
+    border-radius: 8px;
+}
+
+.form-alert i {
+    margin-top: 2px;
+
+    font-size: 16px;
+}
+
+.form-alert p {
+    margin: 0;
+
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   ACTIONS
+   ============================================================ */
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 12px;
+
+    padding-top: 5px;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 44px;
+
+    gap: 8px;
+
+    padding: 10px 18px;
+
+    border: none;
+    border-radius: 7px;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.15s ease,
+        box-shadow 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    color: #4b5563;
+    background: #ffffff;
+
+    border: 1px solid #d1d5db;
+}
+
+.btn-secondary:hover {
+    color: #1f2937;
+    background: #f9fafb;
+
+    border-color: #9ca3af;
+}
+
+.btn-primary {
+    color: #ffffff;
+    background: #2563eb;
+
+    box-shadow:
+        0 4px 10px
+        rgba(37, 99, 235, 0.15);
+}
+
+.btn-primary:hover {
+    background: #1d4ed8;
+}
+/* =========================================================
+   CHAMPS MOT DE PASSE
+========================================================= */
+
+.password-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+
+/* Le champ occupe toute la largeur */
+
+.password-input-wrapper input {
+  width: 100%;
+  padding-right: 50px;
+}
+
+
+/* =========================================================
+   BOUTON AFFICHER / MASQUER LE MOT DE PASSE
+========================================================= */
+
+.toggle-password {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  
+  transform: translateY(-50%);
+  
+  width: 34px;
+  height: 34px;
+  
+  border: none;
+  background: transparent;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  cursor: pointer;
+  
+  color: #6b7280;
+  
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+
+.toggle-password:hover {
+  color: #2563eb;
+  background-color: #f3f4f6;
+}
+
+
+.toggle-password:focus {
+  outline: none;
+}
+
+
+.toggle-password i {
+  font-size: 15px;
+}
+
+
+/* =========================================================
+   INFORMATION SUR LE MOT DE PASSE
+========================================================= */
+
+.password-info {
+  margin-top: 18px;
+  padding: 13px 15px;
+  
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  
+  border-left: 4px solid #2563eb;
+  border-radius: 6px;
+  
+  background-color: #eff6ff;
+  
+  color: #1e3a5f;
+  
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+
+.password-info i {
+  margin-top: 3px;
+  
+  font-size: 15px;
+  
+  color: #2563eb;
+}
+
+
+.password-info span {
+  flex: 1;
+}
+
+
+/* =========================================================
+   ERREURS DES CHAMPS
+========================================================= */
+
+.field-error {
+  margin-top: 7px;
+  
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  
+  color: #dc2626;
+  
+  font-size: 12px;
+}
+
+
+.field-error span {
+  display: block;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 768px) {
+  
+  .password-info {
+    font-size: 12px;
+  }
+  
+  
+  .toggle-password {
+    right: 8px;
+  }
+  
+}
+
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media screen and (max-width: 800px) {
+
+    .creation-page {
+        padding: 30px 20px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group-full {
+        grid-column: auto;
+    }
+
+}
+
+
+@media screen and (max-width: 600px) {
+
+    .creation-page {
+        padding: 22px 14px;
+    }
+
+    .page-header {
+        margin-bottom: 24px;
+    }
+
+    .page-header h1 {
+        font-size: 24px;
+    }
+
+    .form-section-header {
+        align-items: flex-start;
+
+        padding: 18px;
+    }
+
+    .form-grid {
+        gap: 18px;
+
+        padding: 18px;
+    }
+
+    .photo-field {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .form-actions {
+        align-items: stretch;
+        flex-direction: column-reverse;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+    }
+
+}
+
+
+@media screen and (max-width: 400px) {
+
+    .page-header h1 {
+        font-size: 22px;
+    }
+
+    .form-section-header h2 {
+        font-size: 16px;
+    }
+
+    .section-icon {
+        width: 40px;
+        height: 40px;
+
+        font-size: 16px;
+    }
+
+}

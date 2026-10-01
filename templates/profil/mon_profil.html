@@ -1,0 +1,366 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+    Mon profil
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profil-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .profil-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+        margin-bottom: 24px;
+    }
+
+    .profil-card h2 {
+        margin: 0 0 4px;
+        font-size: 18px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .profil-card p {
+        margin: 0 0 16px;
+        color: #64748b;
+        font-size: 13px;
+    }
+
+    .profil-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .profil-field {
+        margin-bottom: 16px;
+    }
+
+    .profil-field label {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #1e293b;
+    }
+
+    .profil-field .value {
+        padding: 8px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #1e293b;
+        background: #f8fafc;
+        width: 100%;
+    }
+
+    .profil-field.readonly .value {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .photo-profil-container {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .photo-profil-container .photo {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #e2e8f0;
+    }
+
+    .photo-profil-container .no-photo {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        border: 3px solid #e2e8f0;
+        background: #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        font-size: 36px;
+    }
+
+    .mdp-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+    }
+
+    .mdp-card h2 {
+        margin: 0 0 4px;
+        font-size: 18px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .mdp-card p {
+        margin: 0 0 16px;
+        color: #64748b;
+        font-size: 13px;
+    }
+
+    .mdp-form-group {
+        margin-bottom: 16px;
+    }
+
+    .mdp-form-group label {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #1e293b;
+    }
+
+    .required::after {
+        content: " *";
+        color: #dc2626;
+    }
+
+    .mdp-form-control {
+        display: block;
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #1e293b;
+        background: #ffffff;
+    }
+
+    .mdp-form-control:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+    }
+
+    .mdp-form-help {
+        display: block;
+        margin-top: 4px;
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    .mdp-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+    }
+
+    .gm-btn {
+        flex: 1;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        text-decoration: none;
+    }
+
+    .gm-btn-cancel {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .gm-btn-cancel:hover {
+        background: #e2e8f0;
+    }
+
+    .gm-btn-submit {
+        background: #2563eb;
+        color: white;
+    }
+
+    .gm-btn-submit:hover {
+        background: #1e40af;
+    }
+
+    @media (max-width: 640px) {
+        .profil-grid {
+            grid-template-columns: 1fr;
+        }
+        .mdp-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="profil-container">
+
+    <div class="profil-card">
+
+        <h2>
+            <i class="fas fa-user"></i>
+            Mes informations personnelles
+        </h2>
+
+        <p>
+            Consultez vos informations. L'identifiant de connexion
+            ne peut pas être modifié.
+        </p>
+
+        <div class="profil-grid">
+
+            <div class="profil-field">
+
+                <label>Nom</label>
+                <div class="value">{{ utilisateur.nom }}</div>
+
+            </div>
+
+            <div class="profil-field">
+
+                <label>Post-nom</label>
+                <div class="value">{{ utilisateur.postnom|default:"—" }}</div>
+
+            </div>
+
+            <div class="profil-field">
+
+                <label>Prénom</label>
+                <div class="value">{{ utilisateur.prenom }}</div>
+
+            </div>
+
+            <div class="profil-field">
+
+                <label>Email</label>
+                <div class="value">{{ utilisateur.email|default:"—" }}</div>
+
+            </div>
+
+            <div class="profil-field">
+
+                <label>Téléphone</label>
+                <div class="value">{{ utilisateur.telephone|default:"—" }}</div>
+
+            </div>
+
+            <div class="profil-field">
+
+                <label>Identifiant de connexion (login)</label>
+                <div class="value readonly">{{ compte.login|default:"—" }}</div>
+
+            </div>
+
+        </div>
+
+        {% if utilisateur.photo_profil %}
+            <div class="photo-profil-container">
+                <img src="{{ utilisateur.photo_profil.url }}" alt="Photo de profil" class="photo">
+            </div>
+        {% else %}
+            <div class="photo-profil-container">
+                <div class="no-photo">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        {% endif %}
+
+    </div>
+
+    <div class="mdp-card">
+
+        <h2>
+            <i class="fas fa-lock"></i>
+            Modifier le mot de passe
+        </h2>
+
+        <p>
+            Saisissez votre ancien mot de passe, puis le nouveau.
+            Le nouveau doit contenir au moins 8 caractères.
+        </p>
+
+        <form method="post" action="{% url 'mon_profil' %}">
+            {% csrf_token %}
+
+            <div class="mdp-form-group">
+                <label for="ancien_mot_de_passe" class="required">
+                    Ancien mot de passe
+                </label>
+                <input
+                    type="password"
+                    id="ancien_mot_de_passe"
+                    name="ancien_mot_de_passe"
+                    class="mdp-form-control"
+                    required
+                >
+            </div>
+
+            <div class="mdp-form-group">
+                <label for="nouveau_mot_de_passe" class="required">
+                    Nouveau mot de passe
+                </label>
+                <input
+                    type="password"
+                    id="nouveau_mot_de_passe"
+                    name="nouveau_mot_de_passe"
+                    class="mdp-form-control"
+                    required
+                >
+                <span class="mdp-form-help">
+                    Minimum 8 caractères
+                </span>
+            </div>
+
+            <div class="mdp-form-group">
+                <label for="confirmation" class="required">
+                    Confirmer le nouveau mot de passe
+                </label>
+                <input
+                    type="password"
+                    id="confirmation"
+                    name="confirmation"
+                    class="mdp-form-control"
+                    required
+                >
+            </div>
+
+            <div class="mdp-actions">
+                <a
+                    href="{% url 'deconnexion' %}"
+                    class="gm-btn gm-btn-cancel"
+                >
+                    <i class="fas fa-right-from-bracket"></i>
+                    Déconnexion
+                </a>
+
+                <button
+                    type="submit"
+                    class="gm-btn gm-btn-submit"
+                >
+                    <i class="fas fa-save"></i>
+                    Enregistrer
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

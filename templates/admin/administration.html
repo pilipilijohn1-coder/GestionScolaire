@@ -1,0 +1,165 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Administration{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --adm-primary: #2563eb;
+        --adm-primary-dark: #1e40af;
+        --adm-bg: #f8fafc;
+        --adm-border: #e2e8f0;
+        --adm-text: #1e293b;
+        --adm-text-secondary: #64748b;
+        --adm-card-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+        --adm-card-shadow-hover: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+    }
+
+    .administration-header {
+        max-width: 1200px;
+        margin: 0 auto 28px;
+    }
+
+    .administration-header h1 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--adm-text);
+    }
+
+    .administration-header p {
+        margin: 8px 0 0;
+        color: var(--adm-text-secondary);
+        font-size: 14px;
+    }
+
+    .administration-grid {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px;
+    }
+
+    .adm-card {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        background: #ffffff;
+        border: 1px solid var(--adm-border);
+        border-radius: 16px;
+        padding: 24px;
+        text-decoration: none;
+        color: var(--adm-text);
+        box-shadow: var(--adm-card-shadow);
+        transition: all 0.2s ease;
+    }
+
+    .adm-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--adm-card-shadow-hover);
+        border-color: var(--adm-primary);
+    }
+
+    .adm-card-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        background: #eef2ff;
+        color: var(--adm-primary);
+    }
+
+    .adm-card h2 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .adm-card p {
+        margin: 0;
+        color: var(--adm-text-secondary);
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .adm-card-arrow {
+        margin-top: auto;
+        color: #cbd5e1;
+        font-size: 18px;
+        transition: all 0.2s ease;
+    }
+
+    .adm-card:hover .adm-card-arrow {
+        color: var(--adm-primary);
+        transform: translateX(4px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="administration-header">
+    <h1>Administration</h1>
+    <p>Configuration technique, surveillance du système et gestion des paramètres.</p>
+</div>
+
+<section class="administration-grid">
+    <a href="{% url 'liste_utilisateurs' %}" class="adm-card">
+        <div class="adm-card-icon">👤</div>
+        <div>
+            <h2>Gestion des comptes</h2>
+            <p>Créer, modifier et gérer les comptes utilisateurs.</p>
+        </div>
+        <div class="adm-card-arrow">→</div>
+    </a>
+
+    <a href="{% url 'structure_academique' %}" class="adm-card">
+        <div class="adm-card-icon">🔐</div>
+        <div>
+            <h2>Rôles et permissions</h2>
+            <p>Gérer les rôles et les permissions du système.</p>
+        </div>
+        <div class="adm-card-arrow">→</div>
+    </a>
+
+    <a href="{% url 'configuration_journee' %}" class="adm-card">
+        <div class="adm-card-icon">⚙️</div>
+        <div>
+            <h2>Configuration technique</h2>
+            <p>Paramétrer la configuration horaire et les options techniques.</p>
+        </div>
+        <div class="adm-card-arrow">→</div>
+    </a>
+
+    <a href="{% url 'dashboard_admin' %}" class="adm-card">
+        <div class="adm-card-icon">📊</div>
+        <div>
+            <h2>Surveillance du système</h2>
+            <p>Consulter les statistiques et l'état du système.</p>
+        </div>
+        <div class="adm-card-arrow">→</div>
+    </a>
+
+    <a href="{% url 'dashboard_admin' %}" class="adm-card">
+        <div class="adm-card-icon">🧩</div>
+        <div>
+            <h2>Paramètres techniques</h2>
+            <p>Gérer les paramètres globaux de l'application.</p>
+        </div>
+        <div class="adm-card-arrow">→</div>
+    </a>
+
+    <a href="{% url 'dashboard_admin' %}" class="adm-card">
+        <div class="adm-card-icon">📋</div>
+        <div>
+            <h2>Informations administratives</h2>
+            <p>Consulter les informations nécessaires à l'administration.</p>
+        </div>
+        <div class="adm-card-arrow">→</div>
+    </a>
+</section>
+{% endblock %}

@@ -1,0 +1,302 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>{{ titre }}</title>
+
+    <link rel="stylesheet"
+          href="{% static 'Gestion/css/bulletins.css' %}">
+
+</head>
+
+<body>
+
+<div class="bulletin-page">
+
+    <!-- EN-TÊTE -->
+
+    <header class="page-header">
+
+        <div>
+
+            <span class="page-code">
+                {{ modele.code }}
+            </span>
+
+            <h1>
+                {{ modele.libelle }}
+            </h1>
+
+            <p>
+                Détail du modèle de bulletin.
+            </p>
+
+        </div>
+
+        <div class="header-actions">
+
+            <a href="{% url 'liste_modeles_bulletin' %}"
+               class="btn btn-secondary">
+                Retour aux modèles
+            </a>
+
+            <a href="{% url 'liste_ponderations' %}?niveau={{ modele.niveau.code }}"
+               class="btn btn-primary">
+                Voir les pondérations
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <!-- INFORMATIONS DU MODÈLE -->
+
+    <main class="content-container">
+
+        <section class="info-card">
+
+            <div class="info-card-header">
+                <h2>Informations du modèle</h2>
+            </div>
+
+            <div class="info-grid">
+
+                <div class="info-item">
+
+                    <span class="info-label">
+                        Code
+                    </span>
+
+                    <strong>
+                        {{ modele.code }}
+                    </strong>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <span class="info-label">
+                        Libellé
+                    </span>
+
+                    <strong>
+                        {{ modele.libelle }}
+                    </strong>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <span class="info-label">
+                        Version
+                    </span>
+
+                    <strong>
+                        {{ modele.version }}
+                    </strong>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <span class="info-label">
+                        Niveau
+                    </span>
+
+                    <strong>
+
+                        {% if modele.niveau %}
+                            {{ modele.niveau.libelle }}
+                        {% else %}
+                            Non défini
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <span class="info-label">
+                        Section
+                    </span>
+
+                    <strong>
+
+                        {% if modele.section %}
+                            {{ modele.section.libelle }}
+                        {% else %}
+                            Toutes les sections
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <span class="info-label">
+                        État
+                    </span>
+
+                    <strong class="text-success">
+                        Actif
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- MATIÈRES -->
+
+        <section class="table-card">
+
+            <div class="table-card-header">
+
+                <div>
+
+                    <h2>
+                        Matières et pondérations
+                    </h2>
+
+                    {% if modele.niveau %}
+
+                        <p>
+                            Pondérations officielles du
+                            {{ modele.niveau.libelle }}.
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            {% if ponderations %}
+
+                <div class="table-wrapper">
+
+                    <table class="data-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>#</th>
+
+                                <th>Domaine</th>
+
+                                <th>Matière</th>
+
+                                <th>TJ maximum</th>
+
+                                <th>Examen maximum</th>
+
+                                <th>Total semestre</th>
+
+                                <th></th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for p in ponderations %}
+
+                                <tr>
+
+                                    <td>
+                                        {{ forloop.counter }}
+                                    </td>
+
+                                    <td>
+
+                                        {% if p.matiere.domaine %}
+                                            {{ p.matiere.domaine.libelle }}
+                                        {% else %}
+                                            —
+                                        {% endif %}
+
+                                    </td>
+
+                                    <td>
+                                        <strong>
+                                            {{ p.matiere.libelle }}
+                                        </strong>
+                                    </td>
+
+                                    <td>
+                                        {{ p.travaux_journaliers_max }}
+                                    </td>
+
+                                    <td>
+                                        {{ p.examen_max }}
+                                    </td>
+
+                                    <td>
+                                        {{ p.total_semestre_max }}
+                                    </td>
+
+                                    <td>
+
+                                        <a href="{% url 'detail_ponderation' p.pk %}"
+                                           class="table-link">
+                                            Détails
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-state small">
+
+                    <h3>
+                        Aucune pondération enregistrée
+                    </h3>
+
+                    <p>
+                        Ce niveau ne possède actuellement
+                        aucune pondération officielle.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

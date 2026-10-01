@@ -1,0 +1,255 @@
+{% extends base_template %}
+{% load static %}
+
+
+{% block title %}
+    {% if enseignant.actif %}
+        Désactiver l'enseignant
+    {% else %}
+        Activer l'enseignant
+    {% endif %}
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/activer_desactiver_enseignant.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="status-page">
+
+
+    <!-- =====================================================
+         RETOUR
+    ====================================================== -->
+
+    <a
+        href="{% url 'detail_enseignant' enseignant.id %}"
+        class="back-link"
+    >
+        <i class="fa-solid fa-arrow-left"></i>
+
+        Retour au détail de l'enseignant
+    </a>
+
+
+    <!-- =====================================================
+         CARTE DE CONFIRMATION
+    ====================================================== -->
+
+    <div
+        class="confirmation-card
+        {% if enseignant.actif %}
+            confirmation-danger
+        {% else %}
+            confirmation-success
+        {% endif %}"
+    >
+
+
+        <!-- ================================================
+             ICÔNE
+        ================================================= -->
+
+        <div class="confirmation-icon">
+
+            {% if enseignant.actif %}
+
+                <i class="fa-solid fa-user-slash"></i>
+
+            {% else %}
+
+                <i class="fa-solid fa-user-check"></i>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- ================================================
+             TITRE
+        ================================================= -->
+
+        <h1>
+
+            {% if enseignant.actif %}
+
+                Désactiver cet enseignant ?
+
+            {% else %}
+
+                Activer cet enseignant ?
+
+            {% endif %}
+
+        </h1>
+
+
+        <!-- ================================================
+             INFORMATIONS DE L'ENSEIGNANT
+        ================================================= -->
+
+        <div class="enseignant-summary">
+
+
+            <div class="summary-photo">
+
+                {% if enseignant.utilisateur.photo_profil %}
+
+                    <img
+                        src="{{ enseignant.utilisateur.photo_profil.url }}"
+                        alt="Photo de l'enseignant"
+                    >
+
+                {% else %}
+
+                    <div class="photo-placeholder">
+
+                        <i class="fa-solid fa-user"></i>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="summary-info">
+
+                <h2>
+
+                    {{ enseignant.utilisateur.nom }}
+
+                    {% if enseignant.utilisateur.postnom %}
+
+                        {{ enseignant.utilisateur.postnom }}
+
+                    {% endif %}
+
+                    {{ enseignant.utilisateur.prenom }}
+
+                </h2>
+
+
+                <span>
+
+                    {{ enseignant.matricule }}
+
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- ================================================
+             MESSAGE
+        ================================================= -->
+
+        <div class="confirmation-message">
+
+            {% if enseignant.actif %}
+
+                <p>
+
+                    Vous êtes sur le point de désactiver
+                    cet enseignant.
+
+                </p>
+
+                <p>
+
+                    Un enseignant désactivé ne pourra plus
+                    être utilisé dans les nouvelles opérations
+                    du système tant qu'il ne sera pas réactivé.
+
+                </p>
+
+            {% else %}
+
+                <p>
+
+                    Vous êtes sur le point d'activer
+                    cet enseignant.
+
+                </p>
+
+                <p>
+
+                    Une fois activé, cet enseignant pourra
+                    à nouveau être utilisé dans les opérations
+                    autorisées du système.
+
+                </p>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- ================================================
+             FORMULAIRE DE CONFIRMATION
+        ================================================= -->
+
+        <form
+            method="post"
+            class="confirmation-form"
+        >
+
+            {% csrf_token %}
+
+
+            <div class="confirmation-actions">
+
+                <a
+                    href="{% url 'detail_enseignant' enseignant.id %}"
+                    class="btn btn-cancel"
+                >
+                    <i class="fa-solid fa-xmark"></i>
+
+                    Annuler
+                </a>
+
+
+                {% if enseignant.actif %}
+
+                    <button
+                        type="submit"
+                        class="btn btn-danger"
+                    >
+                        <i class="fa-solid fa-user-slash"></i>
+
+                        Confirmer la désactivation
+                    </button>
+
+                {% else %}
+
+                    <button
+                        type="submit"
+                        class="btn btn-success"
+                    >
+                        <i class="fa-solid fa-user-check"></i>
+
+                        Confirmer l'activation
+                    </button>
+
+                {% endif %}
+
+            </div>
+
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

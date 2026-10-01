@@ -1,0 +1,443 @@
+/* ============================================================
+   PAGE : MODIFICATION D'UNE MATIÈRE
+   ============================================================ */
+
+.matiere-form-page {
+    width: 100%;
+    max-width: 900px;
+
+    margin: 0 auto;
+    padding: 35px 25px;
+}
+
+
+/* ============================================================
+   EN-TÊTE
+   ============================================================ */
+
+.page-header {
+    margin-bottom: 28px;
+}
+
+.back-link {
+    display: inline-block;
+
+    margin-bottom: 12px;
+
+    color: #2563eb;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+.page-header h1 {
+    margin: 0 0 8px;
+
+    color: #111827;
+
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.page-header p {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.page-header p strong {
+    color: #374151;
+}
+
+
+/* ============================================================
+   ERREURS GÉNÉRALES
+   ============================================================ */
+
+.form-errors {
+    margin-bottom: 20px;
+    padding: 14px 18px;
+
+    color: #991b1b;
+    background: #fef2f2;
+
+    border-left: 4px solid #ef4444;
+    border-radius: 7px;
+}
+
+.form-errors p {
+    margin: 0;
+
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+
+/* ============================================================
+   CARTE DU FORMULAIRE
+   ============================================================ */
+
+.form-card {
+    overflow: hidden;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    box-shadow:
+        0 3px 15px
+        rgba(0, 0, 0, 0.04);
+}
+
+
+/* ============================================================
+   EN-TÊTE DE LA CARTE
+   ============================================================ */
+
+.card-header {
+    padding: 22px 25px;
+
+    background: #f9fafb;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.card-header h2 {
+    margin: 0 0 6px;
+
+    color: #111827;
+
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.card-header p {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   CONTENU DU FORMULAIRE
+   ============================================================ */
+
+.form-content {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 22px;
+
+    padding: 28px 25px;
+}
+
+
+/* ============================================================
+   GROUPES DE CHAMPS
+   ============================================================ */
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+
+    gap: 7px;
+}
+
+.form-group-full {
+    grid-column: 1 / -1;
+}
+
+
+/* ============================================================
+   LABELS
+   ============================================================ */
+
+.form-group label {
+    color: #374151;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.required {
+    margin-left: 2px;
+
+    color: #dc2626;
+}
+
+
+/* ============================================================
+   CHAMPS DU FORMULAIRE
+   ============================================================ */
+
+.form-control {
+    width: 100%;
+
+    padding: 11px 13px;
+
+    color: #1f2937;
+    background: #ffffff;
+
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+
+    font-family: inherit;
+    font-size: 14px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.form-control:focus {
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37, 99, 235, 0.1);
+}
+
+textarea.form-control {
+    min-height: 110px;
+
+    resize: vertical;
+
+    line-height: 1.6;
+}
+
+
+/* ============================================================
+   AIDE DES CHAMPS
+   ============================================================ */
+
+.field-help {
+    color: #9ca3af;
+
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   ERREURS DES CHAMPS
+   ============================================================ */
+
+.field-error {
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+
+    margin-top: 2px;
+}
+
+.field-error span {
+    color: #dc2626;
+
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+
+/* ============================================================
+   INFORMATIONS SUR LE STATUT
+   ============================================================ */
+
+.status-info-box {
+    display: flex;
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    margin-top: 20px;
+    padding: 16px 18px;
+
+    color: #374151;
+    background: #f9fafb;
+
+    border: 1px solid #e5e7eb;
+    border-left: 4px solid #6b7280;
+    border-radius: 7px;
+
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.status-info-box strong {
+    color: #1f2937;
+}
+
+.status-text {
+    color: #6b7280;
+}
+
+
+/* ============================================================
+   STATUTS
+   ============================================================ */
+
+.status {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 5px 10px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status.active {
+    color: #166534;
+    background: #dcfce7;
+}
+
+.status.inactive {
+    color: #991b1b;
+    background: #fee2e2;
+}
+
+
+/* ============================================================
+   ACTIONS DU FORMULAIRE
+   ============================================================ */
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 12px;
+
+    margin-top: 25px;
+}
+
+
+/* ============================================================
+   BOUTONS
+   ============================================================ */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 44px;
+
+    padding: 10px 20px;
+
+    border: none;
+    border-radius: 7px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease,
+        box-shadow 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+
+/* BOUTON PRINCIPAL */
+
+.btn-primary {
+    color: #ffffff;
+    background: #2563eb;
+
+    box-shadow:
+        0 4px 10px
+        rgba(37, 99, 235, 0.15);
+}
+
+.btn-primary:hover {
+    background: #1d4ed8;
+}
+
+
+/* BOUTON SECONDAIRE */
+
+.btn-secondary {
+    color: #374151;
+    background: #e5e7eb;
+}
+
+.btn-secondary:hover {
+    background: #d1d5db;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media screen and (max-width: 700px) {
+
+    .matiere-form-page {
+        padding: 20px 15px;
+    }
+
+    .form-content {
+        grid-template-columns: 1fr;
+
+        padding: 22px 18px;
+    }
+
+    .form-group-full {
+        grid-column: auto;
+    }
+
+    .card-header {
+        padding: 20px 18px;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+    }
+
+    .status-info-box {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+}
+
+
+@media screen and (max-width: 450px) {
+
+    .page-header h1 {
+        font-size: 24px;
+    }
+
+}

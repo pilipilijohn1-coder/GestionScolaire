@@ -1,0 +1,181 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Configuration générale{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --cg-primary: #2563eb;
+        --cg-primary-dark: #1e40af;
+        --cg-bg: #f8fafc;
+        --cg-border: #e2e8f0;
+        --cg-text: #1e293b;
+        --cg-text-secondary: #64748b;
+        --cg-card-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+        --cg-card-shadow-hover: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+    }
+
+    .config-header {
+        max-width: 1200px;
+        margin: 0 auto 28px;
+    }
+
+    .config-header h1 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--cg-text);
+    }
+
+    .config-header p {
+        margin: 8px 0 0;
+        color: var(--cg-text-secondary);
+        font-size: 14px;
+    }
+
+    .config-grid {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px;
+    }
+
+    .config-card {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        background: #ffffff;
+        border: 1px solid var(--cg-border);
+        border-radius: 16px;
+        padding: 24px;
+        text-decoration: none;
+        color: var(--cg-text);
+        box-shadow: var(--cg-card-shadow);
+        transition: all 0.2s ease;
+    }
+
+    .config-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--cg-card-shadow-hover);
+        border-color: var(--cg-primary);
+    }
+
+    .config-card-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        background: #eef2ff;
+        color: var(--cg-primary);
+    }
+
+    .config-card h2 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .config-card p {
+        margin: 0;
+        color: var(--cg-text-secondary);
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .config-card-arrow {
+        margin-top: auto;
+        color: #cbd5e1;
+        font-size: 18px;
+        transition: all 0.2s ease;
+    }
+
+    .config-card:hover .config-card-arrow {
+        color: var(--cg-primary);
+        transform: translateX(4px);
+    }
+
+    .config-section {
+        max-width: 1200px;
+        margin: 0 auto 24px;
+        background: #ffffff;
+        border: 1px solid var(--cg-border);
+        border-radius: 16px;
+        padding: 20px 24px;
+        box-shadow: var(--cg-card-shadow);
+    }
+
+    .config-section h2 {
+        margin: 0 0 12px;
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--cg-text);
+    }
+
+    .config-section ul {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--cg-text-secondary);
+        font-size: 14px;
+        line-height: 1.8;
+    }
+
+    .config-section li {
+        margin-bottom: 6px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="config-header">
+    <h1>Configuration générale</h1>
+    <p>
+        {% if annee_active %}
+            Année scolaire active : <strong>{{ annee_active.libelle }}</strong>
+        {% else %}
+            Aucune année scolaire active.
+        {% endif %}
+    </p>
+</div>
+
+<section class="config-grid">
+    <a href="{% url 'liste_frais' %}" class="config-card">
+        <div class="config-card-icon">💰</div>
+        <div>
+            <h2>Frais scolaires</h2>
+            <p>Définir les frais par année scolaire et par niveau.</p>
+        </div>
+        <div class="config-card-arrow">→</div>
+    </a>
+
+    <a href="{% url 'liste_tranches' %}" class="config-card">
+        <div class="config-card-icon">📅</div>
+        <div>
+            <h2>Tranches de paiement</h2>
+            <p>Configurer les échéances et les montants par tranche.</p>
+        </div>
+        <div class="config-card-arrow">→</div>
+    </a>
+
+    <a href="{% url 'liste_modeles_bulletins' %}" class="config-card">
+        <div class="config-card-icon">📄</div>
+        <div>
+            <h2>Modèles de bulletins</h2>
+            <p>Gérer les modèles et la configuration des bulletins.</p>
+        </div>
+        <div class="config-card-arrow">→</div>
+    </a>
+</section>
+
+<div class="config-section">
+    <h2>Aperçu de la configuration</h2>
+    <ul>
+        <li>Année scolaire active : {{ annee_active.libelle|default:"Aucune" }}</li>
+        <li>Frais configurés : {{ frais|length }}</li>
+    </ul>
+</div>
+{% endblock %}

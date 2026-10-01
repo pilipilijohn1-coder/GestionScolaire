@@ -1,0 +1,268 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+    {% if utilisateur.actif %}
+        Confirmer la désactivation
+    {% else %}
+        Confirmer l'activation
+    {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/confirmation_statut_utilisateur.css' %}"
+>
+{% endblock %}
+
+{% block content %}
+
+<div class="confirmation-page">
+
+    <!-- =====================================================
+         EN-TÊTE
+         ====================================================== -->
+
+    <div class="confirmation-header">
+
+        <a
+            href="{% url 'detail_utilisateur' utilisateur.id %}"
+            class="back-button"
+        >
+            ← Retour aux détails
+        </a>
+
+    </div>
+
+
+    <!-- =====================================================
+         CARTE DE CONFIRMATION
+         ====================================================== -->
+
+    <div class="confirmation-card">
+
+        <!-- ---------------------------------------------
+             ICÔNE
+             ---------------------------------------------- -->
+
+        <div
+            class="
+                confirmation-icon
+                {% if utilisateur.actif %}
+                    danger
+                {% else %}
+                    success
+                {% endif %}
+            "
+        >
+            {% if utilisateur.actif %}
+                !
+            {% else %}
+                ✓
+            {% endif %}
+        </div>
+
+
+        <!-- ---------------------------------------------
+             TITRE
+             ---------------------------------------------- -->
+
+        <h1>
+            {% if utilisateur.actif %}
+                Désactiver cet utilisateur ?
+            {% else %}
+                Activer cet utilisateur ?
+            {% endif %}
+        </h1>
+
+
+        <!-- ---------------------------------------------
+             DESCRIPTION
+             ---------------------------------------------- -->
+
+        <p class="confirmation-description">
+
+            {% if utilisateur.actif %}
+
+                Vous êtes sur le point de désactiver
+                cet utilisateur. Il ne pourra plus accéder
+                au système tant que son compte ne sera pas
+                réactivé.
+
+            {% else %}
+
+                Vous êtes sur le point de réactiver
+                cet utilisateur. Il pourra à nouveau
+                se connecter au système selon les rôles
+                et permissions qui lui sont attribués.
+
+            {% endif %}
+
+        </p>
+
+
+        <!-- =================================================
+             RÉSUMÉ UTILISATEUR
+             ================================================== -->
+
+        <div class="user-summary">
+
+            <!-- Avatar -->
+
+            <div class="user-avatar">
+
+                {{ utilisateur.prenom|slice:":1" }}
+                {{ utilisateur.nom|slice:":1" }}
+
+            </div>
+
+
+            <!-- Informations -->
+
+            <div class="user-information">
+
+                <h2>
+                    {{ utilisateur.prenom }}
+                    {{ utilisateur.nom }}
+                </h2>
+
+                {% if utilisateur.postnom %}
+                    <p>
+                        {{ utilisateur.postnom }}
+                    </p>
+                {% endif %}
+
+                <div class="user-meta">
+
+                    {% if attribution_role %}
+
+                        <span class="role-badge">
+                            {{ attribution_role.role.libelle }}
+                        </span>
+
+                    {% else %}
+
+                        <span class="role-badge role-empty">
+                            Aucun rôle
+                        </span>
+
+                    {% endif %}
+
+
+                    {% if utilisateur.actif %}
+
+                        <span class="status-badge active">
+                            Actif
+                        </span>
+
+                    {% else %}
+
+                        <span class="status-badge inactive">
+                            Désactivé
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             AVERTISSEMENT
+             ================================================== -->
+
+        <div
+            class="
+                warning-box
+                {% if utilisateur.actif %}
+                    warning-danger
+                {% else %}
+                    warning-success
+                {% endif %}
+            "
+        >
+
+            <strong>
+                {% if utilisateur.actif %}
+                    Conséquence de la désactivation
+                {% else %}
+                    Conséquence de l'activation
+                {% endif %}
+            </strong>
+
+            <p>
+
+                {% if utilisateur.actif %}
+
+                    L'utilisateur sera déconnecté lors de sa
+                    prochaine vérification de session et ne pourra
+                    plus accéder aux fonctionnalités du système.
+
+                {% else %}
+
+                    L'utilisateur pourra de nouveau accéder au
+                    système avec les permissions associées à ses
+                    rôles actifs.
+
+                {% endif %}
+
+            </p>
+
+        </div>
+
+
+        <!-- =================================================
+             FORMULAIRE DE CONFIRMATION
+             ================================================== -->
+
+        <form method="post">
+
+            {% csrf_token %}
+
+            <div class="confirmation-actions">
+
+                <a
+                    href="{% url 'detail_utilisateur' utilisateur.id %}"
+                    class="cancel-button"
+                >
+                    Annuler
+                </a>
+
+
+                <button
+                    type="submit"
+                    class="
+                        confirm-button
+                        {% if utilisateur.actif %}
+                            danger
+                        {% else %}
+                            success
+                        {% endif %}
+                    "
+                >
+
+                    {% if utilisateur.actif %}
+
+                        Oui, désactiver l'utilisateur
+
+                    {% else %}
+
+                        Oui, activer l'utilisateur
+
+                    {% endif %}
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

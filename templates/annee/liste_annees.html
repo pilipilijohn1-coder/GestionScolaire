@@ -1,0 +1,340 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+    Années scolaires
+{% endblock %}
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/liste_annees.css' %}"
+>
+{% endblock %}
+
+{% block content %}
+
+<div class="annees-container">
+
+    <!-- ================================================== -->
+    <!-- EN-TÊTE -->
+    <!-- ================================================== -->
+
+    <div class="page-header">
+
+        <div class="page-header-text">
+            <h1>Années scolaires</h1>
+
+            <p>
+                Gérez les années scolaires de l'établissement
+                et suivez leur état d'avancement.
+            </p>
+        </div>
+
+        <div class="page-header-actions">
+
+            <a
+                href="{% url 'creer_annee' %}"
+                class="btn btn-primary"
+            >
+                <span>+</span>
+                Nouvelle année scolaire
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- MESSAGES -->
+    <!-- ================================================== -->
+
+    
+
+
+    <!-- ================================================== -->
+    <!-- RÉSUMÉ -->
+    <!-- ================================================== -->
+
+    <div class="stats-grid">
+
+        <div class="stat-card">
+
+            <span class="stat-label">
+                Total
+            </span>
+
+            <strong class="stat-value">
+                {{ annees|length }}
+            </strong>
+
+            <span class="stat-description">
+                Année(s) enregistrée(s)
+            </span>
+
+        </div>
+
+
+        <div class="stat-card stat-active">
+
+            <span class="stat-label">
+                Année active
+            </span>
+
+            {% if annee_active %}
+
+                <strong class="stat-value">
+                    {{ annee_active.libelle }}
+                </strong>
+
+                <span class="stat-description">
+                    Année actuellement en cours
+                </span>
+
+            {% else %}
+
+                <strong class="stat-value">
+                    Aucune
+                </strong>
+
+                <span class="stat-description">
+                    Aucune année n'est actuellement active
+                </span>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- LISTE DES ANNÉES -->
+    <!-- ================================================== -->
+
+    <div class="content-card">
+
+        <div class="card-header">
+
+            <div>
+
+                <h2>Liste des années scolaires</h2>
+
+                <p>
+                    Consultez et gérez les années scolaires
+                    enregistrées dans le système.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        {% if annees %}
+
+            <div class="table-responsive">
+
+                <table class="annees-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Année scolaire
+                            </th>
+
+                            <th>
+                                Date de début
+                            </th>
+
+                            <th>
+                                Date de fin
+                            </th>
+
+                            <th>
+                                Seuil de passage
+                            </th>
+
+                            <th>
+                                Statut
+                            </th>
+
+                            <th class="actions-column">
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for annee in annees %}
+
+                            <tr>
+
+                                <!-- ANNÉE -->
+
+                                <td>
+
+                                    <div class="annee-name">
+
+                                        <strong>
+                                            {{ annee.libelle }}
+                                        </strong>
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- DATE DÉBUT -->
+
+                                <td>
+
+                                    {{ annee.date_debut|date:"d/m/Y" }}
+
+                                </td>
+
+
+                                <!-- DATE FIN -->
+
+                                <td>
+
+                                    {{ annee.date_fin|date:"d/m/Y" }}
+
+                                </td>
+
+
+                                <!-- SEUIL -->
+
+                                <td>
+
+                                    <span class="seuil-value">
+
+                                        {{ annee.seuil_passage }}%
+
+                                    </span>
+
+                                </td>
+
+
+                                <!-- STATUT -->
+
+                                <td>
+
+                                    {% if annee.statut == "ACTIVE" %}
+
+                                        <span
+                                            class="status-badge status-active"
+                                        >
+                                            Active
+                                        </span>
+
+                                    {% elif annee.statut == "PLANIFIEE" %}
+
+                                        <span
+                                            class="status-badge status-planned"
+                                        >
+                                            Planifiée
+                                        </span>
+
+                                    {% elif annee.statut == "CLOTUREE" %}
+
+                                        <span
+                                            class="status-badge status-closed"
+                                        >
+                                            Clôturée
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- ACTIONS -->
+
+                                <td class="actions-column">
+
+                                    <div class="table-actions">
+
+                                        <!-- Consulter -->
+
+                                        <a
+                                            href="{% url 'detail_annee' annee.id %}"
+                                            class="action-btn action-view"
+                                            title="Consulter"
+                                        >
+                                            Voir
+                                        </a>
+
+
+                                        <!-- Modifier -->
+
+                                        {% if annee.statut != "CLOTUREE" %}
+
+                                            <a
+                                                href="{% url 'modifier_annee' annee.id %}"
+                                                class="action-btn action-edit"
+                                                title="Modifier"
+                                            >
+                                                Modifier
+                                            </a>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+        {% else %}
+
+            <!-- ================================================== -->
+            <!-- AUCUNE ANNÉE -->
+            <!-- ================================================== -->
+
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    ◫
+                </div>
+
+                <h3>
+                    Aucune année scolaire
+                </h3>
+
+                <p>
+                    Aucune année scolaire n'est encore
+                    enregistrée dans le système.
+                </p>
+
+                <a
+                    href="{% url 'creer_annee' %}"
+                    class="btn btn-primary"
+                >
+                    Créer une année scolaire
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,66 @@
+# ============================================================
+# SECRETS - NE JAMAIS VERSIONNER
+# ============================================================
+GestionScolaire/local_settings.py
+.env
+*.env
+.env.*
+!.env.example
+secrets.json
+*.pem
+*.key
+
+# ============================================================
+# PYTHON
+# ============================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+venv/
+.venv/
+env/
+ENV/
+pip-wheel-metadata/
+
+# ============================================================
+# DJANGO
+# ============================================================
+*.log
+db.sqlite3
+db.sqlite3-journal
+*.bak
+local_settings.py
+media/
+static_root/
+
+# Fichiers de donnees / sauvegardes
+*.sql
+*.bak
+*.dump
+backups/
+
+# ============================================================
+# IDE / SYSTEME
+# ============================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ============================================================
+# TESTS / CACHE
+# ============================================================
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/

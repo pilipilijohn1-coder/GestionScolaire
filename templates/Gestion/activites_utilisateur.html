@@ -1,0 +1,286 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+    Activités de l'utilisateur
+{% endblock %}
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/activites_utilisateurs.css' %}"
+>
+{% endblock %}
+
+{% block content %}
+
+<div class="activites-page">
+
+    <!-- ================================================== -->
+    <!-- EN-TÊTE -->
+    <!-- ================================================== -->
+    <div class="page-header">
+
+        <div>
+            <h1>Activités de l'utilisateur</h1>
+
+            <p>
+                Historique des actions concernant
+                {{ utilisateur.prenom }} {{ utilisateur.nom }}
+            </p>
+        </div>
+
+        <a
+            href="{% url 'detail_utilisateur' utilisateur.id %}"
+            class="btn btn-secondary"
+        >
+            Retour au détail
+        </a>
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- RÉSUMÉ DE L'UTILISATEUR -->
+    <!-- ================================================== -->
+    <div class="user-summary">
+
+        <div class="user-summary-avatar">
+            {{ utilisateur.prenom|slice:":1" }}{{ utilisateur.nom|slice:":1" }}
+        </div>
+
+        <div class="user-summary-info">
+
+            <h2>
+                {{ utilisateur.prenom }}
+                {{ utilisateur.nom }}
+            </h2>
+
+            <p>
+                {% if utilisateur.email %}
+                    {{ utilisateur.email }}
+                {% else %}
+                    Adresse e-mail non renseignée
+                {% endif %}
+            </p>
+
+        </div>
+
+        <div class="user-summary-status">
+
+            {% if utilisateur.actif %}
+                <span class="status status-active">
+                    Actif
+                </span>
+            {% else %}
+                <span class="status status-inactive">
+                    Désactivé
+                </span>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- HISTORIQUE -->
+    <!-- ================================================== -->
+    <div class="activites-card">
+
+        <div class="card-header">
+
+            <div>
+                <h2>Historique des activités</h2>
+
+                <p>
+                    Actions enregistrées concernant cet utilisateur.
+                </p>
+            </div>
+
+            <div class="activity-count">
+                {{ activites|length }} activité{{ activites|length|pluralize }}
+            </div>
+
+        </div>
+
+
+        {% if activites %}
+
+            <div class="activities-list">
+
+                {% for activite in activites %}
+
+                    <div class="activity-item">
+
+                        <!-- INDICATEUR -->
+                        <div class="activity-indicator">
+                            <span></span>
+                        </div>
+
+
+                        <!-- CONTENU -->
+                        <div class="activity-content">
+
+                            <div class="activity-main">
+
+                                <div>
+
+                                    <h3>
+                                        {{ activite.type_action.libelle }}
+                                    </h3>
+
+                                    <p class="activity-date">
+
+                                        {{ activite.date_action|date:"d/m/Y à H:i" }}
+
+                                    </p>
+
+                                </div>
+
+
+                                <!-- AUTEUR -->
+                                <div class="activity-author">
+
+                                    {% if activite.utilisateur %}
+
+                                        <span>
+                                            Par
+                                        </span>
+
+                                        <strong>
+                                            {{ activite.utilisateur.prenom }}
+                                            {{ activite.utilisateur.nom }}
+                                        </strong>
+
+                                    {% else %}
+
+                                        <span>
+                                            Action système
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- MOTIF -->
+                            {% if activite.motif %}
+
+                                <div class="activity-detail">
+
+                                    <span class="detail-title">
+                                        Motif
+                                    </span>
+
+                                    <p>
+                                        {{ activite.motif }}
+                                    </p>
+
+                                </div>
+
+                            {% endif %}
+
+
+                            <!-- ANCIENNE VALEUR -->
+                            {% if activite.ancienne_valeur %}
+
+                                <div class="activity-detail">
+
+                                    <span class="detail-title">
+                                        Ancienne valeur
+                                    </span>
+
+                                    <pre>
+{{ activite.ancienne_valeur }}
+                                    </pre>
+
+                                </div>
+
+                            {% endif %}
+
+
+                            <!-- NOUVELLE VALEUR -->
+                            {% if activite.nouvelle_valeur %}
+
+                                <div class="activity-detail">
+
+                                    <span class="detail-title">
+                                        Nouvelle valeur
+                                    </span>
+
+                                    <pre>
+{{ activite.nouvelle_valeur }}
+                                    </pre>
+
+                                </div>
+
+                            {% endif %}
+
+
+                            <!-- ADRESSE IP -->
+                            {% if activite.adresse_ip %}
+
+                                <div class="activity-ip">
+
+                                    Adresse IP :
+                                    {{ activite.adresse_ip }}
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <!-- ================================================== -->
+            <!-- AUCUNE ACTIVITÉ -->
+            <!-- ================================================== -->
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    ◷
+                </div>
+
+                <h3>
+                    Aucune activité enregistrée
+                </h3>
+
+                <p>
+                    Aucune action concernant cet utilisateur
+                    n'a encore été enregistrée dans l'historique.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- ACTIONS -->
+    <!-- ================================================== -->
+    <div class="page-actions">
+
+        <a
+            href="{% url 'detail_utilisateur' utilisateur.id %}"
+            class="btn btn-secondary"
+        >
+            Retour au détail
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

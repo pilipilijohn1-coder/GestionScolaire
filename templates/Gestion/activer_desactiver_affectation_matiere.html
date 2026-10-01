@@ -1,0 +1,279 @@
+{% extends base_template %}
+{% load static %}
+
+
+{% block title %}
+
+    {% if affectation.actif %}
+        Désactiver l'affectation
+    {% else %}
+        Activer l'affectation
+    {% endif %}
+
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/activer_desactiver_affectation_matiere.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="activation-page">
+
+
+    <!-- =====================================================
+         EN-TÊTE
+    ====================================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <a
+                href="{% url 'detail_affectation_matiere' affectation.id %}"
+                class="back-link"
+            >
+                ← Retour au détail de l'affectation
+            </a>
+
+
+            <h1>
+
+                {% if affectation.actif %}
+
+                    Désactiver l'affectation
+
+                {% else %}
+
+                    Activer l'affectation
+
+                {% endif %}
+
+            </h1>
+
+
+            <p>
+
+                {% if affectation.actif %}
+
+                    Confirmez la désactivation de cette
+                    affectation de matière.
+
+                {% else %}
+
+                    Confirmez l'activation de cette
+                    affectation de matière.
+
+                {% endif %}
+
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         CARTE DE CONFIRMATION
+    ====================================================== -->
+
+    <div class="confirmation-card">
+
+
+        <!-- ================================================
+             STATUT ACTUEL
+        ================================================= -->
+
+        <div class="status-section">
+
+            <span class="status-label">
+                Statut actuel
+            </span>
+
+
+            {% if affectation.actif %}
+
+                <span class="status active">
+                    Affectation active
+                </span>
+
+            {% else %}
+
+                <span class="status inactive">
+                    Affectation désactivée
+                </span>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- ================================================
+             RÉSUMÉ DE L'AFFECTATION
+        ================================================= -->
+
+        <div class="affectation-summary">
+
+
+            <!-- CLASSE -->
+
+            <div class="summary-item">
+
+                <span class="summary-label">
+                    Classe
+                </span>
+
+                <strong>
+                    {{ affectation.classe.libelle }}
+                </strong>
+
+                <small>
+                    {{ affectation.classe.code }}
+                </small>
+
+            </div>
+
+
+            <!-- FLÈCHE -->
+
+            <div class="relation-arrow">
+                →
+            </div>
+
+
+            <!-- MATIÈRE -->
+
+            <div class="summary-item">
+
+                <span class="summary-label">
+                    Matière
+                </span>
+
+                <strong>
+                    {{ affectation.matiere.libelle }}
+                </strong>
+
+                <small>
+                    {{ affectation.matiere.code }}
+                </small>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- ================================================
+             MESSAGE DE CONFIRMATION
+        ================================================= -->
+
+        <div
+            class="confirmation-message
+            {% if affectation.actif %}
+                danger-message
+            {% else %}
+                success-message
+            {% endif %}"
+        >
+
+            {% if affectation.actif %}
+
+                <h2>
+                    Voulez-vous désactiver cette affectation ?
+                </h2>
+
+                <p>
+                    La matière
+                    <strong>
+                        {{ affectation.matiere.libelle }}
+                    </strong>
+                    ne sera plus considérée comme activement
+                    affectée à la classe
+                    <strong>
+                        {{ affectation.classe.libelle }}
+                    </strong>.
+                </p>
+
+            {% else %}
+
+                <h2>
+                    Voulez-vous activer cette affectation ?
+                </h2>
+
+                <p>
+                    La matière
+                    <strong>
+                        {{ affectation.matiere.libelle }}
+                    </strong>
+                    redeviendra active pour la classe
+                    <strong>
+                        {{ affectation.classe.libelle }}
+                    </strong>.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- ================================================
+             FORMULAIRE DE CONFIRMATION
+        ================================================= -->
+
+        <form
+            method="post"
+            class="confirmation-actions"
+        >
+
+            {% csrf_token %}
+
+
+            <!-- ANNULER -->
+
+            <a
+                href="{% url 'detail_affectation_matiere' affectation.id %}"
+                class="btn btn-secondary"
+            >
+                Annuler
+            </a>
+
+
+            <!-- CONFIRMER -->
+
+            {% if affectation.actif %}
+
+                <button
+                    type="submit"
+                    class="btn btn-danger"
+                >
+                    Oui, désactiver
+                </button>
+
+            {% else %}
+
+                <button
+                    type="submit"
+                    class="btn btn-success"
+                >
+                    Oui, activer
+                </button>
+
+            {% endif %}
+
+
+        </form>
+
+
+    </div>
+
+
+</div>
+
+{% endblock %}

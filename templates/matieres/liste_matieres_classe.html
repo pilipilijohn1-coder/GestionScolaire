@@ -1,0 +1,310 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Matières — {{ classe.libelle }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .mcl-page {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .mcl-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 22px;
+    }
+
+    .mcl-header h1 {
+        margin: 8px 0 0;
+        color: #1e293b;
+        font-size: 26px;
+        line-height: 1.25;
+    }
+
+    .mcl-header p {
+        margin: 6px 0 0;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    .mcl-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        color: #2563eb;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .mcl-back:hover {
+        color: #1e40af;
+    }
+
+    .mcl-source {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 18px;
+        padding: 10px 14px;
+        border: 1px solid #dbeafe;
+        border-radius: 10px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .mcl-list {
+        display: grid;
+        gap: 14px;
+    }
+
+    .mcl-card {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 16px;
+        align-items: center;
+        padding: 18px;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        background: #ffffff;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+
+    .mcl-card-main {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-width: 0;
+    }
+
+    .mcl-icon {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #eef2ff;
+        color: #2563eb;
+        font-size: 18px;
+    }
+
+    .mcl-card h2 {
+        margin: 0;
+        overflow-wrap: anywhere;
+        color: #1e293b;
+        font-size: 17px;
+        line-height: 1.35;
+    }
+
+    .mcl-code {
+        margin: 4px 0 0;
+        color: #64748b;
+        font-size: 12px;
+    }
+
+    .mcl-description {
+        margin: 6px 0 0;
+        overflow: hidden;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.45;
+    }
+
+    .mcl-meta {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .mcl-meta-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 9px;
+        border-radius: 999px;
+        background: #f8fafc;
+        color: #475569;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .mcl-meta-item.ok {
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+    .mcl-meta-item.warn {
+        background: #fff7ed;
+        color: #b45309;
+    }
+
+    .mcl-card.is-unassigned {
+        border-left: 3px solid #fdba74;
+    }
+
+    .mcl-meta-item strong {
+        color: #1e293b;
+    }
+
+    .mcl-empty {
+        padding: 42px 20px;
+        border: 1px dashed #cbd5e1;
+        border-radius: 14px;
+        color: #64748b;
+        text-align: center;
+    }
+
+    .mcl-empty i {
+        display: block;
+        margin-bottom: 10px;
+        color: #94a3b8;
+        font-size: 28px;
+    }
+
+    .mcl-footer {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 22px;
+    }
+
+    .mcl-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        padding: 9px 14px;
+        border-radius: 9px;
+        background: #2563eb;
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .mcl-btn:hover {
+        background: #1d4ed8;
+    }
+
+    @media (max-width: 640px) {
+        .mcl-header {
+            flex-direction: column;
+        }
+
+        .mcl-card {
+            grid-template-columns: 1fr;
+        }
+
+        .mcl-meta {
+            justify-content: flex-start;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mcl-page">
+    <div class="mcl-header">
+        <div>
+            <a href="{% url 'gestion_matieres_classes' %}" class="mcl-back">
+                <i class="fas fa-arrow-left"></i>
+                Retour à la gestion par classe
+            </a>
+            <h1>Matières — {{ classe.libelle }}</h1>
+            <p>
+                {% if classe.niveau %}Niveau : {{ classe.niveau.libelle }}{% endif %}
+                {% if classe.section %} — Section : {{ classe.section.libelle }}{% endif %}
+                {% if classe.annee %} — Année : {{ classe.annee.libelle|default:"—" }}{% endif %}
+            </p>
+        </div>
+        <a href="{% url 'creer_matiere' %}?classe_id={{ classe.id }}" class="mcl-btn">
+            <i class="fas fa-plus"></i>
+            Affecter des cours
+        </a>
+    </div>
+
+    <div class="mcl-source">
+        <i class="fas fa-scale-balanced"></i>
+        Programme officiel du niveau : <strong>{{ nb_cours }}</strong> cours
+        {% if classe.section %} ({{ classe.section.libelle }}){% endif %}
+        &mdash; <strong>{{ nb_affectes }}</strong> affect&eacute;s &agrave; un enseignant
+    </div>
+
+    <div class="mcl-list">
+        {% for ligne in matieres %}
+            <article class="mcl-card{% if not ligne.affectation %} is-unassigned{% endif %}">
+                <div class="mcl-card-main">
+                    <div class="mcl-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div>
+                        <h2>{{ ligne.matiere.libelle }}</h2>
+                        <p class="mcl-code">Code : {{ ligne.matiere.code }}</p>
+                        {% if ligne.matiere.description %}
+                            <p class="mcl-description">{{ ligne.matiere.description|truncatewords:18 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mcl-meta">
+                    {% if ligne.ponderation %}
+                        <span class="mcl-meta-item">
+                            <i class="fas fa-pen-line"></i>
+                            Travaux journaliers : <strong>{{ ligne.ponderation.travaux_journaliers_max }}</strong>
+                        </span>
+                        <span class="mcl-meta-item">
+                            <i class="fas fa-file-pen"></i>
+                            Examen : <strong>{{ ligne.ponderation.examen_max }}</strong>
+                        </span>
+                        <span class="mcl-meta-item">
+                            <i class="fas fa-star"></i>
+                            Total : <strong>{{ ligne.ponderation.total_semestre_max }}</strong>
+                        </span>
+                    {% endif %}
+                    {% if ligne.affectation %}
+                        <span class="mcl-meta-item ok">
+                            <i class="fas fa-user-check"></i>
+                            Affect&eacute; &mdash; volume :
+                            <strong>{{ ligne.affectation.heures_par_semaine }} h/semaine</strong>
+                        </span>
+                    {% else %}
+                        <span class="mcl-meta-item warn">
+                            <i class="fas fa-user-slash"></i>
+                            Aucun enseignant affect&eacute;
+                        </span>
+                    {% endif %}
+                </div>
+            </article>
+        {% empty %}
+            <div class="mcl-empty">
+                <i class="fas fa-inbox"></i>
+                <strong>
+                    {% if classe.niveau %}
+                        Aucun cours n’est défini pour le niveau
+                        {{ classe.niveau.libelle }}.
+                        Lancez <code>python manage.py initialiser_bulletin</code>.
+                    {% else %}
+                        Cette classe n’a pas de niveau : impossible de
+                        déterminer le programme officiel.
+                    {% endif %}
+                </strong>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="mcl-footer">
+        <a href="{% url 'gestion_matieres_classes' %}" class="mcl-btn" style="background:#475569;">
+            <i class="fas fa-arrow-left"></i>
+            Retour
+        </a>
+    </div>
+</div>
+{% endblock %}

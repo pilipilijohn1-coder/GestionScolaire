@@ -1,0 +1,286 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+    Nouvelle année scolaire
+{% endblock %}
+
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/creer_annee.css' %}"
+>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="creation-annee-container">
+
+    <!-- ================================================ -->
+    <!-- EN-TÊTE -->
+    <!-- ================================================ -->
+
+    <div class="page-header">
+
+        <div class="page-header-text">
+            <h1>Nouvelle année scolaire</h1>
+
+            <p>
+                Créez et configurez une nouvelle année scolaire
+                pour l'établissement.
+            </p>
+        </div>
+
+        <div class="page-header-actions">
+
+            <a
+                href="{% url 'liste_annees' %}"
+                class="btn btn-secondary"
+            >
+                ← Retour à la liste
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================ -->
+    <!-- FORMULAIRE -->
+    <!-- ================================================ -->
+
+    <div class="form-card">
+
+        <div class="form-card-header">
+
+            <div>
+
+                <h2>
+                    Informations de l'année scolaire
+                </h2>
+
+                <p>
+                    Renseignez les informations nécessaires
+                    à la création de l'année scolaire.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <form
+            method="POST"
+            class="annee-form"
+        >
+
+            {% csrf_token %}
+
+
+            <!-- ======================================== -->
+            <!-- LIBELLÉ -->
+            <!-- ======================================== -->
+
+            <div class="form-group full-width">
+
+                <label for="libelle">
+                    Libellé de l'année scolaire
+                    <span class="required">*</span>
+                </label>
+
+                <input
+                    type="text"
+                    id="libelle"
+                    name="libelle"
+                    placeholder="Exemple : 2026 - 2027"
+                    value="{{ request.POST.libelle }}"
+                    maxlength="20"
+                    required
+                >
+
+                <small class="form-help">
+                    Utilisez un libellé clair permettant
+                    d'identifier facilement l'année scolaire.
+                </small>
+
+            </div>
+
+
+            <!-- ======================================== -->
+            <!-- DATES -->
+            <!-- ======================================== -->
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label for="date_debut">
+                        Date de début
+                        <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="date"
+                        id="date_debut"
+                        name="date_debut"
+                        value="{{ request.POST.date_debut }}"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="date_fin">
+                        Date de fin
+                        <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="date"
+                        id="date_fin"
+                        name="date_fin"
+                        value="{{ request.POST.date_fin }}"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- ======================================== -->
+            <!-- SEUIL ET STATUT -->
+            <!-- ======================================== -->
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label for="seuil_passage">
+                        Seuil de passage (%)
+                        <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="number"
+                        id="seuil_passage"
+                        name="seuil_passage"
+                        min="0"
+                        max="100"
+                        step="0.01"
+                        value="{{ request.POST.seuil_passage|default:'50' }}"
+                        required
+                    >
+
+                    <small class="form-help">
+                        Pourcentage minimum requis pour le
+                        passage de l'élève.
+                    </small>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="statut">
+                        Statut initial
+                        <span class="required">*</span>
+                    </label>
+
+                    <select
+                        id="statut"
+                        name="statut"
+                        required
+                    >
+
+                        <option
+                            value="PLANIFIEE"
+                            {% if request.POST.statut == "PLANIFIEE" %}
+                                selected
+                            {% endif %}
+                        >
+                            Planifiée
+                        </option>
+
+                        <option
+                            value="ACTIVE"
+                            {% if request.POST.statut == "ACTIVE" %}
+                                selected
+                            {% endif %}
+                        >
+                            Active
+                        </option>
+
+                    </select>
+
+                    <small class="form-help">
+                        Une seule année scolaire peut être active
+                        à la fois.
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <!-- ======================================== -->
+            <!-- INFORMATION -->
+            <!-- ======================================== -->
+
+            <div class="information-box">
+
+                <div class="information-icon">
+                    i
+                </div>
+
+                <div>
+
+                    <strong>
+                        Information importante
+                    </strong>
+
+                    <p>
+                        Une année scolaire active représente
+                        l'année actuellement utilisée par le
+                        système. Si une autre année est déjà active,
+                        vous devrez d'abord la clôturer.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- ======================================== -->
+            <!-- ACTIONS -->
+            <!-- ======================================== -->
+
+            <div class="form-actions">
+
+                <a
+                    href="{% url 'liste_annees' %}"
+                    class="btn btn-secondary"
+                >
+                    Annuler
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Créer l'année scolaire
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

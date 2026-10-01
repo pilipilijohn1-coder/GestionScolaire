@@ -1,0 +1,514 @@
+/* ============================================================
+   PAGE : LISTE DES AFFECTATIONS DES MATIÈRES
+   ============================================================ */
+
+.affectations-page {
+    width: 100%;
+    max-width: 1250px;
+
+    margin: 0 auto;
+    padding: 35px 25px;
+}
+
+
+/* ============================================================
+   EN-TÊTE DE LA PAGE
+   ============================================================ */
+
+.page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 25px;
+
+    margin-bottom: 28px;
+}
+
+.page-header h1 {
+    margin: 0 0 8px;
+
+    color: #111827;
+
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.page-header p {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+
+/* ============================================================
+   CARTE DES FILTRES
+   ============================================================ */
+
+.filter-card {
+    margin-bottom: 25px;
+    padding: 20px 22px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    box-shadow:
+        0 3px 15px
+        rgba(0, 0, 0, 0.03);
+}
+
+.filter-card form {
+    display: flex;
+    align-items: flex-end;
+
+    gap: 15px;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+
+    flex: 1;
+
+    gap: 7px;
+}
+
+.filter-group label {
+    color: #374151;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.filter-group select {
+    width: 100%;
+    min-height: 42px;
+
+    padding: 8px 12px;
+
+    color: #374151;
+    background: #ffffff;
+
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+
+    font-family: inherit;
+    font-size: 13px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.filter-group select:focus {
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37, 99, 235, 0.1);
+}
+
+.filter-actions {
+    display: flex;
+
+    gap: 10px;
+}
+
+
+/* ============================================================
+   CARTE DU TABLEAU
+   ============================================================ */
+
+.table-card {
+    overflow: hidden;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    box-shadow:
+        0 3px 15px
+        rgba(0, 0, 0, 0.04);
+}
+
+
+/* ============================================================
+   EN-TÊTE DU TABLEAU
+   ============================================================ */
+
+.table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 22px 25px;
+
+    background: #f9fafb;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.table-header h2 {
+    margin: 0 0 5px;
+
+    color: #111827;
+
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.table-header p {
+    margin: 0;
+
+    color: #9ca3af;
+
+    font-size: 12px;
+}
+
+
+/* ============================================================
+   TABLEAU
+   ============================================================ */
+
+.table-responsive {
+    width: 100%;
+
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+
+    border-collapse: collapse;
+}
+
+thead {
+    background: #f9fafb;
+}
+
+th {
+    padding: 14px 18px;
+
+    color: #6b7280;
+
+    border-bottom: 1px solid #e5e7eb;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    text-align: left;
+    text-transform: uppercase;
+
+    letter-spacing: 0.04em;
+
+    white-space: nowrap;
+}
+
+td {
+    padding: 16px 18px;
+
+    color: #4b5563;
+
+    border-bottom: 1px solid #f0f0f0;
+
+    font-size: 13px;
+
+    vertical-align: middle;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+tbody tr {
+    transition:
+        background 0.15s ease;
+}
+
+tbody tr:hover {
+    background: #f9fafb;
+}
+
+td strong {
+    color: #1f2937;
+
+    font-weight: 600;
+}
+
+
+/* ============================================================
+   CELLULE MATIÈRE
+   ============================================================ */
+
+.matiere-cell {
+    display: flex;
+    flex-direction: column;
+
+    gap: 5px;
+}
+
+.matiere-code {
+    display: inline-flex;
+
+    width: fit-content;
+
+    padding: 3px 7px;
+
+    color: #1d4ed8;
+    background: #dbeafe;
+
+    border-radius: 4px;
+
+    font-size: 10px;
+    font-weight: 700;
+
+    letter-spacing: 0.04em;
+}
+
+
+/* ============================================================
+   STATUT
+   ============================================================ */
+
+.status {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 5px 10px;
+
+    border-radius: 20px;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+.status.active {
+    color: #166534;
+    background: #dcfce7;
+}
+
+.status.inactive {
+    color: #991b1b;
+    background: #fee2e2;
+}
+
+
+/* ============================================================
+   ACTIONS
+   ============================================================ */
+
+.actions-column {
+    text-align: right;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 8px;
+}
+
+.action-link {
+    padding: 7px 10px;
+
+    color: #2563eb;
+    background: #eff6ff;
+
+    border-radius: 6px;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition:
+        background 0.2s ease;
+}
+
+.action-link:hover {
+    background: #dbeafe;
+}
+
+
+/* ============================================================
+   ÉTAT VIDE
+   ============================================================ */
+
+.empty-state {
+    padding: 60px 25px;
+
+    text-align: center;
+}
+
+.empty-state h3 {
+    margin: 0 0 8px;
+
+    color: #374151;
+
+    font-size: 18px;
+}
+
+.empty-state p {
+    max-width: 450px;
+
+    margin:
+        0 auto 22px;
+
+    color: #9ca3af;
+
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+
+/* ============================================================
+   BOUTONS
+   ============================================================ */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+
+    padding: 9px 17px;
+
+    border: none;
+    border-radius: 7px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease,
+        box-shadow 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+
+/* BOUTON PRINCIPAL */
+
+.btn-primary {
+    color: #ffffff;
+    background: #2563eb;
+
+    box-shadow:
+        0 4px 10px
+        rgba(37, 99, 235, 0.15);
+}
+
+.btn-primary:hover {
+    background: #1d4ed8;
+}
+
+
+/* BOUTON FILTRER */
+
+.btn-filter {
+    color: #ffffff;
+    background: #374151;
+}
+
+.btn-filter:hover {
+    background: #1f2937;
+}
+
+
+/* BOUTON RÉINITIALISER */
+
+.btn-reset {
+    color: #4b5563;
+    background: #f3f4f6;
+}
+
+.btn-reset:hover {
+    background: #e5e7eb;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media screen and (max-width: 850px) {
+
+    .affectations-page {
+        padding: 25px 18px;
+    }
+
+    .filter-card form {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .filter-actions {
+        width: 100%;
+    }
+
+    .filter-actions .btn {
+        flex: 1;
+    }
+
+}
+
+
+@media screen and (max-width: 650px) {
+
+    .page-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .page-header .btn {
+        width: 100%;
+    }
+
+    .table-header {
+        padding: 18px;
+    }
+
+    .empty-state {
+        padding: 45px 20px;
+    }
+
+}
+
+
+@media screen and (max-width: 450px) {
+
+    .affectations-page {
+        padding: 20px 12px;
+    }
+
+    .page-header h1 {
+        font-size: 24px;
+    }
+
+    .filter-actions {
+        flex-direction: column;
+    }
+
+    .filter-actions .btn {
+        width: 100%;
+    }
+
+}

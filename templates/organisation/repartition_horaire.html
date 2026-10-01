@@ -1,0 +1,863 @@
+{% extends base_template %} {% load static %} {% load custom_filters %}
+{% block title %} Répartition des horaires {% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/organisation/repartition_horaire.css' %}">
+{% endblock %}
+{% block content %}
+
+
+<!-- =====================================================
+     EN-TÊTE
+====================================================== -->
+
+<div class="page-header">
+
+    <div class="page-header-icon">
+        <i class="fas fa-calendar-alt"></i>
+    </div>
+
+    <div class="page-header-content">
+
+        <h1>
+            Répartition des horaires
+        </h1>
+
+        <p>
+            Organisez les cours de chaque classe
+            sur les différents créneaux de la semaine.
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     SÉLECTION DE L'ANNÉE
+====================================================== -->
+
+<div class="selection-card">
+
+    <div class="card-title">
+
+        <i class="fas fa-school"></i>
+
+        <h2>
+            Année scolaire
+        </h2>
+
+    </div>
+
+
+    <form
+        method="get"
+        action="{% url 'repartition_horaire' %}"
+        class="selection-form"
+    >
+
+        <div class="form-group">
+
+            <label for="annee_id">
+                Année scolaire
+            </label>
+
+            <select
+                name="annee_id"
+                id="annee_id"
+                class="form-control"
+                onchange="this.form.submit()"
+            >
+
+                <option value="">
+                    Sélectionner une année scolaire
+                </option>
+
+                {% for annee in annees %}
+
+                    <option
+                        value="{{ annee.id }}"
+                        {% if annee_selectionnee and annee.id == annee_selectionnee.id %}
+                            selected
+                        {% endif %}
+                    >
+
+                        {{ annee.libelle }}
+
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- =====================================================
+     SÉLECTION DE LA CLASSE
+====================================================== -->
+
+{% if annee_selectionnee %}
+
+    <div class="selection-card">
+
+        <div class="card-title">
+
+            <i class="fas fa-users"></i>
+
+            <h2>
+                Classe
+            </h2>
+
+        </div>
+
+
+        <form
+            method="get"
+            action="{% url 'repartition_horaire' %}"
+            class="selection-form"
+        >
+
+            <input
+                type="hidden"
+                name="annee_id"
+                value="{{ annee_selectionnee.id }}"
+            >
+
+
+            <div class="form-group">
+
+                <label for="classe_id">
+                    Classe
+                </label>
+
+                <select
+                    name="classe_id"
+                    id="classe_id"
+                    class="form-control"
+                    onchange="this.form.submit()"
+                >
+
+                    <option value="">
+                        Sélectionner une classe
+                    </option>
+
+                    {% for classe in classes %}
+
+                        <option
+                            value="{{ classe.id }}"
+                            {% if classe_selectionnee and classe.id == classe_selectionnee.id %}
+                                selected
+                            {% endif %}
+                        >
+
+                            {{ classe.libelle }}
+
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+        </form>
+
+    </div>
+
+{% endif %}
+
+
+<!-- =====================================================
+     INFORMATIONS
+====================================================== -->
+
+{% if classe_selectionnee %}
+
+    <div class="classe-information">
+
+        <div class="classe-icon">
+
+            <i class="fas fa-chalkboard"></i>
+
+        </div>
+
+
+        <div class="classe-details">
+
+            <span class="information-label">
+                Classe sélectionnée
+            </span>
+
+            <strong>
+                {{ classe_selectionnee.libelle }}
+            </strong>
+
+            <span>
+                Année scolaire :
+                {{ annee_selectionnee.libelle }}
+            </span>
+
+        </div>
+
+    </div>
+
+{% endif %}
+
+
+<!-- =====================================================
+     EMPLOI DU TEMPS
+====================================================== -->
+
+{% if annee_selectionnee and classe_selectionnee %}
+
+    <div class="emploi-section">
+
+
+        <!-- =================================================
+             EN-TÊTE
+        ================================================== -->
+
+        <div class="section-header">
+
+            <div class="section-title">
+
+                <div class="section-icon">
+
+                    <i class="fas fa-calendar-week"></i>
+
+                </div>
+
+                <div>
+
+                    <h2>
+                        Emploi du temps
+                    </h2>
+
+                    <p>
+                        Répartition hebdomadaire de la classe
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             VÉRIFICATION DES CRÉNEAUX
+        ================================================== -->
+
+        {% if creneaux %}
+
+
+            <div class="emploi-table-wrapper">
+
+                <table class="emploi-table">
+
+
+                    <!-- =====================================
+                         EN-TÊTE DES JOURS
+                    ====================================== -->
+
+                    <thead>
+
+                        <tr>
+
+                            <th class="col-creneau">
+                                Créneau
+                            </th>
+
+                            <th>
+                                Lundi
+                            </th>
+
+                            <th>
+                                Mardi
+                            </th>
+
+                            <th>
+                                Mercredi
+                            </th>
+
+                            <th>
+                                Jeudi
+                            </th>
+
+                            <th>
+                                Vendredi
+                            </th>
+
+                            <th>
+                                Samedi
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+
+                        <!-- =================================
+                             CRÉNEAUX
+                        ================================== -->
+
+                        {% for creneau in creneaux %}
+
+
+                            <tr>
+
+
+                                <!-- =========================
+                                     INFORMATIONS CRÉNEAU
+                                ========================== -->
+
+                                <td class="creneau-cell">
+
+                                    <div class="creneau-info">
+
+                                        <span class="ordre-badge">
+                                            {{ creneau.ordre }}
+                                        </span>
+
+
+                                        <div>
+
+                                            {% if creneau.type_creneau == "COURS" %}
+
+                                                <strong>
+                                                    {{ creneau.numero_heure }}e heure
+                                                </strong>
+
+                                            {% else %}
+                                    {% cours_cellule horaires creneau.id 1 as cours %}
+                                    {% if cours %}
+                                        <div class="cours-cell">
+
+                                            <span class="cours-matiere">
+                                                {{ cours.affectation.affectation_matiere.matiere.libelle }}
+                                            </span>
+
+                                            <span class="cours-enseignant">
+                                                <i class="fas fa-user-tie"></i>
+                                                {{ cours.affectation.enseignant.nom }} {{ cours.affectation.enseignant.prenom }}
+                                            </span>
+
+                                            {% if cours.salle %}
+                                                <span class="cours-salle">
+                                                    <i class="fas fa-door-open"></i> {{ cours.salle }}
+                                                </span>
+                                            {% endif %}
+
+                                            <form
+                                                method="post"
+                                                action="{% url 'supprimer_horaire' cours.id %}"
+                                                class="cours-supprimer"
+                                                onsubmit="return confirm('Retirer ce cours de la grille ?');"
+                                            >
+                                                {% csrf_token %}
+                                                <button type="submit" class="cours-supprimer-btn" title="Retirer le cours">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </form>
+
+                                        </div>
+                                    {% else %}
+
+                                        <a
+                                            href="{% url 'affecter_cours' annee_selectionnee.id classe_selectionnee.id creneau.id 1 %}"
+                                            class="cell-action">
+
+                                            <i class="fas fa-plus"></i>
+
+                                            <span>
+                                                Affecter un cours
+                                            </span>
+
+                                        </a>
+
+                                    {% endif %}
+                                            {% endif %}
+
+                                </td>
+
+
+                                <!-- =================================
+                                     MARDI
+                                ================================== -->
+
+                                <td class="horaire-cell">
+
+                                    {% if creneau.type_creneau == "PAUSE" %}
+
+                                        <div class="pause-cell">
+
+                                            <i class="fas fa-coffee"></i>
+
+                                            <span>
+                                                Pause
+                                            </span>
+
+                                        </div>
+
+                                    {% else %}
+                                    {% cours_cellule horaires creneau.id 2 as cours %}
+                                    {% if cours %}
+                                        <div class="cours-cell">
+
+                                            <span class="cours-matiere">
+                                                {{ cours.affectation.affectation_matiere.matiere.libelle }}
+                                            </span>
+
+                                            <span class="cours-enseignant">
+                                                <i class="fas fa-user-tie"></i>
+                                                {{ cours.affectation.enseignant.nom }} {{ cours.affectation.enseignant.prenom }}
+                                            </span>
+
+                                            {% if cours.salle %}
+                                                <span class="cours-salle">
+                                                    <i class="fas fa-door-open"></i> {{ cours.salle }}
+                                                </span>
+                                            {% endif %}
+
+                                            <form
+                                                method="post"
+                                                action="{% url 'supprimer_horaire' cours.id %}"
+                                                class="cours-supprimer"
+                                                onsubmit="return confirm('Retirer ce cours de la grille ?');"
+                                            >
+                                                {% csrf_token %}
+                                                <button type="submit" class="cours-supprimer-btn" title="Retirer le cours">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </form>
+
+                                        </div>
+                                    {% else %}
+
+                                        <a
+                                            href="{% url 'affecter_cours' annee_selectionnee.id classe_selectionnee.id creneau.id 2 %}"
+                                            class="cell-action">
+
+                                            <i class="fas fa-plus"></i>
+
+                                            <span>
+                                                Affecter un cours
+                                            </span>
+
+                                        </a>
+
+                                    {% endif %}
+                                            {% endif %}
+
+                                </td>
+
+
+                                <!-- =================================
+                                     MERCREDI
+                                ================================== -->
+
+                                <td class="horaire-cell">
+
+                                    {% if creneau.type_creneau == "PAUSE" %}
+
+                                        <div class="pause-cell">
+
+                                            <i class="fas fa-coffee"></i>
+
+                                            <span>
+                                                Pause
+                                            </span>
+
+                                        </div>
+
+                                    {% else %}
+                                    {% cours_cellule horaires creneau.id 3 as cours %}
+                                    {% if cours %}
+                                        <div class="cours-cell">
+
+                                            <span class="cours-matiere">
+                                                {{ cours.affectation.affectation_matiere.matiere.libelle }}
+                                            </span>
+
+                                            <span class="cours-enseignant">
+                                                <i class="fas fa-user-tie"></i>
+                                                {{ cours.affectation.enseignant.nom }} {{ cours.affectation.enseignant.prenom }}
+                                            </span>
+
+                                            {% if cours.salle %}
+                                                <span class="cours-salle">
+                                                    <i class="fas fa-door-open"></i> {{ cours.salle }}
+                                                </span>
+                                            {% endif %}
+
+                                            <form
+                                                method="post"
+                                                action="{% url 'supprimer_horaire' cours.id %}"
+                                                class="cours-supprimer"
+                                                onsubmit="return confirm('Retirer ce cours de la grille ?');"
+                                            >
+                                                {% csrf_token %}
+                                                <button type="submit" class="cours-supprimer-btn" title="Retirer le cours">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </form>
+
+                                        </div>
+                                    {% else %}
+
+                                        <a
+                                            href="{% url 'affecter_cours' annee_selectionnee.id classe_selectionnee.id creneau.id 3 %}"
+                                            class="cell-action">
+
+                                            <i class="fas fa-plus"></i>
+
+                                            <span>
+                                                Affecter un cours
+                                            </span>
+
+                                        </a>
+
+                                    {% endif %}
+                                            {% endif %}
+
+                                </td>
+
+
+                                <!-- =================================
+                                     JEUDI
+                                ================================== -->
+
+                                <td class="horaire-cell">
+
+                                    {% if creneau.type_creneau == "PAUSE" %}
+
+                                        <div class="pause-cell">
+
+                                            <i class="fas fa-coffee"></i>
+
+                                            <span>
+                                                Pause
+                                            </span>
+
+                                        </div>
+
+                                    {% else %}
+                                    {% cours_cellule horaires creneau.id 4 as cours %}
+                                    {% if cours %}
+                                        <div class="cours-cell">
+
+                                            <span class="cours-matiere">
+                                                {{ cours.affectation.affectation_matiere.matiere.libelle }}
+                                            </span>
+
+                                            <span class="cours-enseignant">
+                                                <i class="fas fa-user-tie"></i>
+                                                {{ cours.affectation.enseignant.nom }} {{ cours.affectation.enseignant.prenom }}
+                                            </span>
+
+                                            {% if cours.salle %}
+                                                <span class="cours-salle">
+                                                    <i class="fas fa-door-open"></i> {{ cours.salle }}
+                                                </span>
+                                            {% endif %}
+
+                                            <form
+                                                method="post"
+                                                action="{% url 'supprimer_horaire' cours.id %}"
+                                                class="cours-supprimer"
+                                                onsubmit="return confirm('Retirer ce cours de la grille ?');"
+                                            >
+                                                {% csrf_token %}
+                                                <button type="submit" class="cours-supprimer-btn" title="Retirer le cours">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </form>
+
+                                        </div>
+                                    {% else %}
+
+                                        <a
+                                            href="{% url 'affecter_cours' annee_selectionnee.id classe_selectionnee.id creneau.id 4 %}"
+                                            class="cell-action">
+
+                                            <i class="fas fa-plus"></i>
+
+                                            <span>
+                                                Affecter un cours
+                                            </span>
+
+                                        </a>
+
+                                    {% endif %}
+                                            {% endif %}
+
+                                </td>
+
+
+                                <!-- =================================
+                                     VENDREDI
+                                ================================== -->
+
+                                <td class="horaire-cell">
+
+                                    {% if creneau.type_creneau == "PAUSE" %}
+
+                                        <div class="pause-cell">
+
+                                            <i class="fas fa-coffee"></i>
+
+                                            <span>
+                                                Pause
+                                            </span>
+
+                                        </div>
+
+                                    {% else %}
+                                    {% cours_cellule horaires creneau.id 5 as cours %}
+                                    {% if cours %}
+                                        <div class="cours-cell">
+
+                                            <span class="cours-matiere">
+                                                {{ cours.affectation.affectation_matiere.matiere.libelle }}
+                                            </span>
+
+                                            <span class="cours-enseignant">
+                                                <i class="fas fa-user-tie"></i>
+                                                {{ cours.affectation.enseignant.nom }} {{ cours.affectation.enseignant.prenom }}
+                                            </span>
+
+                                            {% if cours.salle %}
+                                                <span class="cours-salle">
+                                                    <i class="fas fa-door-open"></i> {{ cours.salle }}
+                                                </span>
+                                            {% endif %}
+
+                                            <form
+                                                method="post"
+                                                action="{% url 'supprimer_horaire' cours.id %}"
+                                                class="cours-supprimer"
+                                                onsubmit="return confirm('Retirer ce cours de la grille ?');"
+                                            >
+                                                {% csrf_token %}
+                                                <button type="submit" class="cours-supprimer-btn" title="Retirer le cours">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </form>
+
+                                        </div>
+                                    {% else %}
+
+                                        <a
+                                            href="{% url 'affecter_cours' annee_selectionnee.id classe_selectionnee.id creneau.id 5 %}"
+                                            class="cell-action">
+
+                                            <i class="fas fa-plus"></i>
+
+                                            <span>
+                                                Affecter un cours
+                                            </span>
+
+                                        </a>
+
+                                    {% endif %}
+                                            {% endif %}
+
+                                </td>
+
+
+                                <!-- =================================
+                                     SAMEDI
+                                ================================== -->
+
+                                <td class="horaire-cell">
+
+                                    {% if creneau.type_creneau == "PAUSE" %}
+
+                                        <div class="pause-cell">
+
+                                            <i class="fas fa-coffee"></i>
+
+                                            <span>
+                                                Pause
+                                            </span>
+
+                                        </div>
+
+                                    {% else %}
+                                    {% cours_cellule horaires creneau.id 6 as cours %}
+                                    {% if cours %}
+                                        <div class="cours-cell">
+
+                                            <span class="cours-matiere">
+                                                {{ cours.affectation.affectation_matiere.matiere.libelle }}
+                                            </span>
+
+                                            <span class="cours-enseignant">
+                                                <i class="fas fa-user-tie"></i>
+                                                {{ cours.affectation.enseignant.nom }} {{ cours.affectation.enseignant.prenom }}
+                                            </span>
+
+                                            {% if cours.salle %}
+                                                <span class="cours-salle">
+                                                    <i class="fas fa-door-open"></i> {{ cours.salle }}
+                                                </span>
+                                            {% endif %}
+
+                                            <form
+                                                method="post"
+                                                action="{% url 'supprimer_horaire' cours.id %}"
+                                                class="cours-supprimer"
+                                                onsubmit="return confirm('Retirer ce cours de la grille ?');"
+                                            >
+                                                {% csrf_token %}
+                                                <button type="submit" class="cours-supprimer-btn" title="Retirer le cours">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </form>
+
+                                        </div>
+                                    {% else %}
+
+                                        <a
+                                            href="{% url 'affecter_cours' annee_selectionnee.id classe_selectionnee.id creneau.id 6 %}"
+                                            class="cell-action">
+
+                                            <i class="fas fa-plus"></i>
+
+                                            <span>
+                                                Affecter un cours
+                                            </span>
+
+                                        </a>
+
+                                    {% endif %}
+                                            {% endif %}
+
+                                </td>
+
+
+                            </tr>
+
+
+                        {% endfor %}
+
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- =================================================
+                 INFORMATION
+            ================================================== -->
+
+            <div class="information-message">
+
+                <i class="fas fa-info-circle"></i>
+
+                <div>
+
+                    <strong>
+                        Répartition des cours
+                    </strong>
+
+                    <p>
+                        Chaque case correspond à un jour et à
+                        un créneau horaire. Sélectionnez
+                        « Affecter un cours » pour associer
+                        une affectation à cette case.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+        {% else %}
+
+
+            <!-- =================================================
+                 AUCUN CRÉNEAU
+            ================================================== -->
+
+            <div class="empty-state">
+
+                <div class="empty-icon">
+
+                    <i class="fas fa-clock"></i>
+
+                </div>
+
+
+                <h3>
+                    Aucun créneau disponible
+                </h3>
+
+
+                <p>
+                    Aucun créneau horaire n'a encore été généré
+                    pour cette année scolaire.
+                </p>
+
+
+                <a
+                    href="{% url 'configuration_journee' %}?annee_id={{ annee_selectionnee.id }}"
+                    class="btn-configuration"
+                >
+
+                    <i class="fas fa-cog"></i>
+
+                    Configurer la journée
+
+                </a>
+
+            </div>
+
+
+        {% endif %}
+
+
+    </div>
+
+{% endif %}
+
+
+<!-- =====================================================
+     AUCUNE ANNÉE
+====================================================== -->
+
+{% if not annee_selectionnee %}
+
+    <div class="empty-selection">
+
+        <div class="empty-selection-icon">
+
+            <i class="fas fa-calendar-check"></i>
+
+        </div>
+
+
+        <h3>
+            Sélectionnez une année scolaire
+        </h3>
+
+
+        <p>
+            Commencez par sélectionner l'année scolaire
+            pour afficher les classes et les créneaux horaires.
+        </p>
+
+    </div>
+
+{% endif %}
+
+{% endblock %}

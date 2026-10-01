@@ -1,0 +1,629 @@
+/* ============================================================
+   PAGE : DÉTAIL D'UN ENSEIGNANT
+   ============================================================ */
+
+.detail-page {
+    width: 100%;
+    max-width: 1200px;
+
+    margin: 0 auto;
+    padding: 35px 25px;
+}
+
+
+/* ============================================================
+   BARRE SUPÉRIEURE
+   ============================================================ */
+
+.top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 28px;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 8px;
+
+    color: #6b7280;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    text-decoration: none;
+
+    transition:
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.back-link:hover {
+    color: #2563eb;
+
+    transform: translateX(-2px);
+}
+
+.top-actions {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+/* ============================================================
+   BOUTONS
+   ============================================================ */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+
+    gap: 8px;
+
+    padding: 9px 16px;
+
+    border-radius: 7px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.15s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    color: #374151;
+    background: #ffffff;
+
+    border: 1px solid #d1d5db;
+}
+
+.btn-secondary:hover {
+    background: #f9fafb;
+
+    border-color: #9ca3af;
+}
+
+.btn-status {
+    color: #ffffff;
+    background: #374151;
+
+    border: 1px solid #374151;
+}
+
+.btn-status:hover {
+    background: #1f2937;
+
+    border-color: #1f2937;
+}
+
+
+/* ============================================================
+   MESSAGES
+   ============================================================ */
+
+.messages-container {
+    display: flex;
+    flex-direction: column;
+
+    gap: 12px;
+
+    margin-bottom: 22px;
+}
+
+.alert {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 14px 16px;
+
+    border-radius: 8px;
+
+    font-size: 14px;
+}
+
+.alert-success {
+    color: #166534;
+    background: #f0fdf4;
+
+    border-left: 4px solid #22c55e;
+}
+
+.alert-error,
+.alert-danger {
+    color: #991b1b;
+    background: #fef2f2;
+
+    border-left: 4px solid #ef4444;
+}
+
+.alert-warning {
+    color: #92400e;
+    background: #fffbeb;
+
+    border-left: 4px solid #f59e0b;
+}
+
+.alert-info {
+    color: #1e40af;
+    background: #eff6ff;
+
+    border-left: 4px solid #3b82f6;
+}
+
+
+/* ============================================================
+   PROFIL PRINCIPAL
+   ============================================================ */
+
+.profile-card {
+    display: flex;
+    align-items: center;
+
+    gap: 25px;
+
+    margin-bottom: 25px;
+    padding: 30px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    box-shadow:
+        0 4px 18px
+        rgba(0, 0, 0, 0.04);
+}
+
+.profile-photo-container {
+    flex-shrink: 0;
+}
+
+.profile-photo,
+.profile-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 115px;
+    height: 115px;
+
+    border-radius: 50%;
+}
+
+.profile-photo {
+    display: block;
+
+    object-fit: cover;
+
+    border: 4px solid #eff6ff;
+}
+
+.profile-placeholder {
+    color: #6b7280;
+    background: #f3f4f6;
+
+    border: 4px solid #f9fafb;
+
+    font-size: 38px;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+
+    gap: 12px;
+}
+
+.profile-title {
+    display: flex;
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+}
+
+.profile-title h1 {
+    margin: 0;
+
+    color: #111827;
+
+    font-size: 27px;
+    font-weight: 700;
+
+    line-height: 1.3;
+}
+
+.matricule {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 6px 10px;
+
+    color: #1e40af;
+    background: #eff6ff;
+
+    border-radius: 5px;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.profile-status {
+    display: flex;
+    align-items: center;
+}
+
+.specialite {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 8px;
+
+    margin: 0;
+
+    color: #4b5563;
+
+    font-size: 14px;
+}
+
+.specialite i {
+    color: #2563eb;
+}
+
+
+/* ============================================================
+   STATUT
+   ============================================================ */
+
+.status {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 7px 11px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status.active {
+    color: #166534;
+    background: #dcfce7;
+}
+
+.status.inactive {
+    color: #991b1b;
+    background: #fee2e2;
+}
+
+.status i {
+    font-size: 11px;
+}
+
+
+/* ============================================================
+   GRILLE DES INFORMATIONS
+   ============================================================ */
+
+.details-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 25px;
+
+    margin-bottom: 25px;
+}
+
+
+/* ============================================================
+   CARTES D'INFORMATIONS
+   ============================================================ */
+
+.details-card,
+.activity-card {
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    box-shadow:
+        0 4px 18px
+        rgba(0, 0, 0, 0.04);
+}
+
+.details-card {
+    overflow: hidden;
+}
+
+
+/* ============================================================
+   TITRES DES CARTES
+   ============================================================ */
+
+.card-title,
+.activity-title {
+    display: flex;
+    align-items: center;
+
+    gap: 13px;
+
+    padding: 21px 23px;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 42px;
+    height: 42px;
+
+    flex-shrink: 0;
+
+    color: #2563eb;
+    background: #eff6ff;
+
+    border-radius: 9px;
+
+    font-size: 17px;
+}
+
+.card-title h2,
+.activity-title h2 {
+    margin: 0 0 4px;
+
+    color: #1f2937;
+
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.card-title p,
+.activity-title p {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 12px;
+}
+
+
+/* ============================================================
+   LISTE DES INFORMATIONS
+   ============================================================ */
+
+.details-list {
+    padding: 8px 23px;
+}
+
+.detail-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    min-height: 60px;
+
+    border-bottom: 1px solid #f0f1f3;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 8px;
+
+    color: #6b7280;
+
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.detail-label i {
+    width: 15px;
+
+    color: #9ca3af;
+
+    text-align: center;
+}
+
+.detail-value {
+    color: #1f2937;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    text-align: right;
+}
+
+.not-defined {
+    color: #9ca3af;
+
+    font-weight: 400;
+    font-style: italic;
+}
+
+
+/* ============================================================
+   ACTIVITÉS PÉDAGOGIQUES
+   ============================================================ */
+
+.activity-card {
+    overflow: hidden;
+}
+
+.activity-title {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.activity-empty {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 25px;
+
+    color: #6b7280;
+
+    font-size: 13px;
+}
+
+.activity-empty i {
+    color: #3b82f6;
+
+    font-size: 17px;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media screen and (max-width: 850px) {
+
+    .detail-page {
+        padding: 30px 20px;
+    }
+
+    .details-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media screen and (max-width: 650px) {
+
+    .detail-page {
+        padding: 22px 14px;
+    }
+
+    .top-bar {
+        align-items: stretch;
+        flex-direction: column;
+
+        gap: 16px;
+    }
+
+    .top-actions {
+        width: 100%;
+    }
+
+    .top-actions .btn {
+        flex: 1;
+    }
+
+    .profile-card {
+        align-items: center;
+        flex-direction: column;
+
+        padding: 25px 18px;
+
+        text-align: center;
+    }
+
+    .profile-info {
+        align-items: center;
+    }
+
+    .profile-title {
+        justify-content: center;
+    }
+
+    .profile-title h1 {
+        font-size: 23px;
+    }
+
+    .specialite {
+        justify-content: center;
+    }
+
+    .detail-row {
+        align-items: flex-start;
+        flex-direction: column;
+
+        justify-content: center;
+
+        gap: 5px;
+
+        padding: 13px 0;
+    }
+
+    .detail-value {
+        text-align: left;
+    }
+
+}
+
+
+@media screen and (max-width: 420px) {
+
+    .top-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .top-actions .btn {
+        width: 100%;
+    }
+
+    .profile-photo,
+    .profile-placeholder {
+        width: 95px;
+        height: 95px;
+    }
+
+    .profile-placeholder {
+        font-size: 31px;
+    }
+
+    .card-title,
+    .activity-title {
+        align-items: flex-start;
+    }
+
+    .details-list {
+        padding:
+            8px
+            18px;
+    }
+
+}

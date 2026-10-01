@@ -1,0 +1,36 @@
+@import url('../base.css');
+
+.classes-page .filters-form {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+
+.classes-page .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.classes-page .filter-group label {
+    font-weight: 600;
+    font-size: 13px;
+    color: #374151;
+}
+
+.classes-page .filter-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.classes-page .btn-filter {
+    background: #2563eb;
+    color: white;
+}
+
+.classes-page .btn-reset {
+    background: #e5e7eb;
+    color: #374151;
+}

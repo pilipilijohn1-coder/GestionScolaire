@@ -1,0 +1,286 @@
+{% extends base_template %}
+{% load static %}
+
+
+{% block title %}
+    Modifier le niveau
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/modifier_niveau.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="niveau-form-page">
+
+    <!-- ================================================== -->
+    <!-- EN-TÊTE -->
+    <!-- ================================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <a
+                href="{% url 'detail_niveau' niveau.id %}"
+                class="back-link"
+            >
+                ← Retour aux détails
+            </a>
+
+            <h1>
+                Modifier le niveau
+            </h1>
+
+            <p>
+                Modifiez les informations du niveau
+                <strong>{{ niveau.libelle }}</strong>.
+            </p>
+
+        </div>
+
+
+        {% if niveau.actif %}
+
+            <span class="status status-active">
+                Actif
+            </span>
+
+        {% else %}
+
+            <span class="status status-inactive">
+                Désactivé
+            </span>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- FORMULAIRE -->
+    <!-- ================================================== -->
+
+    <div class="form-card">
+
+        <div class="form-card-header">
+
+            <h2>
+                Informations du niveau
+            </h2>
+
+            <p>
+                Vérifiez les informations avant
+                d'enregistrer les modifications.
+            </p>
+
+        </div>
+
+
+        <form
+            method="post"
+            class="niveau-form"
+        >
+
+            {% csrf_token %}
+
+
+            <!-- ========================================== -->
+            <!-- ERREURS GÉNÉRALES -->
+            <!-- ========================================== -->
+
+            {% if form.non_field_errors %}
+
+                <div class="form-errors">
+
+                    {{ form.non_field_errors }}
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- ========================================== -->
+            <!-- CODE -->
+            <!-- ========================================== -->
+
+            <div class="form-group">
+
+                <label for="{{ form.code.id_for_label }}">
+                    Code du niveau
+                </label>
+
+                {{ form.code }}
+
+                {% if form.code.errors %}
+
+                    <div class="field-error">
+
+                        {{ form.code.errors }}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- LIBELLÉ -->
+            <!-- ========================================== -->
+
+            <div class="form-group">
+
+                <label for="{{ form.libelle.id_for_label }}">
+                    Libellé du niveau
+                </label>
+
+                {{ form.libelle }}
+
+                {% if form.libelle.errors %}
+
+                    <div class="field-error">
+
+                        {{ form.libelle.errors }}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- ORDRE -->
+            <!-- ========================================== -->
+
+            <div class="form-group">
+
+                <label for="{{ form.ordre.id_for_label }}">
+                    Ordre académique
+                </label>
+
+                {{ form.ordre }}
+
+                <small class="form-help">
+
+                    L'ordre détermine la position du niveau
+                    dans la progression scolaire.
+
+                </small>
+
+                {% if form.ordre.errors %}
+
+                    <div class="field-error">
+
+                        {{ form.ordre.errors }}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- ÉCOLE DE BASE -->
+            <!-- ========================================== -->
+
+            <div class="form-group checkbox-group">
+
+                <label
+                    for="{{ form.est_ecole_base.id_for_label }}"
+                    class="checkbox-label"
+                >
+
+                    {{ form.est_ecole_base }}
+
+                    <span>
+
+                        <strong>
+                            Niveau de l'École de base
+                        </strong>
+
+                        <small>
+                            Ce niveau est commun aux élèves avant
+                            le choix d'une section.
+                        </small>
+
+                    </span>
+
+                </label>
+
+
+                {% if form.est_ecole_base.errors %}
+
+                    <div class="field-error">
+
+                        {{ form.est_ecole_base.errors }}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- AVERTISSEMENT -->
+            <!-- ========================================== -->
+
+            <div class="warning-box">
+
+                <strong>
+                    Attention
+                </strong>
+
+                <p>
+
+                    La modification du type du niveau peut avoir
+                    une incidence sur les classes déjà associées.
+                    Un niveau de l'École de base ne peut pas avoir
+                    de classes associées à une section.
+
+                </p>
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- ACTIONS -->
+            <!-- ========================================== -->
+
+            <div class="form-actions">
+
+                <a
+                    href="{% url 'detail_niveau' niveau.id %}"
+                    class="btn btn-secondary"
+                >
+                    Annuler
+                </a>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Enregistrer les modifications
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

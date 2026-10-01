@@ -1,0 +1,332 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+    Modifier une année scolaire
+{% endblock %}
+
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/modifier_annee.css' %}"
+>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="annee-form-page">
+
+    <!-- ================================================ -->
+    <!-- EN-TÊTE -->
+    <!-- ================================================ -->
+    <div class="page-header">
+
+        <div>
+            <h1>Modifier l'année scolaire</h1>
+
+            <p>
+                Modifiez les informations de l'année scolaire
+                <strong>{{ annee.libelle }}</strong>.
+            </p>
+        </div>
+
+
+        <a
+            href="{% url 'detail_annee' annee.id %}"
+            class="btn btn-secondary"
+        >
+            ← Retour aux détails
+        </a>
+
+    </div>
+
+
+    <!-- ================================================ -->
+    <!-- FORMULAIRE -->
+    <!-- ================================================ -->
+    <div class="form-card">
+
+        <div class="form-card-header">
+
+            <div>
+                <h2>Informations de l'année scolaire</h2>
+
+                <p>
+                    Modifiez uniquement les informations nécessaires.
+                </p>
+            </div>
+
+        </div>
+
+
+        <form
+            method="POST"
+            class="annee-form"
+        >
+
+            {% csrf_token %}
+
+
+            <!-- ======================================== -->
+            <!-- ERREURS GÉNÉRALES -->
+            <!-- ======================================== -->
+            {% if form.non_field_errors %}
+
+                <div class="form-errors">
+
+                    {% for error in form.non_field_errors %}
+
+                        <p>
+                            {{ error }}
+                        </p>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- ======================================== -->
+            <!-- LIBELLÉ -->
+            <!-- ======================================== -->
+            <div class="form-group">
+
+                <label for="{{ form.libelle.id_for_label }}">
+
+                    Libellé de l'année scolaire
+
+                </label>
+
+                {{ form.libelle }}
+
+
+                {% if form.libelle.errors %}
+
+                    <div class="field-error">
+
+                        {% for error in form.libelle.errors %}
+
+                            <span>
+                                {{ error }}
+                            </span>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- ======================================== -->
+            <!-- DATES -->
+            <!-- ======================================== -->
+            <div class="form-row">
+
+
+                <!-- DATE DE DÉBUT -->
+                <div class="form-group">
+
+                    <label
+                        for="{{ form.date_debut.id_for_label }}"
+                    >
+
+                        Date de début
+
+                    </label>
+
+                    {{ form.date_debut }}
+
+
+                    {% if form.date_debut.errors %}
+
+                        <div class="field-error">
+
+                            {% for error in form.date_debut.errors %}
+
+                                <span>
+                                    {{ error }}
+                                </span>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- DATE DE FIN -->
+                <div class="form-group">
+
+                    <label
+                        for="{{ form.date_fin.id_for_label }}"
+                    >
+
+                        Date de fin
+
+                    </label>
+
+                    {{ form.date_fin }}
+
+
+                    {% if form.date_fin.errors %}
+
+                        <div class="field-error">
+
+                            {% for error in form.date_fin.errors %}
+
+                                <span>
+                                    {{ error }}
+                                </span>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+            </div>
+
+
+            <!-- ======================================== -->
+            <!-- SEUIL DE PASSAGE -->
+            <!-- ======================================== -->
+            <div class="form-group">
+
+                <label
+                    for="{{ form.seuil_passage.id_for_label }}"
+                >
+
+                    Seuil de passage (%)
+
+                </label>
+
+                {{ form.seuil_passage }}
+
+
+                <small class="field-help">
+
+                    Pourcentage minimum requis pour le passage
+                    dans la classe supérieure.
+
+                </small>
+
+
+                {% if form.seuil_passage.errors %}
+
+                    <div class="field-error">
+
+                        {% for error in form.seuil_passage.errors %}
+
+                            <span>
+                                {{ error }}
+                            </span>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- ======================================== -->
+            <!-- STATUT -->
+            <!-- ======================================== -->
+            <div class="form-group">
+
+                <label>Statut actuel</label>
+
+                <div class="current-status">
+
+                    {% if annee.statut == "PLANIFIEE" %}
+                        <span class="status status-planned">
+                            Planifiée
+                        </span>
+
+                    {% elif annee.statut == "ACTIVE" %}
+                        <span class="status status-active">
+                            Active
+                        </span>
+
+                    {% elif annee.statut == "CLOTUREE" %}
+                        <span class="status status-closed">
+                            Clôturée
+                        </span>
+                    {% endif %}
+
+                </div>
+
+                <small class="field-help">
+                    Le statut de l'année scolaire est géré par
+                    les actions d'activation et de clôture.
+                </small>
+
+            </div>
+
+
+            <!-- ======================================== -->
+            <!-- ACTIONS -->
+            <!-- ======================================== -->
+            <div class="form-actions">
+
+                <a
+                    href="{% url 'detail_annee' annee.id %}"
+                    class="btn btn-secondary"
+                >
+                    Annuler
+                </a>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Enregistrer les modifications
+                </button>
+
+            </div>
+
+
+        </form>
+
+    </div>
+
+
+    <!-- ================================================ -->
+    <!-- INFORMATIONS -->
+    <!-- ================================================ -->
+    <div class="info-card">
+
+        <div class="info-icon">
+            ℹ
+        </div>
+
+        <div>
+
+            <h3>Attention</h3>
+
+            <p>
+                Les modifications apportées à une année scolaire
+                peuvent avoir des conséquences sur les classes,
+                inscriptions et autres opérations associées.
+            </p>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+{% endblock %}

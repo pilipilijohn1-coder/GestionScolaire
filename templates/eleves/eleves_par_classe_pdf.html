@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des élèves - {{ classe.libelle }}</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; color: #333; }
+        h1 { font-size: 22px; margin-bottom: 5px; }
+        p { color: #666; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { background: #f9fafb; padding: 10px; text-align: left; font-size: 13px; border-bottom: 2px solid #e5e7eb; }
+        td { padding: 10px; border-bottom: 1px solid #f0f0f0; font-size: 13px; vertical-align: middle; }
+        .photo { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #e5e7eb; }
+        .photo-placeholder { width: 50px; height: 50px; border-radius: 50%; background: #e5e7eb; display: inline-flex; align-items: center; justify-content: center; color: #6b7280; font-size: 12px; }
+        .footer { margin-top: 30px; font-size: 12px; color: #9ca3af; text-align: center; border-top: 1px solid #e5e7eb; padding-top: 10px; }
+        @media print {
+            body { margin: 0; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Liste des élèves — {{ classe.libelle }}</h1>
+    <p>Année scolaire : {{ classe.annee_scolaire.libelle|default:"—" }} | Effectif : {{ inscriptions|length }} élève{{ inscriptions|length|pluralize }}</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 60px;">Photo</th>
+                <th>Matricule</th>
+                <th>Nom</th>
+                <th>Postnom</th>
+                <th>Prénom</th>
+                <th>Sexe</th>
+                <th>Date de naissance</th>
+                <th>Contact</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for inscription in inscriptions %}
+                <tr>
+                    <td>
+                        {% if inscription.eleve.photo %}
+                            <img src="{{ inscription.eleve.photo.url }}" alt="Photo" class="photo">
+                        {% else %}
+                            <span class="photo-placeholder"><i class="fa-solid fa-user"></i></span>
+                        {% endif %}
+                    </td>
+                    <td>{{ inscription.eleve.matricule }}</td>
+                    <td>{{ inscription.eleve.nom }}</td>
+                    <td>{{ inscription.eleve.postnom|default:"—" }}</td>
+                    <td>{{ inscription.eleve.prenom }}</td>
+                    <td>
+                        {% if inscription.eleve.sexe == "M" %}Masculin
+                        {% elif inscription.eleve.sexe == "F" %}Féminin
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>{{ inscription.eleve.date_naissance|date:"d/m/Y"|default:"—" }}</td>
+                    <td>{{ inscription.eleve.telephone|default:"—" }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="8" style="text-align:center;color:#6b7280;">Aucun élève inscrit dans cette classe.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        Généré le {{ now|date:"d/m/Y H:i" }} — Complexe Scolaire les Patriotes
+    </div>
+
+    <script>
+        window.onload = function() {
+            setTimeout(function() { window.print(); }, 500);
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Réinscription{% endblock %}
+
+{% block extra_css %}
+<style>
+    .reinscription-page {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    .search-card {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 25px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        margin-bottom: 25px;
+    }
+    .search-form {
+        display: flex;
+        gap: 10px;
+        align-items: flex-end;
+        flex-wrap: wrap;
+    }
+    .search-form input {
+        flex: 1;
+        min-width: 220px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        font-size: 14px;
+    }
+    .eleves-results {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    .eleve-result-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 16px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        background: #ffffff;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .eleve-result-info strong {
+        display: block;
+        font-size: 15px;
+    }
+    .eleve-result-info span {
+        color: #6b7280;
+        font-size: 13px;
+    }
+    .form-card {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 25px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 18px;
+        margin-top: 15px;
+    }
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .form-group label {
+        font-weight: 600;
+        font-size: 14px;
+        color: #374151;
+    }
+    .form-group select {
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        font-size: 14px;
+    }
+    .form-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 25px;
+        flex-wrap: wrap;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reinscription-page">
+
+    <div class="page-header">
+        <div>
+            <h1>Réinscription</h1>
+            <p style="color:#6b7280;">Reconduisez uniquement les élèves déjà présents dans la base de données.</p>
+        </div>
+    </div>
+
+    <div class="search-card">
+        <form method="get" class="search-form" id="reinscriptionSearchForm">
+            <input
+                type="text"
+                name="q"
+                id="reinscriptionSearchInput"
+                placeholder="Rechercher par nom, postnom ou matricule..."
+                value="{{ query }}"
+                autocomplete="off"
+            >
+            <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-magnifying-glass"></i> Rechercher
+            </button>
+        </form>
+
+        {% if query %}
+            <div class="eleves-results">
+                {% for eleve in eleves %}
+                    <div class="eleve-result-item">
+                        <div class="eleve-result-info">
+                            <strong>{{ eleve.nom }} {{ eleve.postnom|default:"" }} {{ eleve.prenom }}</strong>
+                            <span>Matricule : {{ eleve.matricule }}</span>
+                        </div>
+                        <a href="?q={{ query }}&eleve={{ eleve.id }}" class="btn btn-primary">
+                            <i class="fa-solid fa-arrow-right"></i> Réinscrire
+                        </a>
+                    </div>
+                {% empty %}
+                    <p style="color:#6b7280;">Aucun élève trouvé.</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+    (function() {
+        const form = document.getElementById('reinscriptionSearchForm');
+        const input = document.getElementById('reinscriptionSearchInput');
+        if (!form || !input) return;
+
+        let timer;
+        input.addEventListener('input', function() {
+            clearTimeout(timer);
+            timer = setTimeout(function() {
+                form.submit();
+            }, 250);
+        });
+    })();
+    </script>
+
+    {% if request.GET.eleve %}
+        {% with eleve=eleves|first %}
+            <div class="form-card">
+                <h2>Réinscrire {{ eleve.nom }} {{ eleve.prenom }}</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="classe">Nouvelle classe *</label>
+                            <select name="classe" id="classe" required>
+                                <option value="">-- Sélectionner --</option>
+                                {% for classe in classes %}
+                                    <option value="{{ classe.id }}">{{ classe.libelle }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="annee">Année scolaire *</label>
+                            <select name="annee" id="annee" required>
+                                <option value="">-- Sélectionner --</option>
+                                {% for annee in annees %}
+                                    <option value="{{ annee.id }}" {% if annee_active and annee.id == annee_active.id %}selected{% endif %}>
+                                        {{ annee.libelle }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <a href="{% url 'reinscription' %}?q={{ query }}" class="btn btn-secondary">Annuler</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-save"></i> Confirmer la réinscription
+                        </button>
+                    </div>
+                </form>
+            </div>
+        {% endwith %}
+    {% endif %}
+
+</div>
+{% endblock %}

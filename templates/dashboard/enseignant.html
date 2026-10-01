@@ -1,0 +1,167 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Tableau de bord - Enseignant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        padding: 25px;
+    }
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+    .dashboard-header h1 {
+        margin: 0;
+        font-size: 28px;
+    }
+    .role-badge {
+        padding: 8px 14px;
+        border-radius: 20px;
+        background: #eef2ff;
+        color: #3730a3;
+        font-weight: 600;
+    }
+    .info-card {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 25px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    .info-card h2 {
+        margin-top: 0;
+        font-size: 18px;
+    }
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+    .stat-card {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 20px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        text-align: center;
+    }
+    .stat-icon {
+        font-size: 32px;
+        margin-bottom: 10px;
+    }
+    .stat-value {
+        display: block;
+        font-size: 28px;
+        font-weight: 700;
+        color: #1f2937;
+    }
+    .stat-label {
+        color: #6b7280;
+        font-size: 14px;
+    }
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        margin-top: 25px;
+    }
+    .action-card {
+        display: block;
+        padding: 20px;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        text-decoration: none;
+        color: #111827;
+        transition: 0.2s;
+        text-align: center;
+    }
+    .action-card:hover {
+        background: #f9fafb;
+        border-color: #c7d2fe;
+    }
+    .action-icon {
+        font-size: 28px;
+        margin-bottom: 10px;
+    }
+    .action-title {
+        font-weight: 600;
+        font-size: 14px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div>
+            <h1>Tableau de bord</h1>
+            <p style="color:#6b7280; margin: 6px 0 0;">
+                Bienvenue, <strong>{{ utilisateur.prenom }} {{ utilisateur.nom }}</strong>
+            </p>
+        </div>
+        <div class="role-badge">Enseignant</div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">📚</div>
+            <span class="stat-value">{{ nombre_affectations }}</span>
+            <span class="stat-label">Affectations</span>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🏫</div>
+            <span class="stat-value">{{ nombre_classes }}</span>
+            <span class="stat-label">Classes</span>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">📝</div>
+            <span class="stat-value">{{ nombre_evaluations }}</span>
+            <span class="stat-label">Évaluations</span>
+        </div>
+    </div>
+
+    <div class="info-card">
+        <h2>Accès rapide</h2>
+        <p style="color:#6b7280;">Accédez rapidement à vos fonctionnalités.</p>
+
+        <div class="actions-grid">
+            <a href="{% url 'mes_affectations' %}" class="action-card">
+                <div class="action-icon">📚</div>
+                <div class="action-title">Mes affectations</div>
+            </a>
+            <a href="{% url 'mes_evaluations' %}" class="action-card">
+                <div class="action-icon">📝</div>
+                <div class="action-title">Mes évaluations</div>
+            </a>
+            <a href="{% url 'mes_evaluations' %}" class="action-card">
+                <div class="action-icon">✏️</div>
+                <div class="action-title">Saisie des notes</div>
+            </a>
+            <a href="{% url 'mes_eleves' %}" class="action-card">
+                <div class="action-icon">👨‍🎓</div>
+                <div class="action-title">Mes élèves</div>
+            </a>
+            <a href="{% url 'emploi_du_temps' %}" class="action-card">
+                <div class="action-icon">📅</div>
+                <div class="action-title">Emploi du temps</div>
+            </a>
+            <a href="{% url 'ma_classe' %}" class="action-card">
+                <div class="action-icon">🏫</div>
+                <div class="action-title">Ma classe</div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- BOUTON FLOTTANT : MON PROFIL -->
+<div class="profile-float">
+    <a href="{% url 'mon_profil' %}" class="profile-float-btn" title="Mon profil">
+        <i class="fa-solid fa-user"></i>
+    </a>
+</div>
+{% endblock %}

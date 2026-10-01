@@ -1,0 +1,95 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Mes élèves{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+    <div class="page-header">
+        <div>
+            <h1>Mes élèves</h1>
+            <p style="color:#6b7280;">Liste des élèves inscrits dans vos classes pour l'année en cours.</p>
+        </div>
+    </div>
+
+    
+
+    {% if not annee_active %}
+        <div class="empty-state">
+            <i class="fa-solid fa-calendar-xmark"></i>
+            <h3>Aucune année active</h3>
+            <p>Aucune année scolaire n'est actuellement active.</p>
+        </div>
+    {% elif inscriptions %}
+        <div class="table-card">
+            <div class="table-header">
+                <div>
+                    <h2>Élèves inscrits</h2>
+                    <p>{{ inscriptions|length }} élève{{ inscriptions|length|pluralize }}</p>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Élève</th>
+                            <th>Sexe</th>
+                            <th>Date de naissance</th>
+                            <th>Classe</th>
+                            <th>Niveau</th>
+                            <th>Section</th>
+                            <th>Contact</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inscription in inscriptions %}
+                            <tr>
+                                <td>
+                                    <strong>{{ inscription.eleve.nom }} {{ inscription.eleve.postnom }} {{ inscription.eleve.prenom }}</strong>
+                                    <br>
+                                    <small style="color:#6b7280;">{{ inscription.eleve.matricule }}</small>
+                                </td>
+                                <td>
+                                    {% if inscription.eleve.sexe == "M" %}
+                                        Masculin
+                                    {% elif inscription.eleve.sexe == "F" %}
+                                        Féminin
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                                <td>{{ inscription.eleve.date_naissance|date:"d/m/Y"|default:"—" }}</td>
+                                <td>{{ inscription.classe.libelle }}</td>
+                                <td>{{ inscription.classe.niveau.libelle }}</td>
+                                <td>
+                                    {% if inscription.classe.section %}
+                                        {{ inscription.classe.section.libelle }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if inscription.eleve.telephone %}
+                                        <i class="fa-solid fa-phone"></i> {{ inscription.eleve.telephone }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <i class="fa-solid fa-user-graduate"></i>
+            <h3>Aucun élève</h3>
+            <p>Aucun élève n'est inscrit dans vos classes pour l'année en cours.</p>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

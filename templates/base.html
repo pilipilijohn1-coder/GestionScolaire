@@ -1,0 +1,138 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {% block title %}
+            Gestion Scolaire
+        {% endblock %}
+    </title>
+
+    <link rel="stylesheet" href="{% static 'fontawesome/css/all.css' %}">
+
+    {% include 'base_css.html' %}
+
+    {% block extra_css %}{% endblock %}
+
+</head>
+
+<body>
+
+    <header class="header">
+        <div>
+            <div class="user-info">
+                {% if utilisateur.photo_profil %}
+                    <img src="{{ utilisateur.photo_profil.url }}" alt="Photo de profil" class="user-avatar">
+                {% else %}
+                    <img src="{% static 'images/default-avatar.png' %}" alt="Photo de profil" class="user-avatar">
+                {% endif %}
+                <span class="user-name">{{ utilisateur.prenom }} {{ utilisateur.nom }}</span>
+            </div>
+            <div class="institution-info">
+                <img src="{% static 'images/logo.png' %}" alt="Logo" class="institution-logo">
+                <span class="institution-name">Complexe Scolaire <strong>les Patriotes</strong></span>
+            </div>
+        </div>
+        <div>
+            <button class="hamburger" onclick="toggleSidebar()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <nav class="main-menu">
+        <ul>
+            <li><a href="{% url 'dashboard_admin' %}" class="menu-home"><i class="fa-solid fa-house"></i> Tableau de Bord</a></li>
+            <li><a href="{% url 'structure_academique' %}" class="menu-structure"><i class="fa-solid fa-school"></i> Classes & Matières</a></li>
+            <li class="has-dropdown">
+                <a href="#" class="dropdown-toggle menu-eleves"><i class="fa-solid fa-user-graduate"></i> Élèves & Inscriptions <i class="fa-solid fa-chevron-down"></i></a>
+                <ul class="dropdown-menu">
+                    <li><a href="{% url 'liste_eleves' %}" class="menu-eleves"><i class="fa-solid fa-list"></i> Liste des élèves</a></li>
+                    <li><a href="{% url 'creer_eleve' %}" class="menu-eleves"><i class="fa-solid fa-plus"></i> Nouvel élève</a></li>
+                    <li><a href="{% url 'liste_inscriptions' %}" class="menu-eleves"><i class="fa-solid fa-file-lines"></i> Inscriptions</a></li>
+                    <li><a href="{% url 'creer_inscription' %}" class="menu-eleves"><i class="fa-solid fa-user-plus"></i> Nouvelle inscription</a></li>
+                    <li><a href="{% url 'reinscription' %}" class="menu-eleves"><i class="fa-solid fa-rotate"></i> Réinscription</a></li>
+                </ul>
+            </li>
+            <li><a href="{% url 'interface_enseignants' %}" class="menu-enseignants"><i class="fa-solid fa-chalkboard-teacher"></i> Enseignants</a></li>
+            <li><a href="{% url 'interface_organisation_scolaire' %}" class="menu-org"><i class="fas fa-calendar-alt"></i> Organisation Scolaire</a></li>
+            <li class="has-dropdown">
+                <a href="#" class="dropdown-toggle menu-finances"><i class="fa-solid fa-coins"></i> Finances <i class="fa-solid fa-chevron-down"></i></a>
+                <ul class="dropdown-menu">
+                    <li><a href="{% url 'liste_paiements' %}" class="menu-finances"><i class="fa-solid fa-money-bill-wave"></i> Paiements</a></li>
+                    <li><a href="{% url 'encaisser_paiement' %}" class="menu-finances"><i class="fa-solid fa-plus-circle"></i> Encaisser</a></li>
+                    <li><a href="{% url 'liste_recus' %}" class="menu-finances"><i class="fa-solid fa-file-invoice"></i> Reçus</a></li>
+                    <li><a href="{% url 'liste_classes_paiements' %}" class="menu-eleves"><i class="fa-solid fa-user-graduate"></i> Élèves par classe</a></li>
+                    <li><a href="{% url 'dashboard_caisse' %}" class="menu-finances"><i class="fa-solid fa-cash-register"></i> Caisse</a></li>
+                    <li><a href="{% url 'parcours_scolaire' %}" class="menu-eleves"><i class="fa-solid fa-road"></i> Parcours scolaire</a></li>
+                </ul>
+            </li>
+            <li class="has-dropdown">
+                <a href="#" class="dropdown-toggle menu-admin"><i class="fa-solid fa-cogs"></i> Administration <i class="fa-solid fa-chevron-down"></i></a>
+                <ul class="dropdown-menu">
+                    <li><a href="{% url 'administration' %}" class="menu-admin"><i class="fa-solid fa-sliders-h"></i> Administration</a></li>
+                    <li><a href="{% url 'liste_utilisateurs' %}" class="menu-utilisateurs"><i class="fa-solid fa-users"></i> Utilisateurs</a></li>
+                    <li><a href="{% url 'structure_academique' %}" class="menu-structure"><i class="fa-solid fa-school"></i> Structure académique</a></li>
+                    <li><a href="{% url 'liste_annees' %}" class="menu-structure"><i class="fa-solid fa-calendar"></i> Années scolaires</a></li>
+                </ul>
+            </li>
+            <li><a href="{% url 'deconnexion' %}" class="menu-logout"><i class="fa-solid fa-right-from-bracket"></i> Déconnexion</a></li>
+        </ul>
+    </nav>
+
+    <main class="content">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 Complexe Scolaire les Patriotes — Tous droits réservés.</p>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+
+    {% block extra_js %}
+    {% endblock %}
+
+    {% include 'includes/notification_floating.html' %}
+
+    <script>
+        function toggleSidebar() {
+            const menu = document.querySelector(".main-menu");
+            menu.classList.toggle("open");
+        }
+
+        // Mobile dropdown toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdownToggles = document.querySelectorAll('.main-menu .dropdown-toggle');
+            dropdownToggles.forEach(function(toggle) {
+                toggle.addEventListener('click', function(e) {
+                    if (window.innerWidth <= 768) {
+                        e.preventDefault();
+                        const parentLi = this.closest('li.has-dropdown');
+                        parentLi.classList.toggle('open');
+                        
+                        // Close other dropdowns
+                        document.querySelectorAll('li.has-dropdown').forEach(function(li) {
+                            if (li !== parentLi) {
+                                li.classList.remove('open');
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>

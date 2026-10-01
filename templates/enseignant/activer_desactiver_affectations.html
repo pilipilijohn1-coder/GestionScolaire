@@ -1,0 +1,340 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+{% if affectation.actif %}
+Désactiver une affectation
+{% else %}
+Activer une affectation
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/affectations/activer_desactiver_affectation.css' %}"
+>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-container">
+
+    <!-- ============================================== -->
+    <!-- EN-TÊTE -->
+    <!-- ============================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            {% if affectation.actif %}
+
+                <h1>Désactiver l'affectation</h1>
+
+                <p>
+                    Confirmez la désactivation de cette
+                    affectation d'enseignant.
+                </p>
+
+            {% else %}
+
+                <h1>Activer l'affectation</h1>
+
+                <p>
+                    Confirmez l'activation de cette
+                    affectation d'enseignant.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+
+        <a
+            href="{% url 'detail_affectation' affectation.id %}"
+            class="btn btn-secondary"
+        >
+            <i class="fa-solid fa-arrow-left"></i>
+            Retour aux détails
+        </a>
+
+    </div>
+
+
+    <!-- ============================================== -->
+    <!-- CARTE DE CONFIRMATION -->
+    <!-- ============================================== -->
+
+    <div class="confirmation-card">
+
+
+        <!-- ========================================== -->
+        <!-- ICÔNE -->
+        <!-- ========================================== -->
+
+        <div
+            class="
+                confirmation-icon
+                {% if affectation.actif %}
+                    icon-danger
+                {% else %}
+                    icon-success
+                {% endif %}
+            "
+        >
+
+            {% if affectation.actif %}
+
+                <i class="fa-solid fa-toggle-off"></i>
+
+            {% else %}
+
+                <i class="fa-solid fa-toggle-on"></i>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- ========================================== -->
+        <!-- TITRE -->
+        <!-- ========================================== -->
+
+        {% if affectation.actif %}
+
+            <h2>
+                Voulez-vous désactiver cette affectation ?
+            </h2>
+
+            <p class="confirmation-description">
+
+                L'enseignant ne sera plus considéré comme
+                titulaire de cette matière dans cette classe.
+
+            </p>
+
+        {% else %}
+
+            <h2>
+                Voulez-vous activer cette affectation ?
+            </h2>
+
+            <p class="confirmation-description">
+
+                Cette affectation sera de nouveau active
+                pour l'année scolaire concernée.
+
+            </p>
+
+        {% endif %}
+
+
+        <!-- ========================================== -->
+        <!-- RÉSUMÉ DE L'AFFECTATION -->
+        <!-- ========================================== -->
+
+        <div class="affectation-summary">
+
+
+            <!-- ENSEIGNANT -->
+
+            <div class="teacher-summary">
+
+                {% if affectation.enseignant.utilisateur.photo %}
+
+                    <img
+                        src="{{ affectation.enseignant.utilisateur.photo.url }}"
+                        alt="Photo de {{ affectation.enseignant }}"
+                        class="teacher-photo"
+                    >
+
+                {% else %}
+
+                    <div class="teacher-avatar">
+
+                        <i class="fa-solid fa-user"></i>
+
+                    </div>
+
+                {% endif %}
+
+
+                <div>
+
+                    <span class="summary-label">
+                        Enseignant
+                    </span>
+
+                    <strong>
+
+                        {{ affectation.enseignant.utilisateur.nom }}
+                        {{ affectation.enseignant.utilisateur.postnom }}
+                        {{ affectation.enseignant.utilisateur.prenom }}
+
+                    </strong>
+
+                    <small>
+                        {{ affectation.enseignant.matricule }}
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <!-- INFORMATIONS -->
+
+            <div class="summary-details">
+
+
+                <!-- ANNÉE -->
+
+                <div class="summary-item">
+
+                    <span>
+
+                        <i class="fa-solid fa-calendar-days"></i>
+                        Année scolaire
+
+                    </span>
+
+                    <strong>
+
+                        {{ affectation.affectation_matiere.annee }}
+
+                    </strong>
+
+                </div>
+
+
+                <!-- CLASSE -->
+
+                <div class="summary-item">
+
+                    <span>
+
+                        <i class="fa-solid fa-chalkboard"></i>
+                        Classe
+
+                    </span>
+
+                    <strong>
+
+                        {{ affectation.affectation_matiere.classe }}
+
+                    </strong>
+
+                </div>
+
+
+                <!-- MATIÈRE -->
+
+                <div class="summary-item">
+
+                    <span>
+
+                        <i class="fa-solid fa-book"></i>
+                        Matière
+
+                    </span>
+
+                    <strong>
+
+                        {{ affectation.affectation_matiere.matiere }}
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- STATUT ACTUEL -->
+
+            <div class="current-status">
+
+                <span>
+                    Statut actuel
+                </span>
+
+                {% if affectation.actif %}
+
+                    <strong class="status-active">
+
+                        <i class="fa-solid fa-circle-check"></i>
+                        Active
+
+                    </strong>
+
+                {% else %}
+
+                    <strong class="status-inactive">
+
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        Inactive
+
+                    </strong>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <!-- ========================================== -->
+        <!-- FORMULAIRE DE CONFIRMATION -->
+        <!-- ========================================== -->
+
+        <form method="post">
+
+            {% csrf_token %}
+
+            <div class="confirmation-actions">
+
+
+                <a
+                    href="{% url 'detail_affectation' affectation.id %}"
+                    class="btn btn-secondary"
+                >
+                    <i class="fa-solid fa-xmark"></i>
+                    Annuler
+                </a>
+
+
+                {% if affectation.actif %}
+
+                    <button
+                        type="submit"
+                        class="btn btn-danger"
+                    >
+
+                        <i class="fa-solid fa-toggle-off"></i>
+                        Oui, désactiver
+
+                    </button>
+
+                {% else %}
+
+                    <button
+                        type="submit"
+                        class="btn btn-success"
+                    >
+
+                        <i class="fa-solid fa-toggle-on"></i>
+                        Oui, activer
+
+                    </button>
+
+                {% endif %}
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

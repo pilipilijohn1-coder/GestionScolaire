@@ -1,0 +1,81 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Liste des inscriptions{% endblock %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block content %}
+<div class="inscriptions-page">
+
+    <div class="page-header">
+        <div>
+            <h1>Inscriptions</h1>
+            <p style="color:#6b7280;">Gérez les inscriptions des élèves.</p>
+        </div>
+        <a href="{% url 'creer_inscription' %}" class="btn btn-primary">
+            <i class="fa-solid fa-plus"></i> Nouvelle inscription
+        </a>
+    </div>
+
+    <div class="table-card">
+        <div class="table-header">
+            <div>
+                <h2>Liste des inscriptions</h2>
+                <p>{{ inscriptions|length }} inscription{{ inscriptions|length|pluralize }}</p>
+            </div>
+        </div>
+
+        {% if inscriptions %}
+            <div class="table-responsive">
+                <table class="inscriptions-table">
+                    <thead>
+                        <tr>
+                            <th>Élève</th>
+                            <th>Classe</th>
+                            <th>Année scolaire</th>
+                            <th>Type</th>
+                            <th>Statut</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inscription in inscriptions %}
+                            <tr>
+                                <td>
+                                    <strong>{{ inscription.eleve.nom }} {{ inscription.eleve.postnom|default:"" }} {{ inscription.eleve.prenom }}</strong>
+                                </td>
+                                <td>{{ inscription.classe.libelle }}</td>
+                                <td>{{ inscription.annee.libelle }}</td>
+                                <td>{{ inscription.get_type_inscription_display }}</td>
+                                <td>
+                                    {% if inscription.statut == "ACTIVE" %}
+                                        <span class="status status-active">Active</span>
+                                    {% elif inscription.statut == "TERMINEE" %}
+                                        <span class="status status-inactive">Terminée</span>
+                                    {% elif inscription.statut == "ANNULEE" %}
+                                        <span class="status status-inactive">Annulée</span>
+                                    {% else %}
+                                        <span class="status status-inactive">Abandon</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ inscription.date_inscription|date:"d/m/Y" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fa-solid fa-file-signature"></i>
+                <h3>Aucune inscription</h3>
+                <p>Aucune inscription n'a encore été enregistrée.</p>
+                <a href="{% url 'creer_inscription' %}" class="btn btn-primary">
+                    <i class="fa-solid fa-plus"></i> Nouvelle inscription
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

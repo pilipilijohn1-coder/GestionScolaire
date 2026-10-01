@@ -1,0 +1,682 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}{{ titre }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .inscription-page {
+        max-width: 980px;
+        margin: 0 auto;
+    }
+
+    .form-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 8px 28px 28px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    /* ---------- Sections ---------- */
+    .section {
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 22px;
+        margin-bottom: 22px;
+        background: #fcfcfd;
+    }
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    .section-icon {
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        color: #fff;
+        background: #2563eb;
+    }
+    .section-icon.responsable { background: #7c3aed; }
+    .section-icon.inscription { background: #0d9488; }
+    .section-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #111827;
+        margin: 0;
+    }
+    .section-subtitle {
+        font-size: 13px;
+        color: #6b7280;
+        margin: 2px 0 0;
+    }
+
+    /* ---------- Grille ---------- */
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+    }
+    .grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .span-2 { grid-column: span 2; }
+    .span-3 { grid-column: span 3; }
+
+    /* ---------- Champs ---------- */
+    .field label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 6px;
+    }
+    .field label .req { color: #dc2626; margin-left: 3px; }
+    .form-control,
+    .form-select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 14px;
+        background: #fff;
+        color: #111827;
+        box-sizing: border-box;
+    }
+    .form-control:focus,
+    .form-select:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+    .form-control:disabled,
+    .form-select:disabled {
+        background: #f3f4f6;
+        color: #6b7280;
+        cursor: not-allowed;
+    }
+    .form-control.is-invalid,
+    .form-select.is-invalid {
+        border-color: #dc2626;
+    }
+    .helptext {
+        display: block;
+        font-size: 12px;
+        color: #6b7280;
+        margin-top: 5px;
+    }
+    .errorlist {
+        list-style: none;
+        margin: 6px 0 0;
+        padding: 0;
+        color: #b91c1c;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    /* ---------- Choix du mode ---------- */
+    .mode-switch > div {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    .mode-switch label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+        background: #fff;
+        transition: all 0.15s;
+        margin-bottom: 0;
+    }
+    .mode-switch label:hover { border-color: #2563eb; }
+    .mode-switch label.is-active {
+        border-color: #2563eb;
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
+    /* ---------- Blocs conditionnels ---------- */
+    .bloc { display: none; }
+    .bloc.is-visible { display: block; }
+    .bloc-inline.is-visible { display: grid; }
+
+    /* ---------- Checkbox ---------- */
+    .check-row {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 0;
+    }
+    .check-row input { width: 16px; height: 16px; cursor: pointer; }
+
+    /* ---------- Alerte ---------- */
+    .alert {
+        padding: 13px 16px;
+        border-radius: 10px;
+        font-size: 14px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+    }
+    .alert-danger {
+        background: #fef2f2;
+        border-color: #fecaca;
+        color: #b91c1c;
+    }
+    .alert ul { margin: 6px 0 0; padding-left: 20px; }
+
+    /* ---------- Actions ---------- */
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        border-top: 1px solid #e5e7eb;
+        margin-top: 8px;
+        padding-top: 22px;
+    }
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 20px;
+        border: none;
+        border-radius: 9px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary { background: #f3f4f6; color: #374151; }
+
+    @media (max-width: 820px) {
+        .grid,
+        .grid.cols-2 { grid-template-columns: 1fr; }
+        .span-2, .span-3 { grid-column: span 1; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="inscription-page">
+
+    <div class="page-header">
+        <h1>{{ titre }}</h1>
+        <p>
+            {% if mode_edition %}
+                Mettez à jour l'identité, les responsables et la classe de l'élève.
+            {% else %}
+                Enregistrez l'élève, son responsable légal et son inscription en une seule étape.
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="form-card">
+        <form method="post" action="{{ action_url }}" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    <strong>Le formulaire n'a pas pu être enregistré :</strong>
+                    <ul>
+                        {% for erreur in form.non_field_errors %}
+                            <li>{{ erreur }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <!-- ====================================================
+                 ÉLÈVE
+                 ==================================================== -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-icon"><i class="fas fa-user-graduate"></i></div>
+                    <div>
+                        <h2 class="section-title">Informations de l'élève</h2>
+                        <p class="section-subtitle">Identité et coordonnées de l'élève.</p>
+                    </div>
+                </div>
+
+                {% if mode_edition %}
+                    <!-- En modification l'élève est fixé : matricule et
+                         responsable sont mis à jour sur place. -->
+                    {{ form.mode_eleve }}
+                    {{ form.eleve_id }}
+                {% else %}
+                    <div class="mode-switch">{{ form.mode_eleve }}</div>
+
+                    <!-- Élève existant -->
+                    <div class="field bloc" id="bloc-existant">
+                        <label for="{{ form.eleve_id.id_for_label }}">
+                            Élève <span class="req">*</span>
+                        </label>
+                        {{ form.eleve_id }}
+                        {% for erreur in form.eleve_id.errors %}
+                            <ul class="errorlist"><li>{{ erreur }}</li></ul>
+                        {% endfor %}
+                        <span class="helptext">
+                            L'élève doit être déjà enregistré dans le fichier. Utilisez
+                            « Nouvel élève » pour créer une nouvelle identité.
+                        </span>
+                    </div>
+                {% endif %}
+
+                <!-- Identité -->
+                <div id="bloc-nouveau">
+                    <div class="grid">
+                        <div class="field">
+                            <label for="{{ form.matricule.id_for_label }}">Matricule</label>
+                            {{ form.matricule }}
+                            {% for erreur in form.matricule.errors %}
+                                <ul class="errorlist"><li>{{ erreur }}</li></ul>
+                            {% endfor %}
+                            {% if mode_edition %}
+                                <span class="helptext">Identifiant définitif de l'élève.</span>
+                            {% else %}
+                                <span class="helptext">Généré automatiquement si vide.</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="field">
+                            <label for="{{ form.eleve_nom.id_for_label }}">
+                                Nom <span class="req">*</span>
+                            </label>
+                            {{ form.eleve_nom }}
+                            {% for erreur in form.eleve_nom.errors %}
+                                <ul class="errorlist"><li>{{ erreur }}</li></ul>
+                            {% endfor %}
+                        </div>
+
+                        <div class="field">
+                            <label for="{{ form.eleve_postnom.id_for_label }}">Postnom</label>
+                            {{ form.eleve_postnom }}
+                            {% for erreur in form.eleve_postnom.errors %}
+                                <ul class="errorlist"><li>{{ erreur }}</li></ul>
+                            {% endfor %}
+                        </div>
+
+                        <div class="field">
+                            <label for="{{ form.eleve_prenom.id_for_label }}">
+                                Prénom <span class="req">*</span>
+                            </label>
+                            {{ form.eleve_prenom }}
+                            {% for erreur in form.eleve_prenom.errors %}
+                                <ul class="errorlist"><li>{{ erreur }}</li></ul>
+                            {% endfor %}
+                        </div>
+
+                        <div class="field">
+                            <label for="{{ form.eleve_sexe.id_for_label }}">Sexe</label>
+                            {{ form.eleve_sexe }}
+                            {% for erreur in form.eleve_sexe.errors %}
+                                <ul class="errorlist"><li>{{ erreur }}</li></ul>
+                            {% endfor %}
+                        </div>
+
+                        <div class="field">
+                            <label for="{{ form.eleve_date_naissance.id_for_label }}">
+                                Date de naissance
+                            </label>
+                            {{ form.eleve_date_naissance }}
+                            {% for erreur in form.eleve_date_naissance.errors %}
+                                <ul class="errorlist"><li>{{ erreur }}</li></ul>
+                            {% endfor %}
+                        </div>
+
+                        <div class="field span-2">
+                            <label for="{{ form.eleve_lieu_naissance.id_for_label }}">
+                                Lieu de naissance
+                            </label>
+                            {{ form.eleve_lieu_naissance }}
+                            {% for erreur in form.eleve_lieu_naissance.errors %}
+                                <ul class="errorlist"><li>{{ erreur }}</li></ul>
+                            {% endfor %}
+                        </div>
+
+                        <div class="field">
+                            <label for="{{ form.eleve_telephone.id_for_label }}">Téléphone</label>
+                            {{ form.eleve_telephone }}
+                            {% for erreur in form.eleve_telephone.errors %}
+                                <ul class="errorlist"><li>{{ erreur }}</li></ul>
+                            {% endfor %}
+                        </div>
+
+                        <div class="field span-2">
+                            <label for="{{ form.eleve_email.id_for_label }}">Email</label>
+                            {{ form.eleve_email }}
+                            {% for erreur in form.eleve_email.errors %}
+                                <ul class="errorlist"><li>{{ erreur }}</li></ul>
+                            {% endfor %}
+                        </div>
+
+                        <div class="field span-3">
+                            <label for="{{ form.eleve_adresse.id_for_label }}">Adresse</label>
+                            {{ form.eleve_adresse }}
+                            {% for erreur in form.eleve_adresse.errors %}
+                                <ul class="errorlist"><li>{{ erreur }}</li></ul>
+                            {% endfor %}
+                        </div>
+
+                        <div class="field span-3">
+                            <label for="{{ form.eleve_photo.id_for_label }}">Photo</label>
+                            {{ form.eleve_photo }}
+                            {% for erreur in form.eleve_photo.errors %}
+                                <ul class="errorlist"><li>{{ erreur }}</li></ul>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====================================================
+                 RESPONSABLE LÉGAL
+                 ==================================================== -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-icon responsable"><i class="fas fa-user-shield"></i></div>
+                    <div>
+                        <h2 class="section-title">Responsable légal</h2>
+                        <p class="section-subtitle">Parent, tuteur ou responsable désigné.</p>
+                    </div>
+                </div>
+
+                <div class="grid">
+                    <div class="field">
+                        <label for="{{ form.resp_type_responsabilite.id_for_label }}">
+                            Lien avec l'élève <span class="req">*</span>
+                        </label>
+                        {{ form.resp_type_responsabilite }}
+                        {% for erreur in form.resp_type_responsabilite.errors %}
+                            <ul class="errorlist"><li>{{ erreur }}</li></ul>
+                        {% endfor %}
+                    </div>
+
+                    <div class="field">
+                        <label for="{{ form.resp_nom.id_for_label }}">
+                            Nom <span class="req">*</span>
+                        </label>
+                        {{ form.resp_nom }}
+                        {% for erreur in form.resp_nom.errors %}
+                            <ul class="errorlist"><li>{{ erreur }}</li></ul>
+                        {% endfor %}
+                    </div>
+
+                    <div class="field">
+                        <label for="{{ form.resp_prenom.id_for_label }}">
+                            Prénom <span class="req">*</span>
+                        </label>
+                        {{ form.resp_prenom }}
+                        {% for erreur in form.resp_prenom.errors %}
+                            <ul class="errorlist"><li>{{ erreur }}</li></ul>
+                        {% endfor %}
+                    </div>
+
+                    <div class="field">
+                        <label for="{{ form.resp_postnom.id_for_label }}">Postnom</label>
+                        {{ form.resp_postnom }}
+                    </div>
+
+                    <div class="field">
+                        <label for="{{ form.resp_telephone.id_for_label }}">
+                            Téléphone <span class="req">*</span>
+                        </label>
+                        {{ form.resp_telephone }}
+                        {% for erreur in form.resp_telephone.errors %}
+                            <ul class="errorlist"><li>{{ erreur }}</li></ul>
+                        {% endfor %}
+                    </div>
+
+                    <div class="field">
+                        <label for="{{ form.resp_email.id_for_label }}">Email</label>
+                        {{ form.resp_email }}
+                        {% for erreur in form.resp_email.errors %}
+                            <ul class="errorlist"><li>{{ erreur }}</li></ul>
+                        {% endfor %}
+                    </div>
+
+                    <div class="field">
+                        <label for="{{ form.resp_profession.id_for_label }}">Profession</label>
+                        {{ form.resp_profession }}
+                    </div>
+
+                    <div class="field span-2">
+                        <label for="{{ form.resp_adresse.id_for_label }}">Adresse</label>
+                        {{ form.resp_adresse }}
+                    </div>
+
+                    <div class="field span-3">
+                        <label class="check-row">
+                            {{ form.resp_principal }}
+                            Responsable principal
+                        </label>
+                        <span class="helptext">
+                            Le responsable principal reçoit les notifications en priorité.
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====================================================
+                 SECOND RESPONSABLE (OPTIONNEL)
+                 ==================================================== -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-icon responsable"><i class="fas fa-users"></i></div>
+                    <div>
+                        <h2 class="section-title">Second responsable</h2>
+                        <p class="section-subtitle">Facultatif : un deuxième parent ou tuteur.</p>
+                    </div>
+                </div>
+
+                <div class="field span-3">
+                    <label class="check-row">
+                        {{ form.resp2_actif }}
+                        Ajouter un second responsable
+                    </label>
+                </div>
+
+                <div class="grid bloc-inline" id="bloc-resp2">
+                    <div class="field">
+                        <label for="{{ form.resp2_type_responsabilite.id_for_label }}">Lien</label>
+                        {{ form.resp2_type_responsabilite }}
+                        {% for erreur in form.resp2_type_responsabilite.errors %}
+                            <ul class="errorlist"><li>{{ erreur }}</li></ul>
+                        {% endfor %}
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.resp2_nom.id_for_label }}">Nom</label>
+                        {{ form.resp2_nom }}
+                        {% for erreur in form.resp2_nom.errors %}
+                            <ul class="errorlist"><li>{{ erreur }}</li></ul>
+                        {% endfor %}
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.resp2_prenom.id_for_label }}">Prénom</label>
+                        {{ form.resp2_prenom }}
+                        {% for erreur in form.resp2_prenom.errors %}
+                            <ul class="errorlist"><li>{{ erreur }}</li></ul>
+                        {% endfor %}
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.resp2_postnom.id_for_label }}">Postnom</label>
+                        {{ form.resp2_postnom }}
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.resp2_telephone.id_for_label }}">Téléphone</label>
+                        {{ form.resp2_telephone }}
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.resp2_email.id_for_label }}">Email</label>
+                        {{ form.resp2_email }}
+                        {% for erreur in form.resp2_email.errors %}
+                            <ul class="errorlist"><li>{{ erreur }}</li></ul>
+                        {% endfor %}
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.resp2_profession.id_for_label }}">Profession</label>
+                        {{ form.resp2_profession }}
+                    </div>
+                    <div class="field span-2">
+                        <label for="{{ form.resp2_adresse.id_for_label }}">Adresse</label>
+                        {{ form.resp2_adresse }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====================================================
+                 INSCRIPTION
+                 ==================================================== -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-icon inscription"><i class="fas fa-file-signature"></i></div>
+                    <div>
+                        <h2 class="section-title">Inscription</h2>
+                        <p class="section-subtitle">Année scolaire et classe d'affectation.</p>
+                    </div>
+                </div>
+
+                <div class="grid">
+                    <div class="field">
+                        <label for="{{ form.annee.id_for_label }}">
+                            Année scolaire <span class="req">*</span>
+                        </label>
+                        {{ form.annee }}
+                        {% for erreur in form.annee.errors %}
+                            <ul class="errorlist"><li>{{ erreur }}</li></ul>
+                        {% endfor %}
+                    </div>
+
+                    <div class="field">
+                        <label for="{{ form.classe.id_for_label }}">
+                            Classe <span class="req">*</span>
+                        </label>
+                        {{ form.classe }}
+                        {% for erreur in form.classe.errors %}
+                            <ul class="errorlist"><li>{{ erreur }}</li></ul>
+                        {% endfor %}
+                    </div>
+
+                    <div class="field">
+                        <label for="{{ form.type_inscription.id_for_label }}">
+                            Type d'inscription
+                        </label>
+                        {{ form.type_inscription }}
+                        {% for erreur in form.type_inscription.errors %}
+                            <ul class="errorlist"><li>{{ erreur }}</li></ul>
+                        {% endfor %}
+                    </div>
+
+                    <div class="field span-3">
+                        <label class="check-row">
+                            {{ form.bulletin_precedent_verifie }}
+                            Bulletin de l'année précédente vérifié
+                        </label>
+                        <span class="helptext">
+                            Obligatoire pour une réinscription.
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{% url 'liste_inscriptions' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Annuler
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> {{ soumission }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    "use strict";
+
+    // ---------- Bascule nouvel élève / élève existant ----------
+    var blocNouveau = document.getElementById("bloc-nouveau");
+    var blocExistant = document.getElementById("bloc-existant");
+
+    function appliquerMode() {
+        // Absent en mode modification : rien à basculer.
+        if (!blocNouveau || !blocExistant) { return; }
+
+        var mode = document.querySelector('input[name="mode_eleve"]:checked');
+        if (!mode) { return; }
+
+        var nouveau = mode.value === "nouveau";
+
+        blocNouveau.style.display = nouveau ? "" : "none";
+        blocExistant.classList.toggle("is-visible", !nouveau);
+        blocExistant.style.display = nouveau ? "none" : "";
+
+        document.querySelectorAll(".mode-switch label").forEach(function (label) {
+            var radio = label.querySelector('input[name="mode_eleve"]');
+            label.classList.toggle("is-active", !!radio && radio.checked);
+        });
+    }
+
+    document.querySelectorAll('input[name="mode_eleve"]').forEach(function (radio) {
+        radio.addEventListener("change", appliquerMode);
+    });
+    appliquerMode();
+
+    // ---------- Second responsable ----------
+    var caseResp2 = document.getElementById("{{ form.resp2_actif.id_for_label }}");
+    var blocResp2 = document.getElementById("bloc-resp2");
+
+    function appliquerResp2() {
+        if (!blocResp2) { return; }
+        var actif = !!(caseResp2 && caseResp2.checked);
+        blocResp2.classList.toggle("is-visible", actif);
+        blocResp2.style.display = actif ? "" : "none";
+    }
+
+    if (caseResp2) {
+        caseResp2.addEventListener("change", appliquerResp2);
+    }
+    appliquerResp2();
+
+    // ---------- Marque les champs en erreur ----------
+    document.querySelectorAll(".errorlist").forEach(function (liste) {
+        var champ = liste.closest(".field");
+        if (!champ) { return; }
+        var controle = champ.querySelector(".form-control, .form-select");
+        if (controle) { controle.classList.add("is-invalid"); }
+    });
+
+    // ---------- Aucune submission accidentelle en double-clic ----------
+    var formulaire = document.querySelector("form");
+    var bouton = formulaire ? formulaire.querySelector('button[type="submit"]') : null;
+
+    if (formulaire && bouton) {
+        formulaire.addEventListener("submit", function () {
+            bouton.disabled = true;
+            bouton.innerHTML =
+                '<i class="fas fa-spinner fa-spin"></i> Enregistrement...';
+        });
+    }
+})();
+</script>
+{% endblock %}

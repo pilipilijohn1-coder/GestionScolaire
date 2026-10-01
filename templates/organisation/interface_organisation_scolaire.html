@@ -1,0 +1,424 @@
+{% extends base_template %}
+{% load static %}
+{% block title %}
+Organisation scolaire
+{% endblock %}
+{% block extra_css %}
+<style>
+    :root {
+        --org-primary: #2563eb;
+        --org-primary-dark: #1e40af;
+        --org-bg: #f8fafc;
+        --org-border: #e2e8f0;
+        --org-text: #1e293b;
+        --org-text-secondary: #64748b;
+        --org-card-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+        --org-card-shadow-hover: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+    }
+
+    .organisation-header {
+        max-width: 1200px;
+        margin: 0 auto 28px;
+    }
+
+    .organisation-header .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+
+    .header-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: #eef2ff;
+        color: #3730a3;
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 10px;
+    }
+
+    .organisation-header h1 {
+        margin: 0 0 10px;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--org-text);
+        letter-spacing: -0.025em;
+    }
+
+    .header-description {
+        margin: 0;
+        color: var(--org-text-secondary);
+        font-size: 14px;
+        max-width: 720px;
+        line-height: 1.6;
+    }
+
+    .header-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        background: #eef2ff;
+        color: var(--org-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        flex-shrink: 0;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+
+    .organisation-grid {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+    }
+
+    .organisation-card {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        background: #ffffff;
+        border: 1px solid var(--org-border);
+        border-radius: 16px;
+        padding: 24px;
+        text-decoration: none;
+        color: var(--org-text);
+        box-shadow: var(--org-card-shadow);
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .organisation-card:hover {
+        background: #f8fafc;
+        border-color: var(--org-primary);
+        transform: translateY(-3px);
+        box-shadow: var(--org-card-shadow-hover);
+    }
+
+    .organisation-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .organisation-card:hover::before {
+        opacity: 1;
+    }
+
+    .card-configuration::before { background: var(--org-primary); }
+    .card-creneaux::before { background: #f59e0b; }
+    .card-emplois::before { background: #16a34a; }
+    .card-charge::before { background: #db2777; }
+    .card-validation::before { background: #dc2626; }
+    .card-finance::before { background: #059669; }
+
+    .card-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+        transition: transform 0.2s ease;
+    }
+
+    .organisation-card:hover .card-icon {
+        transform: scale(1.05);
+    }
+
+    .card-configuration .card-icon { background: #eef2ff; color: var(--org-primary); }
+    .card-creneaux .card-icon { background: #fef3c7; color: #d97706; }
+    .card-emplois .card-icon { background: #dcfce7; color: #16a34a; }
+    .card-charge .card-icon { background: #fce7f3; color: #db2777; }
+    .card-validation .card-icon { background: #fee2e2; color: #dc2626; }
+    .card-finance .card-icon { background: #dcfce7; color: #059669; }
+
+    .card-content h2 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--org-text);
+        letter-spacing: -0.01em;
+    }
+
+    .card-content p {
+        margin: 8px 0 0;
+        color: var(--org-text-secondary);
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .card-arrow {
+        margin-top: auto;
+        color: #cbd5e1;
+        font-size: 18px;
+        transition: all 0.2s ease;
+    }
+
+    .organisation-card:hover .card-arrow {
+        color: var(--org-primary);
+        transform: translateX(4px);
+    }
+
+    .organisation-footer-info {
+        max-width: 1200px;
+        margin: 28px auto 0;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        background: #ffffff;
+        border: 1px solid var(--org-border);
+        border-radius: 16px;
+        padding: 20px 24px;
+        box-shadow: var(--org-card-shadow);
+    }
+
+    .footer-info-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: #eef2ff;
+        color: var(--org-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+
+    .organisation-footer-info strong {
+        color: var(--org-text);
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .organisation-footer-info p {
+        margin: 4px 0 0;
+        color: var(--org-text-secondary);
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+        .organisation-header .header-content {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .organisation-header h1 {
+            font-size: 22px;
+        }
+        .header-icon {
+            align-self: flex-start;
+        }
+        .organisation-grid {
+            grid-template-columns: 1fr;
+        }
+        .organisation-footer-info {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+{% endblock %}
+{% block content %}
+
+
+<!-- ================================================ -->
+<!-- EN-TÊTE -->
+<!-- ================================================ -->
+
+<section class="organisation-header">
+    <div class="header-content">
+        <div>
+            <p class="header-label">ADMINISTRATION</p>
+            <h1>Organisation scolaire</h1>
+            <p class="header-description">
+                Configurez l'organisation de la journée,
+                gérez les créneaux horaires, les emplois
+                du temps et la répartition hebdomadaire
+                des enseignants.
+            </p>
+        </div>
+
+        <div class="header-icon">
+            <i class="fas fa-calendar-alt"></i>
+        </div>
+    </div>
+</section>
+
+<!-- ================================================ -->
+<!-- MODULES -->
+<!-- ================================================ -->
+
+<section class="organisation-grid">
+    <a href="{% url 'configuration_journee' %}" class="organisation-card card-configuration">
+        <div class="card-icon">
+            <i class="fas fa-sliders-h"></i>
+        </div>
+        <div class="card-content">
+            <h2>Configuration de la journée</h2>
+            <p>
+                Définissez l'heure de début, la durée des
+                cours, le nombre d'heures par jour ainsi
+                que l'heure et la durée de la pause.
+            </p>
+        </div>
+        <div class="card-arrow">
+            <i class="fas fa-arrow-right"></i>
+        </div>
+    </a>
+
+    <a href="{% url 'repartition_horaire' %}" class="organisation-card card-creneaux">
+        <div class="card-icon">
+            <i class="fas fa-clock"></i>
+        </div>
+        <div class="card-content">
+            <h2>Créneaux horaires</h2>
+            <p>
+                Consultez les heures de cours et la pause
+                générées à partir de la configuration de
+                la journée scolaire.
+            </p>
+        </div>
+        <div class="card-arrow">
+            <i class="fas fa-arrow-right"></i>
+        </div>
+    </a>
+
+    <a href="{% url 'tableau_bord_repartition_horaire' %}" class="organisation-card card-emplois">
+        <div class="card-icon">
+            <i class="fas fa-calendar-week"></i>
+        </div>
+        <div class="card-content">
+            <h2>Emplois du temps</h2>
+            <p>
+                Organisez les cours des classes du lundi
+                au samedi en utilisant les créneaux
+                horaires définis pour l'établissement.
+            </p>
+        </div>
+        <div class="card-arrow">
+            <i class="fas fa-arrow-right"></i>
+        </div>
+    </a>
+
+    <a href="{% url 'configuration_generale' %}" class="organisation-card card-configuration">
+        <div class="card-icon">
+            <i class="fas fa-cog"></i>
+        </div>
+        <div class="card-content">
+            <h2>Configuration générale</h2>
+            <p>
+                Gérez les frais scolaires, les tranches de
+                paiement et la configuration des bulletins.
+            </p>
+        </div>
+        <div class="card-arrow">
+            <i class="fas fa-arrow-right"></i>
+        </div>
+    </a>
+
+    <a href="{% url 'liste_frais' %}" class="organisation-card card-finance">
+        <div class="card-icon">
+            <i class="fas fa-money-bill-wave"></i>
+        </div>
+        <div class="card-content">
+            <h2>Frais scolaires</h2>
+            <p>
+                Configurez les frais par année scolaire
+                et par niveau.
+            </p>
+        </div>
+        <div class="card-arrow">
+            <i class="fas fa-arrow-right"></i>
+        </div>
+    </a>
+
+    <a href="{% url 'liste_tranches' %}" class="organisation-card card-finance">
+        <div class="card-icon">
+            <i class="fas fa-calendar-alt"></i>
+        </div>
+        <div class="card-content">
+            <h2>Tranches de paiement</h2>
+            <p>
+                Gérez les échéances et les montants
+                des tranches de paiement.
+            </p>
+        </div>
+        <div class="card-arrow">
+            <i class="fas fa-arrow-right"></i>
+        </div>
+    </a>
+
+    <a href="{% url 'liste_modeles_bulletins' %}" class="organisation-card card-finance">
+        <div class="card-icon">
+            <i class="fas fa-file-alt"></i>
+        </div>
+        <div class="card-content">
+            <h2>Modèles de bulletins</h2>
+            <p>
+                Gérez les modèles et la configuration
+                des bulletins scolaires.
+            </p>
+        </div>
+        <div class="card-arrow">
+            <i class="fas fa-arrow-right"></i>
+        </div>
+    </a>
+
+    <a href="{% url 'configuration_journee' %}" class="organisation-card card-validation">
+        <div class="card-icon">
+            <i class="fas fa-lock"></i>
+        </div>
+        <div class="card-content">
+            <h2>Validation et verrouillage</h2>
+            <p>
+                Validez l'organisation horaire. Après la
+                validation, les éléments concernés seront
+                verrouillés afin de préserver la stabilité
+                de l'organisation scolaire.
+            </p>
+        </div>
+        <div class="card-arrow">
+            <i class="fas fa-arrow-right"></i>
+        </div>
+    </a>
+</section>
+
+<!-- ================================================ -->
+<!-- INFORMATIONS -->
+<!-- ================================================ -->
+
+<section class="organisation-footer-info">
+    <div class="footer-info-icon">
+        <i class="fas fa-shield-alt"></i>
+    </div>
+
+    <div>
+        <strong>Organisation sécurisée</strong>
+        <p>
+            Une fois l'organisation validée, le système
+            applique le verrouillage prévu afin d'éviter
+            les modifications non autorisées.
+        </p>
+    </div>
+</section>
+
+{% endblock %}

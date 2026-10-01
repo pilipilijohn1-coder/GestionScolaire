@@ -1,0 +1,482 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Tableau de bord - Préfet{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --pref-primary: #2563eb;
+        --pref-primary-dark: #1e40af;
+        --pref-bg: #f0f4f8;
+        --pref-border: #e2e8f0;
+        --pref-text: #0f172a;
+        --pref-text-secondary: #64748b;
+        --pref-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+        --pref-shadow-hover: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+        --stat-blue: #3b82f6;
+        --stat-green: #10b981;
+        --stat-purple: #8b5cf6;
+        --stat-orange: #f59e0b;
+        --stat-red: #ef4444;
+        --stat-teal: #14b8a8;
+        --stat-indigo: #6366f1;
+        --stat-rose: #f43f5e;
+        --stat-amber: #f97316;
+    }
+
+    .dashboard-container {
+        padding: 24px;
+        max-width: 1400px;
+        margin: 0 auto;
+        background: var(--pref-bg);
+    }
+
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .dashboard-header h1 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--pref-text);
+    }
+
+    .dashboard-header p {
+        color: var(--pref-text-secondary);
+        margin: 4px 0 0;
+        font-size: 14px;
+    }
+
+    .role-badge {
+        padding: 7px 16px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        color: #fff;
+        font-weight: 600;
+        font-size: 13px;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+    }
+
+    .dashboard-layout {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 24px;
+    }
+
+    @media (max-width: 1024px) {
+        .dashboard-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .main-section {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .stats-with-chart {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+    }
+
+    @media (max-width: 768px) {
+        .stats-with-chart {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .stat-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 18px;
+        border: 1px solid var(--pref-border);
+        box-shadow: var(--pref-shadow);
+        text-align: center;
+        transition: all 0.25s ease;
+        flex-direction: column;
+        display: flex;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--pref-shadow-hover);
+        border-color: var(--pref-primary);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        font-size: 20px;
+        color: #fff;
+    }
+
+    .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--pref-text);
+        margin-bottom: 4px;
+    }
+
+    .stat-label {
+        color: var(--pref-text-secondary);
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .stat-icon.blue { background: linear-gradient(135deg, var(--stat-blue), #1d4ed8); }
+    .stat-icon.green { background: linear-gradient(135deg, var(--stat-green), #059669); }
+    .stat-icon.purple { background: linear-gradient(135deg, var(--stat-purple), #7c3aed); }
+    .stat-icon.orange { background: linear-gradient(135deg, var(--stat-orange), #c2410c); }
+    .stat-icon.red { background: linear-gradient(135deg, var(--stat-red), #b91c1c); }
+    .stat-icon.teal { background: linear-gradient(135deg, var(--stat-teal), #0d9488); }
+    .stat-icon.indigo { background: linear-gradient(135deg, var(--stat-indigo), #4f46e5); }
+    .stat-icon.rose { background: linear-gradient(135deg, var(--stat-rose), #c2185b); }
+    .stat-icon.amber { background: linear-gradient(135deg, var(--stat-amber), #92400e); }
+
+    .chart-container {
+        background: #fff;
+        border-radius: 14px;
+        padding: 20px;
+        border: 1px solid var(--pref-border);
+        box-shadow: var(--pref-shadow);
+        flex: 1;
+    }
+
+    .chart-container h3 {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--pref-text);
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .chart-container h3 i {
+        color: var(--pref-primary);
+        font-size: 18px;
+    }
+
+    .chart-wrapper {
+        height: 220px;
+        position: relative;
+    }
+
+    .info-card, .actions-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 20px;
+        border: 1px solid var(--pref-border);
+        box-shadow: var(--pref-shadow);
+    }
+
+    .info-card h2, .actions-card h2 {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--pref-text);
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .info-card h2 i, .actions-card h2 i {
+        color: var(--pref-primary);
+        font-size: 16px;
+    }
+
+    .info-card p {
+        color: var(--pref-text-secondary);
+        font-size: 13px;
+    }
+
+    .actions-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-top: 4px;
+    }
+
+    .action-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border: 1px solid var(--pref-border);
+        border-radius: 10px;
+        text-decoration: none;
+        color: var(--pref-text);
+        transition: all 0.2s ease;
+        background: #fff;
+    }
+
+    .action-card:hover {
+        background: var(--pref-bg);
+        border-color: var(--pref-primary);
+        transform: translateX(3px);
+    }
+
+    .action-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        color: #fff;
+        flex-shrink: 0;
+    }
+
+    .action-icon.blue { background: linear-gradient(135deg, var(--stat-blue), #1d4ed8); }
+    .action-icon.green { background: linear-gradient(135deg, var(--stat-green), #059669); }
+    .action-icon.purple { background: linear-gradient(135deg, var(--stat-purple), #7c3aed); }
+    .action-icon.orange { background: linear-gradient(135deg, var(--stat-orange), #c2410c); }
+    .action-icon.red { background: linear-gradient(135deg, var(--stat-red), #b91c1c); }
+    .action-icon.teal { background: linear-gradient(135deg, var(--stat-teal), #0d9488); }
+    .action-icon.indigo { background: linear-gradient(135deg, var(--stat-indigo), #4f46e5); }
+    .action-icon.rose { background: linear-gradient(135deg, var(--stat-rose), #c2185b); }
+    .action-icon.amber { background: linear-gradient(135deg, var(--stat-amber), #92400e); }
+
+    .action-title {
+        font-weight: 500;
+        font-size: 14px;
+    }
+
+    .alert-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 16px 20px;
+        border: 1px solid var(--pref-border);
+        box-shadow: var(--pref-shadow);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .alert-icon {
+        font-size: 22px;
+        color: #f59e0b;
+    }
+
+    .alert-body strong {
+        display: block;
+        font-size: 13px;
+        color: var(--pref-text);
+        margin-bottom: 2px;
+    }
+
+    .alert-body span {
+        font-size: 12px;
+        color: var(--pref-text-secondary);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var ctx = document.getElementById('prefectChart').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ chart_labels|safe }},
+                datasets: [{
+                    label: 'Vue d\'ensemble',
+                    data: {{ chart_values|safe }},
+                    backgroundColor: [
+                        'rgba(59, 130, 246, 0.7)',
+                        'rgba(16, 185, 129, 0.7)',
+                        'rgba(139, 92, 246, 0.7)',
+                        'rgba(245, 158, 11, 0.7)',
+                        'rgba(239, 68, 68, 0.7)',
+                    ],
+                    borderColor: [
+                        'rgba(59, 130, 246, 1)',
+                        'rgba(16, 185, 129, 1)',
+                        'rgba(139, 92, 246, 1)',
+                        'rgba(245, 158, 11, 1)',
+                        'rgba(239, 68, 68, 1)',
+                    ],
+                    borderWidth: 1,
+                    borderRadius: 6,
+                    barThickness: 30,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { drawBorder: false, color: 'rgba(0,0,0,0.05)' },
+                        ticks: { font: { size: 11 }, color: '#64748b' },
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 11 }, color: '#64748b' },
+                    },
+                },
+            },
+        });
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+
+    <!-- HEADER -->
+    <div class="dashboard-header">
+        <div>
+            <h1>Tableau de bord</h1>
+            <p>Bienvenue, <strong>{{ utilisateur.prenom }} {{ utilisateur.nom }}</strong></p>
+            {% if annee_active %}
+                <p>Année scolaire : <strong>{{ annee_active.libelle }}</strong></p>
+            {% endif %}
+        </div>
+        <span class="role-badge">Préfet</span>
+    </div>
+
+    <!-- LAYOUT: main + sidebar -->
+    <div class="dashboard-layout">
+
+        <div class="main-section">
+
+            <!-- STATS + CHART -->
+            <div class="stats-with-chart">
+
+                <!-- Stat cards -->
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-graduation-cap"></i></div>
+                    <span class="stat-value">{{ nombre_eleves }}</span>
+                    <span class="stat-label">Élèves</span>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-school"></i></div>
+                    <span class="stat-value">{{ nombre_classes }}</span>
+                    <span class="stat-label">Classes</span>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon purple"><i class="fas fa-chalkboard-user"></i></div>
+                    <span class="stat-value">{{ nombre_enseignants }}</span>
+                    <span class="stat-label">Enseignants</span>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon orange"><i class="fas fa-book"></i></div>
+                    <span class="stat-value">{{ nombre_affectations }}</span>
+                    <span class="stat-label">Affectations</span>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon teal"><i class="fas fa-user-pen"></i></div>
+                    <span class="stat-value">{{ nombre_inscriptions }}</span>
+                    <span class="stat-label">Inscriptions</span>
+                </div>
+
+                <!-- Bar chart -->
+                <div class="chart-container">
+                    <h3><i class="fas fa-chart-bar"></i> Statistiques globales</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="prefectChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ALERTES -->
+            {% if demandes_autorisation or anomalies_critiques %}
+                <div class="alert-card">
+                    <div class="alert-icon"><i class="fas fa-triangle-exclamation"></i></div>
+                    <div class="alert-body">
+                        <strong>Alertes</strong>
+                        <span>
+                            {% if demandes_autorisation %}
+                                {{ demandes_autorisation }} demande(s) d'autorisation en attente.
+                            {% endif %}
+                            {% if anomalies_critiques %}
+                                {{ anomalies_critiques }} anomalie(s) critique(s).
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            {% endif %}
+
+        </div>
+
+        <!-- ACCÈS RAPIDE (sidebar) -->
+        <div class="actions-card">
+            <h2><i class="fas fa-bolt"></i> Accès rapide</h2>
+            <p style="color:#6b7280; font-size:13px; margin-bottom:14px;">Coordination pédagogique et administrative.</p>
+
+            <div class="actions-grid">
+                <a href="{% url 'liste_eleves' %}" class="action-card">
+                    <div class="action-icon blue"><i class="fas fa-graduation-cap"></i></div>
+                    <div class="action-title">Élèves</div>
+                </a>
+                <a href="{% url 'liste_classes' %}" class="action-card">
+                    <div class="action-icon green"><i class="fas fa-school"></i></div>
+                    <div class="action-title">Classes</div>
+                </a>
+                <a href="{% url 'liste_enseignants' %}" class="action-card">
+                    <div class="action-icon purple"><i class="fas fa-chalkboard-user"></i></div>
+                    <div class="action-title">Enseignants</div>
+                </a>
+                <a href="{% url 'liste_matieres' %}" class="action-card">
+                    <div class="action-icon teal"><i class="fas fa-book"></i></div>
+                    <div class="action-title">Matières</div>
+                </a>
+                <a href="{% url 'structure_academique' %}" class="action-card">
+                    <div class="action-icon orange"><i class="fas fa-helmet-safety"></i></div>
+                    <div class="action-title">Structure académique</div>
+                </a>
+                <a href="{% url 'interface_organisation_scolaire' %}" class="action-card">
+                    <div class="action-icon indigo"><i class="fas fa-calendar-days"></i></div>
+                    <div class="action-title">Organisation</div>
+                </a>
+                <a href="{% url 'configuration_generale' %}" class="action-card">
+                    <div class="action-icon rose"><i class="fas fa-gear"></i></div>
+                    <div class="action-title">Configuration</div>
+                </a>
+                <a href="{% url 'creer_titularisation' %}" class="action-card">
+                    <div class="action-icon amber"><i class="fas fa-user-tie"></i></div>
+                    <div class="action-title">Titularisation</div>
+                </a>
+                <a href="{% url 'liste_utilisateurs' %}" class="action-card">
+                    <div class="action-icon amber"><i class="fas fa-users"></i></div>
+                    <div class="action-title">Utilisateurs</div>
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- BOUTON FLOTTANT : MON PROFIL -->
+<div class="profile-float">
+    <a href="{% url 'mon_profil' %}" class="profile-float-btn" title="Mon profil">
+        <i class="fa-solid fa-user"></i>
+    </a>
+</div>
+{% endblock %}

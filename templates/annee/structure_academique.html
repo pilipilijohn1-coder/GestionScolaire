@@ -1,0 +1,493 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+    Structure académique
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --sa-primary: #2563eb;
+        --sa-primary-dark: #1e40af;
+        --sa-bg: #f8fafc;
+        --sa-border: #e2e8f0;
+        --sa-text: #1e293b;
+        --sa-text-secondary: #64748b;
+        --sa-card-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+        --sa-card-shadow-hover: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+    }
+
+    .structure-academique {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .structure-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .structure-header h1 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--sa-text);
+        letter-spacing: -0.025em;
+    }
+
+    .structure-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 18px;
+        border-radius: 10px;
+        background: var(--sa-primary);
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        border: none;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+    }
+
+    .structure-btn:hover {
+        background: var(--sa-primary-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+
+    .annee-active-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #ffffff;
+        border: 1px solid var(--sa-border);
+        border-radius: 16px;
+        padding: 24px 28px;
+        margin-bottom: 28px;
+        box-shadow: var(--sa-card-shadow);
+        flex-wrap: wrap;
+        gap: 16px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .annee-active-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 4px;
+        background: var(--sa-primary);
+        border-radius: 4px 0 0 4px;
+    }
+
+    .section-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: #eef2ff;
+        color: #3730a3;
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 10px;
+    }
+
+    .annee-active-info h2 {
+        margin: 0 0 8px;
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--sa-text);
+        letter-spacing: -0.01em;
+    }
+
+    .annee-active-info p {
+        margin: 0;
+        color: var(--sa-text-secondary);
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .structure-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        margin-bottom: 28px;
+    }
+
+    .structure-card {
+        background: #ffffff;
+        border: 1px solid var(--sa-border);
+        border-radius: 16px;
+        padding: 22px;
+        box-shadow: var(--sa-card-shadow);
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .structure-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--sa-card-shadow-hover);
+        border-color: #cbd5e1;
+    }
+
+    .structure-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--sa-primary);
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .structure-card:hover::before {
+        opacity: 1;
+    }
+
+    .structure-card-icon {
+        font-size: 32px;
+        line-height: 1;
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8fafc;
+        border-radius: 12px;
+    }
+
+    .structure-card-content h2 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--sa-text);
+        letter-spacing: -0.01em;
+    }
+
+    .structure-stat {
+        color: var(--sa-text-secondary);
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .structure-stat span {
+        font-weight: 700;
+        color: var(--sa-primary);
+        font-size: 20px;
+    }
+
+    .structure-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid var(--sa-border);
+        background: #ffffff;
+        color: var(--sa-text);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.2s ease;
+    }
+
+    .structure-button:hover {
+        background: #f8fafc;
+        border-color: var(--sa-primary);
+        color: var(--sa-primary);
+    }
+
+    .structure-button span {
+        font-size: 18px;
+        transition: transform 0.2s ease;
+    }
+
+    .structure-button:hover span {
+        transform: translateX(3px);
+    }
+
+    .resume-card {
+        background: #ffffff;
+        border: 1px solid var(--sa-border);
+        border-radius: 16px;
+        padding: 24px 28px;
+        box-shadow: var(--sa-card-shadow);
+    }
+
+    .resume-header {
+        margin-bottom: 20px;
+    }
+
+    .resume-header h2 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--sa-text);
+        letter-spacing: -0.01em;
+    }
+
+    .resume-header p {
+        margin: 6px 0 0;
+        color: var(--sa-text-secondary);
+        font-size: 14px;
+    }
+
+    .resume-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+    }
+
+    .resume-item {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 16px;
+        border-radius: 12px;
+        background: #f8fafc;
+        border: 1px solid #f1f5f9;
+        transition: all 0.2s ease;
+    }
+
+    .resume-item:hover {
+        background: #ffffff;
+        border-color: var(--sa-border);
+        box-shadow: var(--sa-card-shadow);
+    }
+
+    .resume-label {
+        color: var(--sa-text-secondary);
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .resume-item strong {
+        color: var(--sa-text);
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .structure-alert {
+        margin-top: 24px;
+        padding: 16px 20px;
+        border-radius: 12px;
+        background: #fef3c7;
+        color: #92400e;
+        border: 1px solid #fde68a;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .structure-alert strong {
+        font-weight: 700;
+    }
+
+    @media (max-width: 768px) {
+        .structure-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .annee-active-card {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .structure-grid,
+        .resume-grid {
+            grid-template-columns: 1fr;
+        }
+        .structure-header h1 {
+            font-size: 22px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="structure-academique">
+
+    <div class="structure-header">
+        <div>
+            <h1>Structure Pédagogique</h1>
+            <a href="{% url 'liste_affectations_matieres' %}" class="structure-btn">
+                Affectations
+            </a>
+            <a href="{% url 'gestion_matieres_classes' %}" class="structure-btn">
+                Gestion des matières
+            </a>
+        </div>
+    </div>
+
+    <div class="annee-active-card">
+        <div class="annee-active-info">
+            <span class="section-label">
+                Année scolaire actuelle
+            </span>
+
+            {% if annee_active %}
+                <h2>{{ annee_active.libelle }}</h2>
+                <p>
+                    Du {{ annee_active.date_debut|date:"d/m/Y" }}
+                    au {{ annee_active.date_fin|date:"d/m/Y" }}
+                </p>
+            {% else %}
+                <h2>Aucune année scolaire active</h2>
+                <p>
+                    Veuillez activer une année scolaire pour
+                    commencer la gestion académique.
+                </p>
+            {% endif %}
+        </div>
+
+        <div class="annee-active-action">
+            <a href="{% url 'liste_annees' %}" class="btn btn-primary">
+                Gérer les années
+            </a>
+        </div>
+    </div>
+
+    <div class="structure-grid">
+        <div class="structure-card">
+            <div class="structure-card-icon"><i class="fas fa-calendar-days"></i></div>
+            <div class="structure-card-content">
+                <h2>Années scolaires</h2>
+                <div class="structure-stat">
+                    <span>{{ nombre_annees }}</span>
+                    année{{ nombre_annees|pluralize }}
+                </div>
+            </div>
+            <a href="{% url 'liste_annees' %}" class="structure-button">
+                Gérer <span>→</span>
+            </a>
+        </div>
+
+        <div class="structure-card">
+            <div class="structure-card-icon"><i class="fas fa-school"></i></div>
+            <div class="structure-card-content">
+                <h2>Sections</h2>
+                <div class="structure-stat">
+                    <span>{{ nombre_sections }}</span>
+                    section{{ nombre_sections|pluralize }}
+                </div>
+            </div>
+            <a href="{% url 'liste_sections' %}" class="structure-button">
+                Gérer <span>→</span>
+            </a>
+        </div>
+
+        <div class="structure-card">
+            <div class="structure-card-icon"><i class="fas fa-user-graduate"></i></div>
+            <div class="structure-card-content">
+                <h2>Niveaux</h2>
+                <div class="structure-stat">
+                    <span>{{ nombre_niveaux }}</span>
+                    niveau{{ nombre_niveaux|pluralize }}
+                </div>
+            </div>
+            <a href="{% url 'liste_niveaux' %}" class="structure-button">
+                Gérer <span>→</span>
+            </a>
+        </div>
+
+        <div class="structure-card">
+            <div class="structure-card-icon"><i class="fas fa-chalkboard-user"></i></div>
+            <div class="structure-card-content">
+                <h2>Classes</h2>
+                <div class="structure-stat">
+                    <span>{{ nombre_classes }}</span>
+                    classe{{ nombre_classes|pluralize }}
+                </div>
+            </div>
+            <a href="{% url 'liste_classes' %}" class="structure-button">
+                Gérer <span>→</span>
+            </a>
+        </div>
+
+        <div class="structure-card">
+            <div class="structure-card-icon"><i class="fas fa-book"></i></div>
+            <div class="structure-card-content">
+                <h2>Matières</h2>
+                <div class="structure-stat">
+                    <span>{{ nombre_matieres }}</span>
+                    matière{{ nombre_matieres|pluralize }}
+                </div>
+            </div>
+            <a href="{% url 'liste_matieres' %}" class="structure-button">
+                Gérer <span>→</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="resume-card">
+        <div class="resume-header">
+            <h2>Résumé de la structure</h2>
+            <p>Aperçu rapide de la configuration académique.</p>
+        </div>
+
+        <div class="resume-grid">
+            <div class="resume-item">
+                <span class="resume-label">Année active</span>
+                <strong>
+                    {% if annee_active %}
+                        {{ annee_active.libelle }}
+                    {% else %}
+                        Non définie
+                    {% endif %}
+                </strong>
+            </div>
+
+            <div class="resume-item">
+                <span class="resume-label">Sections actives</span>
+                <strong>{{ nombre_sections }}</strong>
+            </div>
+
+            <div class="resume-item">
+                <span class="resume-label">Niveaux actifs</span>
+                <strong>{{ nombre_niveaux }}</strong>
+            </div>
+
+            <div class="resume-item">
+                <span class="resume-label">Classes actives</span>
+                <strong>{{ nombre_classes }}</strong>
+            </div>
+
+            <div class="resume-item">
+                <span class="resume-label">Matières actives</span>
+                <strong>{{ nombre_matieres }}</strong>
+            </div>
+        </div>
+    </div>
+
+    {% if not annee_active %}
+        <div class="structure-alert">
+            <strong>Attention :</strong>
+            aucune année scolaire n'est actuellement active.
+            Certaines opérations académiques ne pourront pas
+            être effectuées avant l'activation d'une année.
+        </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

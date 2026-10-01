@@ -1,0 +1,617 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Bulletin - {{ eleve.nom }} {{ eleve.prenom }}
+    </title>
+
+    <link rel="stylesheet"
+          href="{% static 'css/bulletin/bulletin_officiel.css' %}">
+
+</head>
+
+<body>
+
+<div class="bulletin-page">
+
+    <!-- ACTIONS HORS BULLETIN -->
+
+    <div class="screen-actions">
+
+        <a href="{% url 'liste_modeles_bulletin' %}"
+           class="btn-screen">
+            Retour
+        </a>
+
+        <a href="{% url 'bulletin_impression' bulletin.pk %}"
+           class="btn-screen btn-print">
+            Imprimer le bulletin
+        </a>
+
+    </div>
+
+
+    <!-- FEUILLE OFFICIELLE -->
+
+    <main class="bulletin-sheet">
+
+
+        <!-- ==================================================
+             EN-TÊTE
+             ================================================== -->
+
+        <header class="official-header">
+
+            <div class="header-left">
+
+                <div class="republic">
+                    RÉPUBLIQUE DÉMOCRATIQUE DU CONGO
+                </div>
+
+                <div class="ministry">
+                    MINISTÈRE DE L'ÉDUCATION
+                </div>
+
+            </div>
+
+
+            <div class="header-center">
+
+                <div class="school-name">
+                    ÉTABLISSEMENT SCOLAIRE
+                </div>
+
+                <div class="document-title">
+                    BULLETIN SCOLAIRE
+                </div>
+
+                <div class="school-year">
+                    Année scolaire :
+                    <strong>{{ annee.libelle }}</strong>
+                </div>
+
+            </div>
+
+
+            <div class="header-right">
+
+                <div class="model-code">
+                    {{ modele.code }}
+                </div>
+
+                <div>
+                    Version {{ modele.version }}
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- ==================================================
+             INFORMATIONS ÉLÈVE
+             ================================================== -->
+
+        <section class="student-information">
+
+            <div class="student-row">
+
+                <div class="student-field large">
+
+                    <span class="field-label">
+                        Nom
+                    </span>
+
+                    <span class="field-value">
+                        {{ eleve.nom }}
+                    </span>
+
+                </div>
+
+
+                <div class="student-field large">
+
+                    <span class="field-label">
+                        Postnom
+                    </span>
+
+                    <span class="field-value">
+
+                        {% if eleve.postnom %}
+                            {{ eleve.postnom }}
+                        {% else %}
+                            —
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+
+                <div class="student-field large">
+
+                    <span class="field-label">
+                        Prénom
+                    </span>
+
+                    <span class="field-value">
+                        {{ eleve.prenom }}
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="student-row">
+
+                <div class="student-field">
+
+                    <span class="field-label">
+                        Matricule
+                    </span>
+
+                    <span class="field-value">
+                        {{ eleve.matricule }}
+                    </span>
+
+                </div>
+
+
+                <div class="student-field">
+
+                    <span class="field-label">
+                        Classe
+                    </span>
+
+                    <span class="field-value">
+                        {{ classe.libelle }}
+                    </span>
+
+                </div>
+
+
+                <div class="student-field">
+
+                    <span class="field-label">
+                        Niveau
+                    </span>
+
+                    <span class="field-value">
+                        {{ classe.niveau.libelle }}
+                    </span>
+
+                </div>
+
+
+                <div class="student-field">
+
+                    <span class="field-label">
+                        Section
+                    </span>
+
+                    <span class="field-value">
+
+                        {% if classe.section %}
+                            {{ classe.section.libelle }}
+                        {% else %}
+                            —
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             TABLEAU DES RÉSULTATS
+             ================================================== -->
+
+        <section class="results-section">
+
+            <table class="bulletin-table">
+
+                <thead>
+
+                    <!-- PREMIÈRE LIGNE -->
+
+                    <tr>
+
+                        <th rowspan="2"
+                            class="number-column">
+                            N°
+                        </th>
+
+                        <th rowspan="2"
+                            class="subject-column">
+                            MATIÈRES
+                        </th>
+
+
+                        <th colspan="4"
+                            class="semester-header">
+                            PREMIER SEMESTRE
+                        </th>
+
+
+                        <th colspan="4"
+                            class="semester-header">
+                            DEUXIÈME SEMESTRE
+                        </th>
+
+
+                        <th rowspan="2"
+                            class="annual-column">
+                            T.G.
+                        </th>
+
+                        <th rowspan="2"
+                            class="percentage-column">
+                            %
+                        </th>
+
+                        <th rowspan="2"
+                            class="rank-column">
+                            RANG
+                        </th>
+
+                    </tr>
+
+
+                    <!-- DEUXIÈME LIGNE -->
+
+                    <tr>
+
+                        <th>P1</th>
+                        <th>P2</th>
+                        <th>EX.</th>
+                        <th>TOTAL</th>
+
+                        <th>P3</th>
+                        <th>P4</th>
+                        <th>EX.</th>
+                        <th>TOTAL</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for ligne in lignes %}
+
+                        <tr>
+
+                            <td class="center">
+                                {{ forloop.counter }}
+                            </td>
+
+
+                            <td class="subject-name">
+
+                                {{ ligne.matiere.libelle }}
+
+                            </td>
+
+
+                            <!-- SEMESTRE 1 -->
+
+                            <td class="mark">
+                                —
+                            </td>
+
+                            <td class="mark">
+                                —
+                            </td>
+
+                            <td class="mark">
+                                —
+                            </td>
+
+                            <td class="mark total">
+                                —
+                            </td>
+
+
+                            <!-- SEMESTRE 2 -->
+
+                            <td class="mark">
+                                —
+                            </td>
+
+                            <td class="mark">
+                                —
+                            </td>
+
+                            <td class="mark">
+                                —
+                            </td>
+
+                            <td class="mark total">
+                                —
+                            </td>
+
+
+                            <!-- TOTAL GÉNÉRAL -->
+
+                            <td class="mark annual">
+
+                                {{ ligne.points }}
+                                /
+                                {{ ligne.points_max }}
+
+                            </td>
+
+
+                            <!-- POURCENTAGE -->
+
+                            <td class="mark">
+
+                                {{ ligne.pourcentage }} %
+
+                            </td>
+
+
+                            <!-- RANG -->
+
+                            <td class="mark">
+
+                                {% if ligne.rang %}
+                                    {{ ligne.rang }}
+                                {% else %}
+                                    —
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                    {% empty %}
+
+                        <tr>
+
+                            <td colspan="13"
+                                class="empty-table">
+
+                                Aucun résultat disponible.
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+
+        <!-- ==================================================
+             RÉSULTAT ANNUEL
+             ================================================== -->
+
+        <section class="annual-summary">
+
+            <div class="summary-title">
+                RÉSULTAT ANNUEL
+            </div>
+
+
+            <div class="summary-grid">
+
+                <div class="summary-item">
+
+                    <span>
+                        Semestre 1
+                    </span>
+
+                    <strong>
+
+                        {% if resultat_annuel %}
+                            {{ resultat_annuel.points_semestre_1 }}
+                        {% else %}
+                            —
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <div class="summary-item">
+
+                    <span>
+                        Semestre 2
+                    </span>
+
+                    <strong>
+
+                        {% if resultat_annuel %}
+                            {{ resultat_annuel.points_semestre_2 }}
+                        {% else %}
+                            —
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <div class="summary-item">
+
+                    <span>
+                        Total annuel
+                    </span>
+
+                    <strong>
+
+                        {% if resultat_annuel %}
+                            {{ resultat_annuel.points_total }}
+                            /
+                            {{ resultat_annuel.points_max }}
+                        {% else %}
+                            —
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <div class="summary-item">
+
+                    <span>
+                        Pourcentage
+                    </span>
+
+                    <strong>
+
+                        {% if resultat_annuel %}
+                            {{ resultat_annuel.pourcentage }} %
+                        {% else %}
+                            —
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <div class="summary-item decision">
+
+                    <span>
+                        Décision
+                    </span>
+
+                    <strong>
+
+                        {% if resultat_annuel and resultat_annuel.decision %}
+
+                            {{ resultat_annuel.get_decision_display }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             STATUT DU BULLETIN
+             ================================================== -->
+
+        <section class="bulletin-status">
+
+            <span>
+                Statut :
+            </span>
+
+            <strong>
+                {{ bulletin.get_statut_display }}
+            </strong>
+
+        </section>
+
+
+        <!-- ==================================================
+             SIGNATURES
+             ================================================== -->
+
+        <section class="signatures">
+
+            <div class="signature-box">
+
+                <strong>
+                    Le Titulaire
+                </strong>
+
+                <div class="signature-space"></div>
+
+                <span>
+                    Signature
+                </span>
+
+            </div>
+
+
+            <div class="signature-box">
+
+                <strong>
+                    Le Préfet des études
+                </strong>
+
+                <div class="signature-space"></div>
+
+                <span>
+                    Signature
+                </span>
+
+            </div>
+
+
+            <div class="signature-box">
+
+                <strong>
+                    Le Directeur
+                </strong>
+
+                <div class="signature-space"></div>
+
+                <span>
+                    Signature
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             PIED DE PAGE
+             ================================================== -->
+
+        <footer class="bulletin-footer">
+
+            <span>
+                Bulletin généré le
+                {{ bulletin.date_generation|date:"d/m/Y H:i" }}
+            </span>
+
+            <span>
+                {{ modele.code }} -
+                Version {{ modele.version }}
+            </span>
+
+        </footer>
+
+
+    </main>
+
+</div>
+
+</body>
+</html>

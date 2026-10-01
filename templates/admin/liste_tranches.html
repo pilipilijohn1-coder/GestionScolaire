@@ -1,0 +1,113 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Tranches de paiement{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --tranche-primary: #2563eb;
+        --tranche-bg: #f8fafc;
+        --tranche-border: #e2e8f0;
+        --tranche-text: #1e293b;
+        --tranche-text-secondary: #64748b;
+    }
+    .page-header {
+        max-width: 1200px;
+        margin: 0 auto 28px;
+    }
+    .page-header h1 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--tranche-text);
+    }
+    .page-header p {
+        margin: 8px 0 0;
+        color: var(--tranche-text-secondary);
+        font-size: 14px;
+    }
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #ffffff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+    }
+    .data-table th,
+    .data-table td {
+        padding: 14px 16px;
+        text-align: left;
+        border-bottom: 1px solid var(--tranche-border);
+        font-size: 14px;
+    }
+    .data-table th {
+        background: #f8fafc;
+        color: var(--tranche-text-secondary);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 0.05em;
+    }
+    .data-table tr:last-child td {
+        border-bottom: none;
+    }
+    .data-table tr:hover td {
+        background: #f8fafc;
+    }
+    .empty-state {
+        background: #ffffff;
+        border: 1px solid var(--tranche-border);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+        color: var(--tranche-text-secondary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Tranches de paiement</h1>
+    <p>
+        {% if annee_active %}
+            Année scolaire : <strong>{{ annee_active.libelle }}</strong>
+        {% else %}
+            Aucune année scolaire active.
+        {% endif %}
+    </p>
+    <div style="margin-top: 12px;">
+        <a href="{% url 'creer_tranche' %}" class="btn btn-primary">Ajouter une tranche</a>
+    </div>
+</div>
+
+{% if annee_active %}
+    {% if tranches %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Frais</th>
+                    <th>N°</th>
+                    <th>Montant</th>
+                    <th>Échéance</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in tranches %}
+                    <tr>
+                        <td>{{ t.frais.libelle }}</td>
+                        <td>{{ t.numero }}</td>
+                        <td>{{ t.montant|floatformat:2 }}</td>
+                        <td>{{ t.date_echeance|date:"d/m/Y" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="empty-state">Aucune tranche configurée pour cette année.</div>
+    {% endif %}
+{% else %}
+    <div class="empty-state">Veuillez activer une année scolaire pour consulter les tranches.</div>
+{% endif %}
+{% endblock %}

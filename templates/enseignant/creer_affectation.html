@@ -1,0 +1,775 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+Créer une affectation
+{% endblock %}
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/affectations/creer_affectation.css' %}"
+>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="page-container">
+
+    <!-- ============================================== -->
+    <!-- EN-TÊTE -->
+    <!-- ============================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>Créer une affectation</h1>
+
+
+        </div>
+
+        <a
+            href="{% url 'gestion_affectations_enseignants' %}"
+            class="btn btn-secondary"
+        >
+            <i class="fa-solid fa-arrow-left"></i>
+            Retour aux affectations
+        </a>
+
+    </div>
+
+
+    <!-- ============================================== -->
+    <!-- CARTE DU FORMULAIRE -->
+    <!-- ============================================== -->
+
+    <div class="form-card">
+
+        <form method="post" id="affectation-form">
+
+            {% csrf_token %}
+
+
+            <!-- ====================================== -->
+            <!-- ERREURS GÉNÉRALES -->
+            <!-- ====================================== -->
+
+            {% if form.non_field_errors %}
+
+                <div class="alert alert-danger">
+
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- ====================================== -->
+            <!-- ANNÉE SCOLAIRE -->
+            <!-- ====================================== -->
+
+            <div class="form-group">
+
+                <label for="{{ form.annee.id_for_label }}">
+
+                    <i class="fa-solid fa-calendar-days"></i>
+                    {{ form.annee.label }}
+
+                </label>
+
+                {{ form.annee }}
+
+                {% if form.annee.errors %}
+
+                    <div class="field-error">
+
+                        {% for error in form.annee.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- ====================================== -->
+            <!-- CLASSE -->
+            <!-- ====================================== -->
+
+            <div class="form-group">
+
+                <label for="{{ form.classe.id_for_label }}">
+
+                    <i class="fa-solid fa-chalkboard"></i>
+                    {{ form.classe.label }}
+
+                </label>
+
+                {{ form.classe }}
+
+                {% if form.classe.errors %}
+
+                    <div class="field-error">
+
+                        {% for error in form.classe.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- ====================================== -->
+            <!-- MATIÈRE -->
+            <!-- ====================================== -->
+
+            <div class="form-group">
+
+                <label for="{{ form.matiere.id_for_label }}">
+
+                    <i class="fa-solid fa-book"></i>
+                    {{ form.matiere.label }}
+
+                </label>
+
+                {{ form.matiere }}
+
+                {% if form.matiere.errors %}
+
+                    <div class="field-error">
+
+                        {% for error in form.matiere.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- ====================================== -->
+            <!-- ENSEIGNANT -->
+            <!-- ====================================== -->
+
+            {% if enseignant_preselectionne %}
+
+            <div class="form-group">
+
+                <label for="id_enseignant">
+
+                    <i class="fa-solid fa-person-chalkboard"></i>
+                    Enseignant
+
+                </label>
+
+                <div style="padding: 10px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-weight: 600; color: #1e293b; margin-bottom: 8px;">
+                    {{ enseignant_preselectionne.utilisateur.nom }} {{ enseignant_preselectionne.utilisateur.prenom }}
+                </div>
+
+                <input type="hidden" name="enseignant" value="{{ enseignant_preselectionne.id }}">
+
+                <span class="field-help">
+                    L'enseignant est verrouillé.
+                </span>
+
+            </div>
+
+            {% else %}
+
+            <div class="form-group">
+
+                <label for="{{ form.enseignant.id_for_label }}">
+
+                    <i class="fa-solid fa-person-chalkboard"></i>
+                    {{ form.enseignant.label }}
+
+                </label>
+
+                {{ form.enseignant }}
+
+                {% if form.enseignant.errors %}
+
+                    <div class="field-error">
+
+                        {% for error in form.enseignant.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+            {% endif %}
+
+
+            <!-- ====================================== -->
+            <!-- BOUTONS -->
+            <!-- ====================================== -->
+
+            <div class="form-actions">
+
+                <a
+                    href="{% url 'gestion_affectations_enseignants' %}"
+                    class="btn btn-secondary"
+                >
+                    <i class="fa-solid fa-xmark"></i>
+                </a>
+                Annuler
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    Enregistrer l'affectation
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- JAVASCRIPT AJAX -->
+<!-- ================================================= -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+
+    function () {
+
+
+        // =================================================
+        // RÉCUPÉRATION DES CHAMPS
+        // =================================================
+
+        const anneeSelect =
+            document.getElementById(
+                "id_annee"
+            );
+
+
+        const classeSelect =
+            document.getElementById(
+                "id_classe"
+            );
+
+
+        const matiereSelect =
+            document.getElementById(
+                "id_matiere"
+            );
+
+
+        // =================================================
+        // VÉRIFICATION DES CHAMPS
+        // =================================================
+
+        if (
+            !anneeSelect
+            || !classeSelect
+            || !matiereSelect
+        ) {
+
+            console.error(
+                "Un ou plusieurs champs AJAX sont introuvables."
+            );
+
+            return;
+
+        }
+
+
+        // =================================================
+        // FONCTION : RÉINITIALISER UN SELECT
+        // =================================================
+
+        function resetSelect(
+            select,
+            message
+        ) {
+
+            // Suppression des anciennes options
+
+            select.innerHTML = "";
+
+
+            // Création de la nouvelle option
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value = "";
+
+            option.textContent = message;
+
+
+            // Ajout dans le select
+
+            select.appendChild(
+                option
+            );
+
+        }
+
+
+        // =================================================
+        // ÉTAT INITIAL
+        // =================================================
+
+        if (!anneeSelect.value) {
+
+            resetSelect(
+                classeSelect,
+                "Sélectionnez d'abord une année scolaire"
+            );
+
+
+            resetSelect(
+                matiereSelect,
+                "Sélectionnez d'abord une classe"
+            );
+
+        }
+
+
+        // =================================================
+        // CHANGEMENT DE L'ANNÉE SCOLAIRE
+        // =================================================
+
+        anneeSelect.addEventListener(
+            "change",
+
+            function () {
+
+
+                const anneeId =
+                    this.value;
+
+
+                // -----------------------------------------
+                // RÉINITIALISATION DES CHAMPS
+                // -----------------------------------------
+
+                resetSelect(
+                    classeSelect,
+                    "Chargement des classes..."
+                );
+
+
+                resetSelect(
+                    matiereSelect,
+                    "Sélectionnez d'abord une classe"
+                );
+
+
+                // -----------------------------------------
+                // AUCUNE ANNÉE SÉLECTIONNÉE
+                // -----------------------------------------
+
+                if (!anneeId) {
+
+                    resetSelect(
+                        classeSelect,
+                        "Sélectionnez d'abord une année scolaire"
+                    );
+
+
+                    return;
+
+                }
+
+
+                // -----------------------------------------
+                // CONSTRUCTION DE L'URL
+                // -----------------------------------------
+
+                const url =
+                    "{% url 'ajax_classes_par_annee' %}"
+                    + "?annee_id="
+                    + encodeURIComponent(
+                        anneeId
+                    );
+
+
+                // -----------------------------------------
+                // REQUÊTE AJAX
+                // -----------------------------------------
+
+                fetch(
+                    url
+                )
+
+
+                // -----------------------------------------
+                // VÉRIFICATION DE LA RÉPONSE HTTP
+                // -----------------------------------------
+
+                .then(
+                    response => {
+
+
+                        if (!response.ok) {
+
+                            throw new Error(
+                                "Erreur HTTP "
+                                + response.status
+                            );
+
+                        }
+
+
+                        return response.json();
+
+                    }
+                )
+
+
+                // -----------------------------------------
+                // TRAITEMENT DES DONNÉES
+                // -----------------------------------------
+
+                .then(
+                    data => {
+
+
+                        if (!data.classes) {
+
+                            throw new Error(
+                                "La réponse ne contient pas "
+                                + "la liste des classes."
+                            );
+
+                        }
+
+
+                        // Réinitialisation
+
+                        resetSelect(
+                            classeSelect,
+                            "Sélectionnez une classe"
+                        );
+
+
+                        // Ajout des classes
+
+                        data.classes.forEach(
+                            classe => {
+
+
+                                const option =
+                                    document.createElement(
+                                        "option"
+                                    );
+
+
+                                option.value =
+                                    classe.id;
+
+
+                                option.textContent =
+                                    classe.nom;
+
+
+                                classeSelect.appendChild(
+                                    option
+                                );
+
+                            }
+                        );
+
+
+                        // ---------------------------------
+                        // AUCUNE CLASSE
+                        // ---------------------------------
+
+                        if (
+                            data.classes.length === 0
+                        ) {
+
+                            resetSelect(
+                                classeSelect,
+                                "Aucune classe disponible"
+                            );
+
+                        }
+
+                    }
+                )
+
+
+                // -----------------------------------------
+                // GESTION DES ERREURS
+                // -----------------------------------------
+
+                .catch(
+                    error => {
+
+
+                        console.error(
+                            "Erreur lors du chargement "
+                            + "des classes :",
+                            error
+                        );
+
+
+                        resetSelect(
+                            classeSelect,
+                            "Impossible de charger les classes"
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+        // =================================================
+        // CHANGEMENT DE LA CLASSE
+        // =================================================
+
+        classeSelect.addEventListener(
+            "change",
+
+            function () {
+
+
+                const anneeId =
+                    anneeSelect.value;
+
+
+                const classeId =
+                    this.value;
+
+
+                // -----------------------------------------
+                // RÉINITIALISATION
+                // -----------------------------------------
+
+                resetSelect(
+                    matiereSelect,
+                    "Chargement des matières..."
+                );
+
+
+                // -----------------------------------------
+                // VÉRIFICATION
+                // -----------------------------------------
+
+                if (
+                    !anneeId
+                    || !classeId
+                ) {
+
+                    resetSelect(
+                        matiereSelect,
+                        "Sélectionnez d'abord une classe"
+                    );
+
+
+                    return;
+
+                }
+
+
+                // -----------------------------------------
+                // CONSTRUCTION DE L'URL
+                // -----------------------------------------
+
+                const url =
+                    "{% url 'ajax_matieres_par_classe' %}"
+                    + "?annee_id="
+                    + encodeURIComponent(
+                        anneeId
+                    )
+                    + "&classe_id="
+                    + encodeURIComponent(
+                        classeId
+                    );
+
+
+                // -----------------------------------------
+                // REQUÊTE AJAX
+                // -----------------------------------------
+
+                fetch(
+                    url
+                )
+
+
+                // -----------------------------------------
+                // VÉRIFICATION DE LA RÉPONSE HTTP
+                // -----------------------------------------
+
+                .then(
+                    response => {
+
+
+                        if (!response.ok) {
+
+                            throw new Error(
+                                "Erreur HTTP "
+                                + response.status
+                            );
+
+                        }
+
+
+                        return response.json();
+
+                    }
+                )
+
+
+                // -----------------------------------------
+                // TRAITEMENT DES DONNÉES
+                // -----------------------------------------
+
+                .then(
+                    data => {
+
+
+                        if (!data.matieres) {
+
+                            throw new Error(
+                                "La réponse ne contient pas "
+                                + "la liste des matières."
+                            );
+
+                        }
+
+
+                        // Réinitialisation
+
+                        resetSelect(
+                            matiereSelect,
+                            "Sélectionnez une matière"
+                        );
+
+
+                        // Ajout des matières
+
+                        // Ajout des matières (filtrer celles déjà affectées)
+
+                        var matieresDisponibles =
+                            data.matieres.filter(
+                                matiere => !matiere.deja_affecte
+                            );
+
+                        matieresDisponibles.forEach(
+                            matiere => {
+
+
+                                const option =
+                                    document.createElement(
+                                        "option"
+                                    );
+
+
+                                option.value =
+                                    matiere.matiere_id;
+
+
+                                option.textContent =
+                                    (matiere.enseignant
+                                        ? matiere.nom + " (" + matiere.enseignant + ")"
+                                        : matiere.nom
+                                    );
+
+
+                                matiereSelect.appendChild(
+                                    option
+                                );
+
+                            }
+                        );
+
+                        // Afficher un avertissement si des matières sont filtrées
+                        var nbFiltrees =
+                            data.matieres.length -
+                            matieresDisponibles.length;
+
+                        if (nbFiltrees > 0) {
+                            console.info(
+                                nbFiltrees +
+                                " matière(s) déjà affectée(s) " +
+                                "filtrée(s) de la liste."
+                            );
+                        }
+
+
+                        // ---------------------------------
+                        // AUCUNE MATIÈRE
+                        // ---------------------------------
+
+                        if (
+                            data.matieres.length === 0
+                        ) {
+
+                            resetSelect(
+                                matiereSelect,
+                                "Aucune matière disponible"
+                            );
+
+                        }
+
+                    }
+                )
+
+
+                // -----------------------------------------
+                // GESTION DES ERREURS
+                // -----------------------------------------
+
+                .catch(
+                    error => {
+
+
+                        console.error(
+                            "Erreur lors du chargement "
+                            + "des matières :",
+                            error
+                        );
+
+
+                        resetSelect(
+                            matiereSelect,
+                            "Impossible de charger les matières"
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+    }
+);
+
+</script>
+{% endblock %}

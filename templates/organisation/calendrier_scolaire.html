@@ -1,0 +1,257 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Calendrier scolaire{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --cal-primary: #2563eb;
+        --cal-primary-dark: #1e40af;
+        --cal-bg: #f8fafc;
+        --cal-border: #e2e8f0;
+        --cal-text: #1e293b;
+        --cal-text-secondary: #64748b;
+    }
+
+    .calendrier-header {
+        max-width: 1200px;
+        margin: 0 auto 28px;
+    }
+
+    .calendrier-header h1 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--cal-text);
+    }
+
+    .calendrier-header p {
+        margin: 8px 0 0;
+        color: var(--cal-text-secondary);
+        font-size: 14px;
+    }
+
+    .calendrier-controls {
+        max-width: 1200px;
+        margin: 0 auto 16px;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .calendrier-controls select {
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid var(--cal-border);
+        background: #ffffff;
+        font-size: 14px;
+        color: var(--cal-text);
+    }
+
+    .calendrier-layout {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 220px;
+        gap: 20px;
+        align-items: start;
+    }
+
+    .calendrier-mois {
+        background: #ffffff;
+        border: 1px solid var(--cal-border);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+    }
+
+    .calendrier-mois-header {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        background: #f8fafc;
+        border-bottom: 1px solid var(--cal-border);
+    }
+
+    .calendrier-mois-header div {
+        padding: 12px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 12px;
+        color: var(--cal-text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .calendrier-mois-body {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .calendrier-semaine-row {
+        display: grid;
+        grid-template-columns: 70px repeat(7, 1fr);
+        border-bottom: 1px solid var(--cal-border);
+    }
+
+    .calendrier-semaine-row:last-child {
+        border-bottom: none;
+    }
+
+    .calendrier-semaine-numero {
+        padding: 10px;
+        border-right: 1px solid var(--cal-border);
+        background: #f8fafc;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: var(--cal-text-secondary);
+    }
+
+    .calendrier-semaine-numero strong {
+        font-size: 16px;
+        color: var(--cal-text);
+    }
+
+    .calendrier-jour {
+        padding: 10px;
+        text-align: center;
+        border-right: 1px solid var(--cal-border);
+        font-size: 14px;
+        color: var(--cal-text);
+        min-height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .calendrier-jour:last-child {
+        border-right: none;
+    }
+
+    .calendrier-jour.hors-mois {
+        color: #cbd5e1;
+        background: #f8fafc;
+    }
+
+    .calendrier-jour.courant {
+        background: #eff6ff;
+        color: #1e40af;
+        font-weight: 700;
+    }
+
+    .calendrier-sidebar {
+        background: #ffffff;
+        border: 1px solid var(--cal-border);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+    }
+
+    .calendrier-sidebar h2 {
+        margin: 0 0 12px;
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--cal-text);
+    }
+
+    .calendrier-sidebar ul {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--cal-text-secondary);
+        font-size: 14px;
+        line-height: 1.8;
+    }
+
+    @media (max-width: 900px) {
+        .calendrier-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="calendrier-header">
+    <h1>Calendrier scolaire</h1>
+    <p>
+        Année :
+        {% if annee_active %}
+            {{ annee_active.libelle }}
+            ({{ annee_active.date_debut|date:"d/m/Y" }} - {{ annee_active.date_fin|date:"d/m/Y" }})
+        {% else %}
+            Aucune année scolaire active.
+        {% endif %}
+    </p>
+</div>
+
+{% if annee_active and mois_courant %}
+    <form method="get" class="calendrier-controls">
+        <input type="hidden" name="annee" value="{{ annee_active.date_debut|date:'Y' }}">
+        <label for="mois-select">Mois :</label>
+            <select id="mois-select" name="mois" onchange="this.form.submit()">
+                {% for mois_numero in mois_nombres %}
+                    {% with mois_numero|add:"0" as m %}
+                        <option value="{{ m }}" {% if mois_courant|date:'m' == m|stringformat:'02d' %}selected{% endif %}>
+                            {{ m|date:"F"|capfirst }}
+                        </option>
+                    {% endwith %}
+                {% endfor %}
+            </select>
+    </form>
+
+    <div class="calendrier-layout">
+        <div class="calendrier-mois">
+            <div class="calendrier-mois-header">
+                <div>Sem.</div>
+                <div>Lun</div>
+                <div>Mar</div>
+                <div>Mer</div>
+                <div>Jeu</div>
+                <div>Ven</div>
+                <div>Sam</div>
+                <div>Dim</div>
+            </div>
+            <div class="calendrier-mois-body">
+                {% for semaine in semaines_du_mois %}
+                    <div class="calendrier-semaine-row">
+                        <div class="calendrier-semaine-numero">
+                            <strong>S{{ semaine.numero }}</strong>
+                        </div>
+                        {% for jour in semaine.jours %}
+                            <div class="calendrier-jour {% if not jour.dans_mois %}hors-mois{% endif %} {% if jour.est_courant %}courant{% endif %}">
+                                {{ jour.date|date:"d" }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="calendrier-sidebar">
+            <h2>Mois</h2>
+            <p><strong>{{ mois_courant|date:"F Y"|capfirst }}</strong></p>
+
+            <h2 style="margin-top: 18px;">Semaines</h2>
+            <ul>
+                {% for semaine in semaines_du_mois %}
+                    <li>
+                        Semaine {{ semaine.numero }} :
+                        {{ semaine.debut|date:"d/m" }} - {{ semaine.fin|date:"d/m" }}
+                        {% if semaine.courante %}
+                            <span style="color:#16a34a; font-weight:700;">(courante)</span>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% elif annee_active %}
+    <p>Aucune date disponible pour cette année scolaire.</p>
+{% else %}
+    <p>Veuillez activer une année scolaire pour consulter le calendrier.</p>
+{% endif %}
+{% endblock %}

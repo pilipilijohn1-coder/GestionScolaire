@@ -1,0 +1,349 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Détail de {{ eleve.nom }} {{ eleve.prenom }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-container {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+    .detail-header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+    }
+    .detail-avatar {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #e5e7eb;
+        background: #f9fafb;
+    }
+    .detail-avatar-placeholder {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: #e5e7eb;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #6b7280;
+        font-size: 36px;
+    }
+    .detail-title h1 {
+        margin: 0;
+        font-size: 24px;
+    }
+    .detail-title p {
+        margin: 4px 0 0;
+        color: #6b7280;
+    }
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 18px;
+        margin-bottom: 22px;
+    }
+    .detail-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 18px 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    .detail-card h2 {
+        margin: 0 0 12px;
+        font-size: 17px;
+    }
+    .detail-item {
+        margin-bottom: 10px;
+    }
+    .detail-item strong {
+        display: block;
+        font-size: 12px;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+    .detail-item span {
+        font-size: 15px;
+        color: #111827;
+    }
+    .detail-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .editable-field {
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 6px;
+        border: 1px solid transparent;
+        transition: all 0.2s;
+        min-height: 28px;
+        display: inline-block;
+        min-width: 120px;
+    }
+    .editable-field:hover {
+        background: #f3f4f6;
+        border-color: #d1d5db;
+    }
+    .editable-field input,
+    .editable-field select {
+        width: 100%;
+        padding: 6px 10px;
+        border-radius: 6px;
+        border: 1px solid #2563eb;
+        font-size: 15px;
+        font-family: inherit;
+        color: #111827;
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+    .card-preview {
+        margin-top: 25px;
+        display: flex;
+        justify-content: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+
+    <div class="page-header">
+        <div class="detail-header">
+            <div>
+                {% if eleve.photo %}
+                    <img src="{{ eleve.photo.url }}" alt="Photo" class="detail-avatar">
+                {% else %}
+                    <div class="detail-avatar-placeholder">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="detail-title">
+                <h1>{{ eleve.nom }} {{ eleve.postnom|default:"" }} {{ eleve.prenom }}</h1>
+                <p>Matricule : {{ eleve.matricule }}</p>
+            </div>
+        </div>
+        <div class="detail-actions">
+            <a href="{% url 'liste_eleves' %}" class="btn btn-secondary">
+                <i class="fa-solid fa-arrow-left"></i> Retour
+            </a>
+            <a href="{% url 'carte_eleve' eleve.id %}" target="_blank" class="btn btn-primary">
+                <i class="fa-solid fa-id-card"></i> Carte élève
+            </a>
+            <a href="{% url 'bulletin_eleve' eleve.id %}" target="_blank" class="btn btn-primary">
+                <i class="fa-solid fa-file-pdf"></i> Bulletin
+            </a>
+            <button onclick="toggleEditMode()" class="btn btn-primary" id="btnEdit">
+                <i class="fa-solid fa-pen"></i> Modifier
+            </button>
+            <button onclick="submitEditForm()" class="btn btn-primary" id="btnSave" style="display:none;">
+                <i class="fa-solid fa-save"></i> Enregistrer
+            </button>
+        </div>
+    </div>
+
+    <div class="detail-grid">
+        <div class="detail-card">
+            <h2>Identité</h2>
+            <form id="editForm" method="post" action="{% url 'modifier_eleve' eleve.id %}" style="display:none;">
+                {% csrf_token %}
+                <input type="hidden" name="id" value="{{ eleve.id }}">
+            </form>
+            <div class="detail-item">
+                <strong>Nom</strong>
+                <span class="editable-field" data-field="nom" data-type="text">{{ eleve.nom }}</span>
+            </div>
+            <div class="detail-item">
+                <strong>Postnom</strong>
+                <span class="editable-field" data-field="postnom" data-type="text">{{ eleve.postnom|default:"—" }}</span>
+            </div>
+            <div class="detail-item">
+                <strong>Prénom</strong>
+                <span class="editable-field" data-field="prenom" data-type="text">{{ eleve.prenom }}</span>
+            </div>
+            <div class="detail-item">
+                <strong>Sexe</strong>
+                <span class="editable-field" data-field="sexe" data-type="select" data-options="M:Masculin|F:Féminin">
+                    {% if eleve.sexe == "M" %}Masculin{% elif eleve.sexe == "F" %}Féminin{% else %}—{% endif %}
+                </span>
+            </div>
+            <div class="detail-item">
+                <strong>Date de naissance</strong>
+                <span class="editable-field" data-field="date_naissance" data-type="text">{{ eleve.date_naissance|date:"d/m/Y"|default:"—" }}</span>
+            </div>
+            <div class="detail-item">
+                <strong>Lieu de naissance</strong>
+                <span class="editable-field" data-field="lieu_naissance" data-type="text">{{ eleve.lieu_naissance|default:"—" }}</span>
+            </div>
+        </div>
+
+        <div class="detail-card">
+            <h2>Contact</h2>
+            <div class="detail-item">
+                <strong>Téléphone</strong>
+                <span class="editable-field" data-field="telephone" data-type="text">{{ eleve.telephone|default:"—" }}</span>
+            </div>
+            <div class="detail-item">
+                <strong>Email</strong>
+                <span class="editable-field" data-field="email" data-type="text">{{ eleve.email|default:"—" }}</span>
+            </div>
+            <div class="detail-item">
+                <strong>Adresse</strong>
+                <span class="editable-field" data-field="adresse" data-type="text">{{ eleve.adresse|default:"—" }}</span>
+            </div>
+        </div>
+
+        <div class="detail-card">
+            <h2>Inscriptions</h2>
+            {% for inscription in inscriptions %}
+                <div class="detail-item">
+                    <strong>Classe</strong>
+                    <span>{{ inscription.classe.libelle }}</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Année</strong>
+                    <span>{{ inscription.annee.libelle }}</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Type</strong>
+                    <span>{{ inscription.get_type_inscription_display }}</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Statut</strong>
+                    <span>{{ inscription.get_statut_display }}</span>
+                </div>
+            {% empty %}
+                <p style="color:#6b7280;">Aucune inscription.</p>
+            {% endfor %}
+        </div>
+
+        <div class="detail-card">
+            <h2>Responsables</h2>
+            {% for responsabilite in responsabilites %}
+                <div class="detail-item">
+                    <strong>{{ responsabilite.get_type_responsabilite_display }}</strong>
+                    <span>{{ responsabilite.responsable.nom }} {{ responsabilite.responsable.prenom }}</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Téléphone</strong>
+                    <span>{{ responsabilite.responsable.telephone|default:"—" }}</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Email</strong>
+                    <span>{{ responsabilite.responsable.email|default:"—" }}</span>
+                </div>
+            {% empty %}
+                <p style="color:#6b7280;">Aucun responsable assigné.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+<script>
+let editMode = false;
+
+function toggleEditMode() {
+    editMode = !editMode;
+    const fields = document.querySelectorAll('.editable-field');
+    const btnEdit = document.getElementById('btnEdit');
+    const btnSave = document.getElementById('btnSave');
+
+    fields.forEach(field => {
+        if (editMode) {
+            const span = field.querySelector('span');
+            const value = span ? span.textContent.trim() : field.textContent.trim();
+            const name = field.getAttribute('data-field');
+            const type = field.getAttribute('data-type') || 'text';
+
+            if (type === 'select') {
+                const options = field.getAttribute('data-options').split('|');
+                let html = '<select name="' + name + '">';
+                options.forEach(opt => {
+                    const [val, label] = opt.split(':');
+                    const selected = value === val ? ' selected' : '';
+                    html += '<option value="' + val + '"' + selected + '>' + label + '</option>';
+                });
+                html += '</select>';
+                field.innerHTML = html;
+            } else {
+                field.innerHTML = '<input type="text" name="' + name + '" value="' + value + '">';
+            }
+            field.style.background = '#ffffff';
+            field.style.borderColor = '#2563eb';
+        } else {
+            const input = field.querySelector('input, select');
+            if (input) {
+                const value = input.value;
+                const span = document.createElement('span');
+                span.textContent = value || '—';
+                field.innerHTML = '';
+                field.appendChild(span);
+                field.style.background = 'transparent';
+                field.style.borderColor = 'transparent';
+            }
+        }
+    });
+
+    if (btnEdit && btnSave) {
+        btnEdit.style.display = editMode ? 'none' : 'inline-flex';
+        btnSave.style.display = editMode ? 'inline-flex' : 'none';
+    }
+}
+
+function submitEditForm() {
+    const form = document.getElementById('editForm');
+    if (!form) return;
+
+    const fields = document.querySelectorAll('.editable-field');
+    const promises = [];
+
+    fields.forEach(field => {
+        const input = field.querySelector('input, select');
+        if (!input) return;
+
+        const champ = field.getAttribute('data-field');
+        const valeur = input.value;
+
+        const formData = new FormData();
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        formData.append('champ', champ);
+        formData.append('valeur', valeur);
+
+        promises.push(
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+        );
+    });
+
+    Promise.all(promises)
+        .then(results => {
+            const hasError = results.some(r => !r.success);
+            if (hasError) {
+                alert('Erreur lors de la modification d\'un champ.');
+            } else {
+                location.reload();
+            }
+        })
+        .catch(error => {
+            alert('Erreur lors de la modification.');
+            console.error(error);
+        });
+}
+</script>
+{% endblock %}

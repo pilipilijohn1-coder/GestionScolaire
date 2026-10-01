@@ -1,0 +1,278 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>{{ titre }}</title>
+
+    <link rel="stylesheet"
+          href="{% static 'Gestion/css/bulletins.css' %}">
+
+</head>
+
+<body>
+
+<div class="bulletin-page">
+
+    <!-- EN-TÊTE -->
+
+    <header class="page-header">
+
+        <div>
+
+            <span class="page-code">
+                {{ ponderation.niveau.code }}
+            </span>
+
+            <h1>
+                {{ ponderation.matiere.libelle }}
+            </h1>
+
+            <p>
+                Détail de la pondération officielle.
+            </p>
+
+        </div>
+
+
+        <div class="header-actions">
+
+            <a href="{% url 'liste_ponderations' %}?niveau={{ ponderation.niveau.code }}"
+               class="btn btn-secondary">
+
+                Retour aux pondérations
+
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <main class="content-container">
+
+
+        <!-- INFORMATIONS GÉNÉRALES -->
+
+        <section class="info-card">
+
+            <div class="info-card-header">
+
+                <h2>
+                    Informations générales
+                </h2>
+
+            </div>
+
+
+            <div class="info-grid">
+
+
+                <div class="info-item">
+
+                    <span class="info-label">
+                        Niveau
+                    </span>
+
+                    <strong>
+                        {{ ponderation.niveau.libelle }}
+                    </strong>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <span class="info-label">
+                        Code niveau
+                    </span>
+
+                    <strong>
+                        {{ ponderation.niveau.code }}
+                    </strong>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <span class="info-label">
+                        Matière
+                    </span>
+
+                    <strong>
+                        {{ ponderation.matiere.libelle }}
+                    </strong>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <span class="info-label">
+                        Code matière
+                    </span>
+
+                    <strong>
+                        {{ ponderation.matiere.code }}
+                    </strong>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <span class="info-label">
+                        Domaine
+                    </span>
+
+                    <strong>
+
+                        {% if ponderation.matiere.domaine %}
+                            {{ ponderation.matiere.domaine.libelle }}
+                        {% else %}
+                            —
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <span class="info-label">
+                        État
+                    </span>
+
+                    <strong class="text-success">
+                        Actif
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- PONDÉRATION -->
+
+        <section class="ponderation-card">
+
+            <div class="ponderation-header">
+
+                <h2>
+                    Barème officiel
+                </h2>
+
+                <p>
+                    Les valeurs ci-dessous proviennent de la
+                    référence officielle du bulletin.
+                </p>
+
+            </div>
+
+
+            <div class="barreme-grid">
+
+
+                <div class="bareme-item">
+
+                    <span>
+                        Travaux journaliers
+                    </span>
+
+                    <strong>
+                        {{ ponderation.travaux_journaliers_max }}
+                    </strong>
+
+                </div>
+
+
+                <div class="bareme-item">
+
+                    <span>
+                        Examen
+                    </span>
+
+                    <strong>
+                        {{ ponderation.examen_max }}
+                    </strong>
+
+                </div>
+
+
+                <div class="bareme-item highlight">
+
+                    <span>
+                        Total du semestre
+                    </span>
+
+                    <strong>
+                        {{ ponderation.total_semestre_max }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- EXPLICATION -->
+
+        <section class="info-card explanation-card">
+
+            <div class="info-card-header">
+
+                <h2>
+                    Structure du calcul
+                </h2>
+
+            </div>
+
+            <div class="calculation-box">
+
+                <p>
+                    Le total maximal du semestre est obtenu
+                    en combinant les deux périodes et l'examen.
+                </p>
+
+                <div class="formula">
+
+                    (TJ × 2) + Examen
+
+                </div>
+
+                <p class="formula-result">
+
+                    ({{ ponderation.travaux_journaliers_max }}
+                    × 2)
+                    +
+                    {{ ponderation.examen_max }}
+                    =
+                    <strong>
+                        {{ ponderation.total_semestre_max }}
+                    </strong>
+
+                </p>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+</div>
+
+</body>
+</html>

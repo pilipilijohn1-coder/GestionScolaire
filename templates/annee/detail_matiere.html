@@ -1,0 +1,284 @@
+{% extends base_template %}
+{% load static %}
+
+
+{% block title %}
+    Détail de la matière
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/detail_matiere.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="matiere-detail-page">
+
+
+    <!-- =====================================================
+         EN-TÊTE
+    ====================================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <a
+                href="{% url 'liste_matieres' %}"
+                class="back-link"
+            >
+                ← Retour à la liste des matières
+            </a>
+
+
+            <h1>
+                Détail de la matière
+            </h1>
+
+
+            <p>
+                Consultez les informations enregistrées
+                pour cette matière.
+            </p>
+
+        </div>
+
+
+        <!-- ================================================
+             ACTIONS PRINCIPALES
+        ================================================= -->
+
+        <div class="header-actions">
+
+            <a
+                href="{% url 'modifier_matiere' matiere.id %}"
+                class="btn btn-secondary"
+            >
+                Modifier
+            </a>
+
+
+            <a
+                href="{% url 'activer_desactiver_matiere' matiere.id %}"
+                class="btn
+                    {% if matiere.actif %}
+                        btn-warning
+                    {% else %}
+                        btn-success
+                    {% endif %}"
+            >
+
+                {% if matiere.actif %}
+                    Désactiver
+                {% else %}
+                    Activer
+                {% endif %}
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         CARTE PRINCIPALE
+    ====================================================== -->
+
+    <div class="detail-card">
+
+
+        <!-- ================================================
+             EN-TÊTE DE LA CARTE
+        ================================================= -->
+
+        <div class="detail-card-header">
+
+            <div class="matiere-identity">
+
+
+                <div class="matiere-avatar">
+
+                    {{ matiere.code|slice:":2"|upper }}
+
+                </div>
+
+
+                <div>
+
+                    <span class="matiere-code">
+                        {{ matiere.code }}
+                    </span>
+
+
+                    <h2>
+                        {{ matiere.libelle }}
+                    </h2>
+
+
+                    {% if matiere.actif %}
+
+                        <span class="status active">
+                            Matière active
+                        </span>
+
+                    {% else %}
+
+                        <span class="status inactive">
+                            Matière désactivée
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             INFORMATIONS
+        ================================================== -->
+
+        <div class="detail-content">
+
+
+            <!-- CODE -->
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Code
+                </span>
+
+                <strong class="detail-value">
+                    {{ matiere.code }}
+                </strong>
+
+            </div>
+
+
+            <!-- NOM -->
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Nom de la matière
+                </span>
+
+                <strong class="detail-value">
+                    {{ matiere.libelle }}
+                </strong>
+
+            </div>
+
+
+            <!-- STATUT -->
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Statut
+                </span>
+
+
+                {% if matiere.actif %}
+
+                    <span class="status active">
+                        Active
+                    </span>
+
+                {% else %}
+
+                    <span class="status inactive">
+                        Désactivée
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- DESCRIPTION -->
+
+            <div class="detail-item description-item">
+
+                <span class="detail-label">
+                    Description
+                </span>
+
+
+                {% if matiere.description %}
+
+                    <p class="description-value">
+                        {{ matiere.description }}
+                    </p>
+
+                {% else %}
+
+                    <p class="empty-description">
+                        Aucune description n'a été enregistrée
+                        pour cette matière.
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+
+        </div>
+
+
+        <!-- =================================================
+             INFORMATION
+        ================================================== -->
+
+        <div class="detail-info-box">
+
+            <strong>Information :</strong>
+
+            Cette matière appartient au catalogue général.
+            Son affectation aux différentes classes sera
+            gérée séparément.
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         ACTIONS INFÉRIEURES
+    ====================================================== -->
+
+    <div class="bottom-actions">
+
+        <a
+            href="{% url 'liste_matieres' %}"
+            class="btn btn-outline"
+        >
+            Retour à la liste
+        </a>
+
+
+        <a
+            href="{% url 'modifier_matiere' matiere.id %}"
+            class="btn btn-primary"
+        >
+            Modifier la matière
+        </a>
+
+    </div>
+
+
+</div>
+
+{% endblock %}

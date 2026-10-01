@@ -1,0 +1,285 @@
+{% extends base_template %}
+{% load static %}
+
+
+{% block title %}
+    Modifier l'affectation
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/modifier_matiere.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="affectation-form-page">
+
+
+    <!-- =====================================================
+         EN-TÊTE
+    ====================================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <a
+                href="{% url 'detail_affectation_matiere' affectation.id %}"
+                class="back-link"
+            >
+                ← Retour au détail de l'affectation
+            </a>
+
+
+            <h1>
+                Modifier l'affectation
+            </h1>
+
+
+            <p>
+                Modifiez les informations relatives à cette
+                affectation de matière.
+            </p>
+
+        </div>
+
+
+        <!-- STATUT ACTUEL -->
+
+        {% if affectation.actif %}
+
+            <span class="status active">
+                Affectation active
+            </span>
+
+        {% else %}
+
+            <span class="status inactive">
+                Affectation désactivée
+            </span>
+
+        {% endif %}
+
+
+    </div>
+
+
+    <!-- =====================================================
+         ERREURS GÉNÉRALES
+    ====================================================== -->
+
+    {% if form.non_field_errors %}
+
+        <div class="form-errors">
+
+            {% for error in form.non_field_errors %}
+
+                <p>
+                    {{ error }}
+                </p>
+
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- =====================================================
+         FORMULAIRE
+    ====================================================== -->
+
+    <form
+        method="post"
+        class="affectation-form"
+    >
+
+        {% csrf_token %}
+
+
+        <div class="form-card">
+
+
+            <!-- =============================================
+                 EN-TÊTE DE LA CARTE
+            ============================================== -->
+
+            <div class="card-header">
+
+                <h2>
+                    Informations de l'affectation
+                </h2>
+
+                <p>
+                    Modifiez la classe ou la matière associée
+                    à cette affectation.
+                </p>
+
+            </div>
+
+
+            <!-- =============================================
+                 CONTENU DU FORMULAIRE
+            ============================================== -->
+
+            <div class="form-content">
+
+    <!-- =========================================
+         CLASSE
+    ========================================== -->
+    <div class="form-group">
+
+        <label
+            for="{{ form.classe.id_for_label }}"
+        >
+            Classe
+            <span class="required">*</span>
+        </label>
+
+        {{ form.classe }}
+
+        {% if form.classe.errors %}
+            <div class="field-error">
+
+                {% for error in form.classe.errors %}
+                    <span>
+                        {{ error }}
+                    </span>
+                {% endfor %}
+
+            </div>
+        {% endif %}
+
+        <span class="field-help">
+            Seules les classes actives sont
+            disponibles pour une nouvelle association.
+        </span>
+
+    </div>
+
+
+    <!-- =========================================
+         MATIÈRE
+    ========================================== -->
+    <div class="form-group">
+
+        <label
+            for="{{ form.matiere.id_for_label }}"
+        >
+            Matière
+            <span class="required">*</span>
+        </label>
+
+        {{ form.matiere }}
+
+        {% if form.matiere.errors %}
+            <div class="field-error">
+
+                {% for error in form.matiere.errors %}
+                    <span>
+                        {{ error }}
+                    </span>
+                {% endfor %}
+
+            </div>
+        {% endif %}
+
+        <span class="field-help">
+            Seules les matières actives sont
+            disponibles pour une nouvelle association.
+        </span>
+
+    </div>
+
+
+    <!-- =========================================
+         HEURES PAR SEMAINE
+    ========================================== -->
+    <div class="form-group">
+
+        <label
+            for="{{ form.heures_par_semaine.id_for_label }}"
+        >
+            Nombre d'heures par semaine
+            <span class="required">*</span>
+        </label>
+
+        {{ form.heures_par_semaine }}
+
+        {% if form.heures_par_semaine.errors %}
+            <div class="field-error">
+
+                {% for error in form.heures_par_semaine.errors %}
+                    <span>
+                        {{ error }}
+                    </span>
+                {% endfor %}
+
+            </div>
+        {% endif %}
+
+        <span class="field-help">
+            Indiquez combien de fois cette matière
+            doit être enseignée pendant la semaine.
+        </span>
+
+    </div>
+
+</div>
+ 
+
+
+        <!-- =================================================
+             INFORMATION
+        ================================================== -->
+
+        <div class="info-box">
+
+            <strong>
+                Attention :
+            </strong>
+
+            Une même matière ne peut pas être affectée plusieurs
+            fois à une même classe.
+
+        </div>
+
+
+        <!-- =================================================
+             ACTIONS
+        ================================================== -->
+
+        <div class="form-actions">
+
+
+            <a
+                href="{% url 'detail_affectation_matiere' affectation.id %}"
+                class="btn btn-secondary"
+            >
+                Annuler
+            </a>
+
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Enregistrer les modifications
+            </button>
+
+
+        </div>
+
+    </form>
+
+
+</div>
+
+{% endblock %}

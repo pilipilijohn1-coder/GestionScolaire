@@ -1,0 +1,814 @@
+/* ============================================================
+   PAGE DE MODIFICATION D'UN UTILISATEUR
+   ============================================================ */
+
+.user-edit-page {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+
+/* ============================================================
+   EN-TÊTE DE LA PAGE
+   ============================================================ */
+
+.edit-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 28px;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.header-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 52px;
+    height: 52px;
+
+    flex-shrink: 0;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    border-radius: 14px;
+
+    font-size: 24px;
+}
+
+.header-content h1 {
+    margin: 0 0 5px;
+
+    color: #111827;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.header-content p {
+    margin: 0;
+
+    color: #6b7280;
+    font-size: 14px;
+}
+
+
+/* ============================================================
+   BOUTON RETOUR
+   ============================================================ */
+
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    white-space: nowrap;
+
+    padding: 11px 16px;
+
+    background: #ffffff;
+    color: #374151;
+
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.back-button:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+    color: #111827;
+}
+
+
+/* ============================================================
+   FORMULAIRE
+   ============================================================ */
+
+.user-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+
+/* ============================================================
+   MESSAGES
+   ============================================================ */
+
+.messages-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+
+    padding: 14px 16px;
+
+    border-radius: 10px;
+
+    font-size: 14px;
+}
+
+.alert-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 20px;
+    height: 20px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.alert-error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+}
+
+.alert-error .alert-icon {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.alert-success {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+}
+
+.alert-success .alert-icon {
+    background: #16a34a;
+    color: #ffffff;
+}
+
+.alert-warning {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #92400e;
+}
+
+.alert-warning .alert-icon {
+    background: #d97706;
+    color: #ffffff;
+}
+
+
+/* ============================================================
+   RÉSUMÉ DE L'UTILISATEUR
+   ============================================================ */
+
+.user-summary-card {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+
+    padding: 22px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+
+    box-shadow:
+        0 3px 10px rgba(15, 23, 42, 0.04);
+}
+
+
+/* ------------------------------------------------------------
+   Avatar
+   ------------------------------------------------------------ */
+
+.user-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 58px;
+    height: 58px;
+
+    flex-shrink: 0;
+
+    background: #dbeafe;
+    color: #1d4ed8;
+
+    border-radius: 50%;
+
+    font-size: 18px;
+    font-weight: 700;
+}
+
+
+/* ------------------------------------------------------------
+   Informations utilisateur
+   ------------------------------------------------------------ */
+
+.user-summary-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.user-summary-info h2 {
+    margin: 0 0 7px;
+
+    color: #111827;
+
+    font-size: 18px;
+    font-weight: 700;
+}
+
+
+/* ------------------------------------------------------------
+   Badge du rôle
+   ------------------------------------------------------------ */
+
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 5px 10px;
+
+    background: #eff6ff;
+    color: #1d4ed8;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.role-empty {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+
+/* ------------------------------------------------------------
+   Statut
+   ------------------------------------------------------------ */
+
+.user-status {
+    display: flex;
+    align-items: center;
+}
+
+.status {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 7px 11px;
+
+    border-radius: 20px;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.status.active {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.status.inactive {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+
+/* ============================================================
+   CARTES DU FORMULAIRE
+   ============================================================ */
+
+.form-card {
+    padding: 26px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+
+    box-shadow:
+        0 3px 10px rgba(15, 23, 42, 0.04);
+}
+
+
+/* ============================================================
+   EN-TÊTE DES CARTES
+   ============================================================ */
+
+.card-header {
+    margin-bottom: 24px;
+
+    padding-bottom: 17px;
+
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.card-header h2 {
+    margin: 0 0 5px;
+
+    color: #111827;
+
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.card-header p {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   GRILLE DES CHAMPS
+   ============================================================ */
+
+.form-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 20px;
+}
+
+.full-field {
+    grid-column: 1 / -1;
+}
+
+
+/* ============================================================
+   CHAMPS
+   ============================================================ */
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-field label,
+.role-selection > label {
+    color: #374151;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+
+/* ------------------------------------------------------------
+   Inputs
+   ------------------------------------------------------------ */
+
+.form-field input,
+.role-selection select {
+    width: 100%;
+    min-height: 46px;
+
+    box-sizing: border-box;
+
+    padding: 11px 13px;
+
+    background: #ffffff;
+    color: #111827;
+
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+
+    outline: none;
+
+    font-family: inherit;
+    font-size: 14px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.form-field input:hover,
+.role-selection select:hover {
+    border-color: #9ca3af;
+}
+
+.form-field input:focus,
+.role-selection select:focus {
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+
+/* ============================================================
+   SECTION SÉCURITÉ
+   ============================================================ */
+
+.security-info {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+
+    min-height: 46px;
+
+    padding: 12px 15px;
+
+    box-sizing: border-box;
+
+    background: #f8fafc;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.security-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 36px;
+    height: 36px;
+
+    flex-shrink: 0;
+
+    background: #e0e7ff;
+
+    border-radius: 8px;
+
+    font-size: 16px;
+}
+
+.security-info strong {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: #374151;
+
+    font-size: 13px;
+}
+
+.security-info p {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+
+/* ============================================================
+   SÉLECTION DU RÔLE
+   ============================================================ */
+
+.role-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    max-width: 500px;
+}
+
+.field-description {
+    margin: 3px 0 0;
+
+    color: #6b7280;
+
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   INFORMATIONS SUR LE STATUT
+   ============================================================ */
+
+.status-information {
+    max-width: 700px;
+}
+
+.status-box {
+    display: flex;
+    align-items: flex-start;
+
+    padding: 17px;
+
+    border-radius: 10px;
+}
+
+.status-box strong {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 14px;
+}
+
+.status-box p {
+    margin: 0;
+
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.status-box-active {
+    background: #ecfdf5;
+
+    border: 1px solid #a7f3d0;
+
+    color: #065f46;
+}
+
+.status-box-inactive {
+    background: #fef2f2;
+
+    border: 1px solid #fecaca;
+
+    color: #991b1b;
+}
+
+
+/* ============================================================
+   ACTIONS DU FORMULAIRE
+   ============================================================ */
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 12px;
+
+    padding: 8px 0 30px;
+}
+
+
+/* ------------------------------------------------------------
+   Bouton annuler
+   ------------------------------------------------------------ */
+
+.cancel-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 44px;
+
+    padding: 0 18px;
+
+    background: #ffffff;
+    color: #374151;
+
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+
+    text-decoration: none;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.cancel-button:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+}
+
+
+/* ------------------------------------------------------------
+   Bouton enregistrer
+   ------------------------------------------------------------ */
+
+.save-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 44px;
+
+    padding: 0 20px;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    border: none;
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+
+    transition:
+        background 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.15s ease;
+}
+
+.save-button:hover {
+    background: #1d4ed8;
+
+    box-shadow:
+        0 4px 10px rgba(37, 99, 235, 0.20);
+}
+
+.save-button:active {
+    transform: scale(0.98);
+}
+
+
+/* ============================================================
+   RESPONSIVE - TABLETTE
+   ============================================================ */
+
+@media (max-width: 900px) {
+
+    .user-edit-page {
+        max-width: 100%;
+    }
+
+    .edit-page-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .back-button {
+        align-self: flex-start;
+    }
+
+    .user-summary-card {
+        flex-wrap: wrap;
+    }
+
+    .user-status {
+        width: 100%;
+    }
+
+}
+
+
+/* ============================================================
+   RESPONSIVE - MOBILE
+   ============================================================ */
+
+@media (max-width: 650px) {
+
+    .header-content {
+        align-items: flex-start;
+    }
+
+    .header-icon {
+        width: 45px;
+        height: 45px;
+
+        border-radius: 12px;
+
+        font-size: 20px;
+    }
+
+    .header-content h1 {
+        font-size: 22px;
+    }
+
+    .header-content p {
+        font-size: 13px;
+    }
+
+
+    /* --------------------------------------------------------
+       Cartes
+       -------------------------------------------------------- */
+
+    .form-card {
+        padding: 18px;
+    }
+
+    .user-summary-card {
+        padding: 18px;
+        gap: 13px;
+    }
+
+
+    /* --------------------------------------------------------
+       Grille
+       -------------------------------------------------------- */
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 17px;
+    }
+
+    .full-field {
+        grid-column: auto;
+    }
+
+
+    /* --------------------------------------------------------
+       Utilisateur
+       -------------------------------------------------------- */
+
+    .user-avatar {
+        width: 50px;
+        height: 50px;
+
+        font-size: 16px;
+    }
+
+    .user-summary-info h2 {
+        font-size: 16px;
+    }
+
+
+    /* --------------------------------------------------------
+       Rôle
+       -------------------------------------------------------- */
+
+    .role-selection {
+        max-width: 100%;
+    }
+
+
+    /* --------------------------------------------------------
+       Actions
+       -------------------------------------------------------- */
+
+    .form-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .cancel-button,
+    .save-button {
+        width: 100%;
+    }
+
+}
+
+
+/* ============================================================
+   PETITS ÉCRANS
+   ============================================================ */
+
+@media (max-width: 420px) {
+
+    .user-edit-page {
+        width: 100%;
+    }
+
+    .edit-page-header {
+        margin-bottom: 20px;
+    }
+
+    .header-content {
+        gap: 11px;
+    }
+
+    .form-card {
+        padding: 15px;
+    }
+
+    .user-summary-card {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .user-status {
+        width: auto;
+    }
+
+}

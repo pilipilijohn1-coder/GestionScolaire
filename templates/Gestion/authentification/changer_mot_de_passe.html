@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Changer le mot de passe</title>
+</head>
+
+<body>
+
+    <h1>Changer le mot de passe</h1>
+
+    
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <div>
+            <label for="ancien_mot_de_passe">
+                Ancien mot de passe
+            </label>
+
+            <input
+                type="password"
+                id="ancien_mot_de_passe"
+                name="ancien_mot_de_passe"
+                required
+            >
+        </div>
+
+        <br>
+
+        <div>
+            <label for="nouveau_mot_de_passe">
+                Nouveau mot de passe
+            </label>
+
+            <input
+                type="password"
+                id="nouveau_mot_de_passe"
+                name="nouveau_mot_de_passe"
+                required
+            >
+        </div>
+
+        <br>
+
+        <div>
+            <label for="confirmation">
+                Confirmer le nouveau mot de passe
+            </label>
+
+            <input
+                type="password"
+                id="confirmation"
+                name="confirmation"
+                required
+            >
+        </div>
+
+        <br>
+
+        <button type="submit">
+            Modifier le mot de passe
+        </button>
+
+    </form>
+
+    <br>
+
+    <a href="{{ tableau_de_bord_url }}">
+        Retour au tableau de bord
+    </a>
+
+</body>
+
+</html>

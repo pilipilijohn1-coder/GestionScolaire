@@ -1,0 +1,345 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+    Détail de la section
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/detail_section.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="detail-section">
+
+    <!-- ================================================== -->
+    <!-- EN-TÊTE -->
+    <!-- ================================================== -->
+
+    <div class="detail-header">
+
+        <div>
+
+            <h1>
+                Détail de la section
+            </h1>
+
+            <p>
+                Consultez les informations et l'état actuel
+                de cette section.
+            </p>
+
+        </div>
+
+
+        <div class="detail-actions">
+
+            <a
+                href="{% url 'liste_sections' %}"
+                class="btn btn-secondary"
+            >
+                Retour
+            </a>
+
+
+            <a
+                href="{% url 'modifier_section' section.id %}"
+                class="btn btn-primary"
+            >
+                Modifier
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- INFORMATIONS DE LA SECTION -->
+    <!-- ================================================== -->
+
+    <div class="detail-card">
+
+        <div class="card-title">
+
+            <div>
+
+                <h2>
+                    Informations de la section
+                </h2>
+
+                <p>
+                    Informations générales enregistrées
+                    dans le système.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="detail-grid">
+
+            <!-- CODE -->
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Code
+                </span>
+
+                <span class="detail-value section-code">
+                    {{ section.code }}
+                </span>
+
+            </div>
+
+
+            <!-- LIBELLÉ -->
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Libellé
+                </span>
+
+                <span class="detail-value">
+                    {{ section.libelle }}
+                </span>
+
+            </div>
+
+
+            <!-- STATUT -->
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Statut
+                </span>
+
+                <span class="detail-value">
+
+                    {% if section.actif %}
+
+                        <span class="status status-active">
+                            Active
+                        </span>
+
+                    {% else %}
+
+                        <span class="status status-inactive">
+                            Désactivée
+                        </span>
+
+                    {% endif %}
+
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- UTILISATION DE LA SECTION -->
+    <!-- ================================================== -->
+
+    <div class="detail-card">
+
+        <div class="card-title">
+
+            <div>
+
+                <h2>
+                    Utilisation dans les classes
+                </h2>
+
+                <p>
+                    Résumé des classes associées à cette section.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="statistics-grid">
+
+            <div class="stat-item">
+
+                <span class="stat-label">
+                    Nombre total de classes
+                </span>
+
+                <span class="stat-value">
+                    {{ nombre_classes }}
+                </span>
+
+            </div>
+
+
+            <div class="stat-item">
+
+                <span class="stat-label">
+                    Classes actives
+                </span>
+
+                <span class="stat-value">
+                    {{ nombre_classes_actives }}
+                </span>
+
+            </div>
+
+        </div>
+
+
+        {% if classes %}
+
+            <div class="classes-preview">
+
+                <div class="preview-header">
+
+                    <h3>
+                        Classes associées
+                    </h3>
+
+                </div>
+
+
+                <div class="classes-list">
+
+                    {% for classe in classes %}
+
+                        <div class="classe-item">
+
+                            <div>
+
+                                <span class="classe-code">
+                                    {{ classe.code }}
+                                </span>
+
+                                <span class="classe-name">
+                                    {{ classe.libelle }}
+                                </span>
+
+                            </div>
+
+
+                            {% if classe.actif %}
+
+                                <span
+                                    class="status status-active"
+                                >
+                                    Active
+                                </span>
+
+                            {% else %}
+
+                                <span
+                                    class="status status-inactive"
+                                >
+                                    Désactivée
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-message">
+
+                Aucune classe n'est actuellement associée
+                à cette section.
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- ACTIONS -->
+    <!-- ================================================== -->
+
+    <div class="detail-footer">
+
+        <a
+            href="{% url 'liste_sections' %}"
+            class="btn btn-secondary"
+        >
+            Retour à la liste
+        </a>
+
+
+        <a
+            href="{% url 'modifier_section' section.id %}"
+            class="btn btn-primary"
+        >
+            Modifier la section
+        </a>
+
+
+        {% if section.actif %}
+
+            <form
+                method="post"
+                action="{% url 'activer_desactiver_section' section.id %}"
+            >
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="btn btn-danger"
+                    onclick="return confirm(
+                        'Voulez-vous vraiment désactiver cette section ?'
+                    );"
+                >
+                    Désactiver
+                </button>
+
+            </form>
+
+
+        {% else %}
+
+            <form
+                method="post"
+                action="{% url 'activer_desactiver_section' section.id %}"
+            >
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="btn btn-success"
+                >
+                    Activer
+                </button>
+
+            </form>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Mes affectations{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-container { max-width: 1200px; margin: 0 auto; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+    <div class="page-header">
+        <div>
+            <h1>Mes affectations</h1>
+            <p style="color:#6b7280;">Consultez les classes et matières qui vous sont attribuées.</p>
+        </div>
+    </div>
+
+    
+
+    <div class="table-card">
+        <div class="table-header">
+            <div>
+                <h2>Liste des affectations</h2>
+                <p>{{ affectations|length }} affectation{{ affectations|length|pluralize }}</p>
+            </div>
+        </div>
+
+        {% if affectations %}
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Classe</th>
+                            <th>Matière</th>
+                            <th>Heures/semaine</th>
+                            <th>Année scolaire</th>
+                            <th class="text-center">Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for affectation in affectations %}
+                            <tr>
+                                <td>
+                                    <strong>{{ affectation.affectation_matiere.classe.libelle }}</strong>
+                                    <br>
+                                    <small style="color:#6b7280;">
+                                        {{ affectation.affectation_matiere.classe.niveau }}
+                                        {% if affectation.affectation_matiere.classe.section %}
+                                            — {{ affectation.affectation_matiere.classe.section }}
+                                        {% endif %}
+                                    </small>
+                                </td>
+                                <td>{{ affectation.affectation_matiere.matiere.libelle }}</td>
+                                <td>{{ affectation.affectation_matiere.heures_par_semaine }}</td>
+                                <td>{{ affectation.affectation_matiere.classe.annee }}</td>
+                                <td class="text-center">
+                                    {% if affectation.actif %}
+                                        <span class="status status-active">
+                                            <i class="fa-solid fa-circle-check"></i> Active
+                                        </span>
+                                    {% else %}
+                                        <span class="status status-inactive">
+                                            <i class="fa-solid fa-circle-xmark"></i> Inactive
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fa-solid fa-book-open"></i>
+                <h3>Aucune affectation</h3>
+                <p>Vous n'avez aucune affectation active pour le moment.</p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

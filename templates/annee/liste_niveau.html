@@ -1,0 +1,295 @@
+{% extends base_template %}
+{% load static %}
+
+
+{% block title %}
+    Gestion des niveaux
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/liste_niveaux.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="liste-niveaux">
+
+    <!-- ================================================== -->
+    <!-- EN-TÊTE -->
+    <!-- ================================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>
+                Gestion des niveaux
+            </h1>
+
+            <p>
+                Gérez les niveaux utilisés dans la structure académique.
+            </p>
+
+        </div>
+
+
+        <div class="header-actions">
+
+            <a
+                href="{% url 'structure_academique' %}"
+                class="btn btn-secondary"
+            >
+                Structure académique
+            </a>
+
+
+            <a
+                href="{% url 'creer_niveau' %}"
+                class="btn btn-primary"
+            >
+                + Nouveau niveau
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- RÉSUMÉ -->
+    <!-- ================================================== -->
+
+    <div class="summary-grid">
+
+        <div class="summary-card">
+
+            <span class="summary-label">
+                Nombre total
+            </span>
+
+            <span class="summary-value">
+                {{ nombre_niveaux }}
+            </span>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <span class="summary-label">
+                Niveaux actifs
+            </span>
+
+            <span class="summary-value">
+                {{ nombre_niveaux_actifs }}
+            </span>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <span class="summary-label">
+                Niveaux désactivés
+            </span>
+
+            <span class="summary-value">
+                {{ nombre_niveaux_inactifs }}
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- LISTE -->
+    <!-- ================================================== -->
+
+    <div class="table-card">
+
+        <div class="table-card-header">
+
+            <div>
+
+                <h2>
+                    Liste des niveaux
+                </h2>
+
+                <p>
+                    Consultez et gérez les niveaux enregistrés
+                    dans le système.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        {% if niveaux %}
+
+            <div class="table-responsive">
+
+                <table class="data-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Ordre
+                            </th>
+
+                            <th>
+                                Code
+                            </th>
+
+                            <th>
+                                Libellé
+                            </th>
+
+                            <th>
+                                Statut
+                            </th>
+
+                            <th class="actions-column">
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for niveau in niveaux %}
+
+                            <tr>
+
+                                <!-- ORDRE -->
+
+                                <td>
+
+                                    <span class="ordre-badge">
+                                        {{ niveau.ordre }}
+                                    </span>
+
+                                </td>
+
+
+                                <!-- CODE -->
+
+                                <td>
+
+                                    <span class="niveau-code">
+                                        {{ niveau.code }}
+                                    </span>
+
+                                </td>
+
+
+                                <!-- LIBELLÉ -->
+
+                                <td>
+
+                                    <strong>
+                                        {{ niveau.libelle }}
+                                    </strong>
+
+                                </td>
+
+
+                                <!-- STATUT -->
+
+                                <td>
+
+                                    {% if niveau.actif %}
+
+                                        <span class="status status-active">
+                                            Actif
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="status status-inactive">
+                                            Désactivé
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- ACTIONS -->
+
+                                <td class="actions-column">
+
+                                    <a
+                                        href="{% url 'detail_niveau' niveau.id %}"
+                                        class="table-action table-action-view"
+                                    >
+                                        Détail
+                                    </a>
+
+
+                                    <a
+                                        href="{% url 'modifier_niveau' niveau.id %}"
+                                        class="table-action table-action-edit"
+                                    >
+                                        Modifier
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <!-- ============================================== -->
+            <!-- AUCUN NIVEAU -->
+            <!-- ============================================== -->
+
+            <div class="empty-message">
+
+                <h3>
+                    Aucun niveau enregistré
+                </h3>
+
+                <p>
+                    Aucun niveau n'est encore disponible
+                    dans la structure académique.
+                </p>
+
+
+                <a
+                    href="{% url 'creer_niveau' %}"
+                    class="btn btn-primary"
+                >
+                    Créer le premier niveau
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

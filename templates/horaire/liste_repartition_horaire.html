@@ -1,0 +1,453 @@
+{% extends base_template %}
+
+{% load static %}
+
+{% block title %}
+    Répartition horaire
+{% endblock %}
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/organisation/liste_repartition_horaire.css' %}"
+>
+{% endblock %}
+{% block content %}
+
+<div class="repartition-page">
+
+
+    <!-- =====================================================
+         EN-TÊTE
+    ====================================================== -->
+
+    <div class="repartition-header">
+
+        <div class="header-left">
+
+            <div class="header-icon">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+
+            <div>
+
+                <h1>
+                    Répartition horaire
+                </h1>
+
+                <p>
+                    Consultez et gérez les horaires des cours
+                    de chaque classe.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="header-actions">
+
+            <a
+                href="{% url 'creer_repartition_horaire' %}"
+                class="btn-add"
+            >
+
+                <i class="fas fa-plus"></i>
+
+                Ajouter une répartition
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         STATISTIQUES
+    ====================================================== -->
+
+    <div class="repartition-stats">
+
+
+        <!-- TOTAL -->
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+
+                <i class="fas fa-calendar-check"></i>
+
+            </div>
+
+            <div>
+
+                <span class="stat-number">
+
+                    {{ repartitions|length }}
+
+                </span>
+
+                <span class="stat-label">
+
+                    Répartitions actives
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- CLASSES -->
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+
+                <i class="fas fa-school"></i>
+
+            </div>
+
+            <div>
+
+                <span class="stat-label">
+
+                    Horaires organisés par classe
+
+                </span>
+
+                <span class="stat-small">
+
+                    Consultez les cours programmés
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- CONTRÔLE -->
+
+        <div class="stat-card">
+
+            <div class="stat-icon">
+
+                <i class="fas fa-user-check"></i>
+
+            </div>
+
+            <div>
+
+                <span class="stat-label">
+
+                    Contrôle des conflits
+
+                </span>
+
+                <span class="stat-small">
+
+                    Classe et enseignant vérifiés
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- =====================================================
+         TABLEAU
+    ====================================================== -->
+
+    <div class="table-card">
+
+
+        <div class="table-header">
+
+            <div>
+
+                <h2>
+                    Liste des répartitions
+                </h2>
+
+                <p>
+                    Toutes les matières programmées dans les classes.
+                </p>
+
+            </div>
+
+
+            <div class="table-search">
+
+                <i class="fas fa-search"></i>
+
+                <input
+                    type="text"
+                    id="searchRepartition"
+                    placeholder="Rechercher..."
+                >
+
+            </div>
+
+        </div>
+
+
+
+        {% if classe_selectionnee and creneaux %}
+
+
+        <div class="table-responsive">
+
+
+            <table
+                class="repartition-table"
+                id="repartitionTable"
+            >
+
+
+                <!-- =========================================
+                     EN-TÊTE DU TABLEAU
+                ========================================== -->
+
+                <thead>
+    <tr>
+        <th>Cr&eacute;neau</th>
+        {% for jour_code, jour_libelle in jours %}
+            <th>{{ jour_libelle }}</th>
+        {% endfor %}
+    </tr>
+</thead>
+<tbody>
+    {% for ligne in grille_emploi_du_temps %}
+        <tr>
+            <td class="heure-cell">
+                <div class="heure-number">{{ ligne.creneau.numero_heure }}e heure</div>
+                <div class="heure-time">
+                    {{ ligne.creneau.heure_debut|time:"H:i" }} - {{ ligne.creneau.heure_fin|time:"H:i" }}
+                </div>
+            </td>
+            {% for cellule in ligne.cellules %}
+                <td class="cours-cell">
+                    {% if cellule.repartition %}
+                        <button
+                            type="button"
+                            class="cours-card course-detail"
+                            data-matiere="{{ cellule.repartition.affectation.affectation_matiere.matiere.libelle|escapejs }}"
+                            data-enseignant="{{ cellule.repartition.affectation.enseignant.utilisateur|escapejs }}"
+                            data-heures="{{ cellule.repartition.affectation.affectation_matiere.heures_par_semaine }}"
+                            data-ponderation="&Agrave; configurer ult&eacute;rieurement"
+                        >
+                            <span class="cours-matiere">
+                                {{ cellule.repartition.affectation.affectation_matiere.matiere.libelle }}
+                            </span>
+                        </button>
+                    {% else %}
+                        <div class="cours-vide">&mdash;</div>
+                    {% endif %}
+                </td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+</tbody>
+
+
+            </table>
+
+
+        </div>
+
+
+
+        {% else %}
+
+
+        <!-- =================================================
+             AUCUNE RÉPARTITION
+        ================================================== -->
+
+        <div class="empty-state">
+
+
+            <div class="empty-icon">
+
+                <i class="fas fa-calendar-times"></i>
+
+            </div>
+
+
+            <h3>
+                Aucune répartition horaire
+            </h3>
+
+
+            <p>
+
+                Aucune matière n'a encore été programmée
+                dans l'emploi du temps.
+
+            </p>
+
+
+            <a
+                href="{% url 'creer_repartition_horaire' %}"
+                class="btn-add"
+            >
+
+                <i class="fas fa-plus"></i>
+
+                Créer une répartition
+
+            </a>
+
+
+        </div>
+
+
+        {% endif %}
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =====================================================
+     JAVASCRIPT : RECHERCHE DANS LE TABLEAU
+===================================================== -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const searchInput =
+            document.getElementById(
+                "searchRepartition"
+            );
+
+        const table =
+            document.getElementById(
+                "repartitionTable"
+            );
+
+
+        if (
+            searchInput
+            &&
+            table
+        ) {
+
+            searchInput.addEventListener(
+                "keyup",
+                function () {
+
+                    const valeur =
+                        this.value
+                        .toLowerCase();
+
+
+                    const lignes =
+                        table
+                        .querySelectorAll(
+                            "tbody tr"
+                        );
+
+
+                    lignes.forEach(
+                        function (ligne) {
+
+                            const contenu =
+                                ligne
+                                .innerText
+                                .toLowerCase();
+
+
+                            if (
+                                contenu.includes(
+                                    valeur
+                                )
+                            ) {
+
+                                ligne.style.display =
+                                    "";
+
+                            }
+
+                            else {
+
+                                ligne.style.display =
+                                    "none";
+
+                            }
+
+                        }
+
+                    );
+
+                }
+
+            );
+
+        }
+
+    }
+);
+
+</script>
+<div
+    id="courseDetailsModal"
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="courseDetailsTitle"
+    style="position:fixed; inset:0; z-index:1050; place-items:center; padding:1rem; background:rgba(0,0,0,.45);"
+>
+    <section style="width:min(100%, 460px); padding:1.5rem; border-radius:.75rem; background:#fff; box-shadow:0 1rem 3rem rgba(0,0,0,.25);">
+        <div style="display:flex; justify-content:space-between; gap:1rem; align-items:center;">
+            <h2 id="courseDetailsTitle" style="margin:0;">D&eacute;tails du cours</h2>
+            <button id="closeCourseDetails" type="button" aria-label="Fermer">&times;</button>
+        </div>
+        <dl style="display:grid; grid-template-columns:auto 1fr; gap:.75rem 1rem; margin:1.5rem 0 0;">
+            <dt>Mati&egrave;re</dt><dd id="detailMatiere" style="margin:0;"></dd>
+            <dt>Enseignant</dt><dd id="detailEnseignant" style="margin:0;"></dd>
+            <dt>Heures par semaine</dt><dd id="detailHeures" style="margin:0;"></dd>
+            <dt>Pond&eacute;ration</dt><dd id="detailPonderation" style="margin:0;"></dd>
+        </dl>
+    </section>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const modal = document.getElementById("courseDetailsModal");
+    const closeButton = document.getElementById("closeCourseDetails");
+    const closeModal = function () {
+        modal.hidden = true;
+        modal.style.display = "";
+    };
+
+    document.querySelectorAll(".course-detail").forEach(function (course) {
+        course.addEventListener("click", function () {
+            document.getElementById("detailMatiere").textContent = course.dataset.matiere;
+            document.getElementById("detailEnseignant").textContent = course.dataset.enseignant;
+            document.getElementById("detailHeures").textContent = course.dataset.heures + " heure(s)";
+            document.getElementById("detailPonderation").textContent = course.dataset.ponderation;
+            modal.hidden = false;
+            modal.style.display = "grid";
+        });
+    });
+
+    closeButton.addEventListener("click", closeModal);
+    modal.addEventListener("click", function (event) {
+        if (event.target === modal) { closeModal(); }
+    });
+});
+</script>
+{% endblock %}

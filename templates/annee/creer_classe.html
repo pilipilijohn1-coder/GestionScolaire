@@ -1,0 +1,459 @@
+{% extends base_template %}
+{% load static %}
+
+
+{% block title %}
+    Nouvelle classe
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/creer_classes.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="classe-form-page">
+
+
+    <!-- =====================================================
+         EN-TÊTE
+    ====================================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <a
+                href="{% url 'liste_classes' %}"
+                class="back-link"
+            >
+                ← Retour à la liste
+            </a>
+
+            <h1>Nouvelle classe</h1>
+
+            <p>
+                Créez une nouvelle classe dans la structure académique
+                de l'établissement.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         FORMULAIRE
+    ====================================================== -->
+
+    <form
+        method="post"
+        class="classe-form"
+    >
+
+        {% csrf_token %}
+
+
+        <!-- =================================================
+             ERREURS GÉNÉRALES
+        ================================================== -->
+
+        {% if form.non_field_errors %}
+
+            <div class="form-errors">
+
+                {% for error in form.non_field_errors %}
+
+                    <p>{{ error }}</p>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+
+        <!-- =================================================
+             CARTE : STRUCTURE ACADÉMIQUE
+        ================================================== -->
+
+        <div class="form-card">
+
+            <div class="card-header">
+
+                <h2>
+                    Structure académique
+                </h2>
+
+                <p>
+                    Sélectionnez l'année scolaire, le niveau
+                    et éventuellement la section.
+                </p>
+
+            </div>
+
+
+            <div class="form-grid">
+
+
+                <!-- ANNÉE -->
+
+                <div class="form-group">
+
+                    <label for="{{ form.annee.id_for_label }}">
+
+                        Année scolaire
+                        <span class="required">*</span>
+
+                    </label>
+
+                    {{ form.annee }}
+
+                    {% if form.annee.errors %}
+
+                        <div class="field-error">
+
+                            {% for error in form.annee.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- NIVEAU -->
+
+                <div class="form-group">
+
+                    <label for="{{ form.niveau.id_for_label }}">
+
+                        Niveau
+                        <span class="required">*</span>
+
+                    </label>
+
+                    {{ form.niveau }}
+
+                    {% if form.niveau.errors %}
+
+                        <div class="field-error">
+
+                            {% for error in form.niveau.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- SECTION -->
+
+                <div
+                    class="form-group"
+                    id="section-group"
+                >
+
+                    <label for="{{ form.section.id_for_label }}">
+
+                        Section
+
+                        <span
+                            class="required"
+                            id="section-required"
+                        >
+                            *
+                        </span>
+
+                    </label>
+
+                    {{ form.section }}
+
+                    <small
+                        class="field-help"
+                        id="section-help"
+                    >
+                        La section est obligatoire pour les niveaux
+                        spécialisés.
+                    </small>
+
+                    {% if form.section.errors %}
+
+                        <div class="field-error">
+
+                            {% for error in form.section.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             CARTE : INFORMATIONS DE LA CLASSE
+        ================================================== -->
+
+        <div class="form-card">
+
+            <div class="card-header">
+
+                <h2>
+                    Informations de la classe
+                </h2>
+
+                <p>
+                    Définissez l'identification de la nouvelle classe.
+                </p>
+
+            </div>
+
+
+            <div class="form-grid">
+
+
+                <!-- CODE -->
+
+                <div class="form-group">
+
+                    <label for="{{ form.code.id_for_label }}">
+
+                        Code de la classe
+                        <span class="required">*</span>
+
+                    </label>
+
+                    {{ form.code }}
+
+                    <small class="field-help">
+                        Exemple : 1A, 2COM-A ou 6SC-B.
+                    </small>
+
+                    {% if form.code.errors %}
+
+                        <div class="field-error">
+
+                            {% for error in form.code.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- LIBELLÉ -->
+
+                <div class="form-group form-group-full">
+
+                    <label for="{{ form.libelle.id_for_label }}">
+
+                        Libellé de la classe
+                        <span class="required">*</span>
+
+                    </label>
+
+                    {{ form.libelle }}
+
+                    <small class="field-help">
+                        Exemple : Première année A
+                        ou 3e Commerciale A.
+                    </small>
+
+                    {% if form.libelle.errors %}
+
+                        <div class="field-error">
+
+                            {% for error in form.libelle.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             INFORMATION
+        ================================================== -->
+
+        <div class="info-box">
+
+            <strong>Important :</strong>
+
+            Une nouvelle classe est automatiquement créée
+            avec le statut actif.
+
+        </div>
+
+
+        <!-- =================================================
+             ACTIONS
+        ================================================== -->
+
+        <div class="form-actions">
+
+            <a
+                href="{% url 'liste_classes' %}"
+                class="btn btn-secondary"
+            >
+                Annuler
+            </a>
+
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Créer la classe
+            </button>
+
+        </div>
+
+
+    </form>
+
+</div>
+
+
+<!-- =========================================================
+     GESTION DE LA SECTION SELON LE NIVEAU
+========================================================== -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const niveauSelect =
+            document.getElementById(
+                "{{ form.niveau.id_for_label }}"
+            );
+
+        const sectionGroup =
+            document.getElementById(
+                "section-group"
+            );
+
+        const sectionSelect =
+            document.getElementById(
+                "{{ form.section.id_for_label }}"
+            );
+
+        const sectionRequired =
+            document.getElementById(
+                "section-required"
+            );
+
+        const sectionHelp =
+            document.getElementById(
+                "section-help"
+            );
+
+        const niveauxEcoleBase = [
+            {% for niveau in niveaux_ecole_base %}
+                "{{ niveau.id }}",
+            {% endfor %}
+        ];
+
+
+        function verifierSection() {
+
+            const niveauId = niveauSelect.value;
+
+            if (!niveauId) {
+
+                sectionGroup.style.display =
+                    "block";
+
+                sectionSelect.disabled =
+                    false;
+
+                sectionRequired.style.display =
+                    "inline";
+
+                sectionHelp.textContent =
+                    "Sélectionnez d'abord un niveau.";
+
+                return;
+            }
+
+            if (
+                niveauxEcoleBase.includes(
+                    niveauId
+                )
+            ) {
+
+                sectionSelect.value = "";
+
+                sectionSelect.disabled =
+                    true;
+
+                sectionRequired.style.display =
+                    "none";
+
+                sectionHelp.textContent =
+                    "Ce niveau appartient à l'École de base. "
+                    + "Aucune section n'est nécessaire.";
+
+            }
+
+            else {
+
+                sectionSelect.disabled =
+                    false;
+
+                sectionRequired.style.display =
+                    "inline";
+
+                sectionHelp.textContent =
+                    "La section est obligatoire "
+                    + "pour ce niveau.";
+
+            }
+
+        }
+
+        verifierSection();
+
+
+        niveauSelect.addEventListener(
+            "change",
+            verifierSection
+        );
+
+    }
+);
+
+</script>
+
+{% endblock %}

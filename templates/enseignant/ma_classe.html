@@ -1,0 +1,488 @@
+{% extends base_template %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}
+Ma classe - {{ classe.libelle }}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-container {
+        padding: 25px;
+    }
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    .page-header h1 {
+        margin: 0;
+        font-size: 28px;
+    }
+    .classe-info {
+        background: #f0f4f8;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 25px;
+        border: 1px solid #e5e7eb;
+    }
+    .classe-info h2 {
+        margin: 0 0 10px 0;
+        font-size: 20px;
+    }
+    .classe-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    .info-item {
+        display: flex;
+        flex-direction: column;
+    }
+    .info-label {
+        font-size: 12px;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .info-value {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2937;
+    }
+    
+    .section-card {
+        background: #ffffff;
+        border-radius: 14px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        margin-bottom: 25px;
+        overflow: hidden;
+    }
+    .section-header {
+        background: #f9fafb;
+        padding: 20px 25px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    .section-header h2 {
+        margin: 0;
+        font-size: 18px;
+        color: #1f2937;
+    }
+    .section-content {
+        padding: 25px;
+    }
+    
+    .table-container {
+        overflow-x: auto;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    th {
+        background: #f9fafb;
+        font-weight: 600;
+        color: #374151;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    tr:last-child td {
+        border-bottom: none;
+    }
+    tr:hover td {
+        background: #f9fafb;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #6b7280;
+    }
+    .empty-state i {
+        font-size: 48px;
+        margin-bottom: 15px;
+        opacity: 0.5;
+    }
+    
+    .badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .badge-success {
+        background: #d1fae5;
+        color: #065f46;
+    }
+    .badge-warning {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    .badge-info {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .points-cell {
+        font-family: monospace;
+        font-weight: 600;
+    }
+    .points-high { color: #059669; }
+    .points-medium { color: #d97706; }
+    .points-low { color: #dc2626; }
+    
+    .period-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+    .period-tab {
+        padding: 10px 20px;
+        background: #f3f4f6;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #374151;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    .period-tab:hover {
+        background: #e5e7eb;
+    }
+    .period-tab.active {
+        background: #3b82f6;
+        color: white;
+    }
+    
+    .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+    .stat-card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px solid #e5e7eb;
+        text-align: center;
+    }
+    .stat-icon {
+        font-size: 28px;
+        margin-bottom: 8px;
+    }
+    .stat-value {
+        display: block;
+        font-size: 24px;
+        font-weight: 700;
+        color: #1f2937;
+    }
+    .stat-label {
+        color: #6b7280;
+        font-size: 13px;
+    }
+    
+    @media (max-width: 768px) {
+        .page-container {
+            padding: 15px;
+        }
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .section-content {
+            padding: 15px;
+        }
+        th, td {
+            padding: 8px 10px;
+            font-size: 13px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+    <!-- ================================================= -->
+    <!-- EN-TÊTE -->
+    <!-- ================================================= -->
+
+    <div class="page-header">
+        <div>
+            <h1>Ma classe</h1>
+            {% if classe %}
+                <p style="color:#6b7280; margin: 6px 0 0;">
+                    {{ classe.libelle }} - {{ annee_active.libelle }}
+                </p>
+            {% endif %}
+        </div>
+        <a href="{% url 'dashboard_enseignant' %}" class="btn-retour">
+            Retour au tableau de bord
+        </a>
+    </div>
+
+    {% if not classe %}
+        <div class="section-card">
+            <div class="section-content">
+                <div class="empty-state">
+                    <i class="fa-solid fa-school"></i>
+                    <h3>Aucune classe assignée</h3>
+                    <p>Vous n'êtes pas titulaire d'une classe pour l'année scolaire active.</p>
+                </div>
+            </div>
+        </div>
+    {% else %}
+
+        <!-- Statistiques rapides -->
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <span class="stat-value">{{ eleves|length }}</span>
+                <span class="stat-label">Élèves</span>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📚</div>
+                <span class="stat-value">{{ matieres|length }}</span>
+                <span class="stat-label">Matières</span>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <span class="stat-value">{{ periodes|length }}</span>
+                <span class="stat-label">Périodes</span>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏫</div>
+                <span class="stat-value">{{ classe.niveau.libelle }}</span>
+                <span class="stat-label">Niveau</span>
+            </div>
+        </div>
+
+        <!-- Info classe -->
+        <div class="classe-info">
+            <h2>{{ classe.libelle }}</h2>
+            <div class="classe-info-grid">
+                <div class="info-item">
+                    <span class="info-label">Niveau</span>
+                    <span class="info-value">{{ classe.niveau.libelle }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Section</span>
+                    <span class="info-value">{{ classe.section.libelle|default:"École de base" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Code</span>
+                    <span class="info-value">{{ classe.code }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Année scolaire</span>
+                    <span class="info-value">{{ annee_active.libelle }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Titulaire</span>
+                    <span class="info-value">{{ enseignant.utilisateur.prenom }} {{ enseignant.utilisateur.nom }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liste des élèves -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2><i class="fa-solid fa-user-graduate"></i> Liste des élèves ({{ eleves|length }})</h2>
+            </div>
+            <div class="section-content">
+                {% if eleves %}
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Matricule</th>
+                                    <th>Nom complet</th>
+                                    <th>Sexe</th>
+                                    <th>Date de naissance</th>
+                                    <th>Téléphone</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for eleve in eleves %}
+                                <tr>
+                                    <td>{{ eleve.matricule }}</td>
+                                    <td>{{ eleve.nom }} {{ eleve.postnom|default:"" }} {{ eleve.prenom }}</td>
+                                    <td>{{ eleve.get_sexe_display|default:"-" }}</td>
+                                    <td>{{ eleve.date_naissance|date:"d/m/Y"|default:"-" }}</td>
+                                    <td>{{ eleve.telephone|default:"-" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fa-solid fa-user-graduate"></i>
+                        <h3>Aucun élève</h3>
+                        <p>Aucun élève n'est inscrit dans cette classe pour l'année en cours.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Matières / Cours -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2><i class="fa-solid fa-book"></i> Matières enseignées ({{ matieres|length }})</h2>
+            </div>
+            <div class="section-content">
+                {% if matieres %}
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Matière</th>
+                                    <th>Domaine</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for matiere in matieres %}
+                                <tr>
+                                    <td>{{ matiere.code }}</td>
+                                    <td>{{ matiere.libelle }}</td>
+                                    <td>{{ matiere.domaine.libelle|default:"-" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fa-solid fa-book"></i>
+                        <h3>Aucune matière</h3>
+                        <p>Aucune matière n'est affectée à cette classe.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Résultats par période -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2><i class="fa-solid fa-chart-bar"></i> Résultats par période</h2>
+            </div>
+            <div class="section-content">
+                {% if periodes %}
+                    <div class="period-tabs">
+                        {% for periode in periodes %}
+                            <a href="#periode-{{ periode.id }}" class="period-tab {% if forloop.first %}active{% endif %}">
+                                {{ periode.semestre.libelle }} - {{ periode.libelle }}
+                            </a>
+                        {% endfor %}
+                    </div>
+
+                    {% for periode in periodes %}
+                    <div id="periode-{{ periode.id }}" class="tab-content {% if not forloop.first %}d-none{% endif %}">
+                        <h3 style="margin-bottom: 15px; color: #374151;">{{ periode.semestre.libelle }} - {{ periode.libelle }}</h3>
+                        {% if eleves %}
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Élève</th>
+                                            <th>Points obtenus</th>
+                                            <th>Points max</th>
+                                            <th>Pourcentage</th>
+                                            <th>Statut</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for eleve in eleves %}
+                                            {% with resultat=resultats_par_periode|get_item:periode|get_item:eleve.id %}
+                                            <tr>
+                                                <td>{{ eleve.nom }} {{ eleve.prenom }}</td>
+                                                <td class="points-cell {% if resultat and resultat.pourcentage >= 70 %}points-high{% elif resultat and resultat.pourcentage >= 50 %}points-medium{% elif resultat %}points-low{% endif %}">
+                                                    {% if resultat %}
+                                                        {{ resultat.points_obtenus|floatformat:2 }}
+                                                    {% else %}
+                                                        <span style="color:#9ca3af;">-</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="points-cell">
+                                                    {% if resultat %}
+                                                        {{ resultat.points_max|floatformat:2 }}
+                                                    {% else %}
+                                                        <span style="color:#9ca3af;">-</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="points-cell {% if resultat and resultat.pourcentage >= 70 %}points-high{% elif resultat and resultat.pourcentage >= 50 %}points-medium{% elif resultat %}points-low{% endif %}">
+                                                    {% if resultat %}
+                                                        {{ resultat.pourcentage|floatformat:2 }}%
+                                                    {% else %}
+                                                        <span style="color:#9ca3af;">-</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if resultat %}
+                                                        <span class="badge badge-success">{{ resultat.statut }}</span>
+                                                    {% else %}
+                                                        <span class="badge badge-warning">Non saisi</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% endwith %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="fa-solid fa-chart-bar"></i>
+                                <h3>Aucun élève</h3>
+                                <p>Impossible d'afficher les résultats sans élèves.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fa-solid fa-calendar-days"></i>
+                        <h3>Aucune période</h3>
+                        <p>Aucune période n'est définie pour l'année scolaire active.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% block extra_js %}
+<script>
+// Gestion des onglets de période
+document.querySelectorAll('.period-tab').forEach(tab => {
+    tab.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Retirer active de tous
+        document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('d-none'));
+        
+        // Ajouter active au cliqué
+        this.classList.add('active');
+        const target = this.getAttribute('href');
+        document.querySelector(target).classList.remove('d-none');
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

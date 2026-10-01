@@ -1,0 +1,17 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block content %}
+<div style="text-align: center; padding: 60px 20px;">
+    <h1 style="font-size: 32px; margin-bottom: 15px;">Bienvenue sur GestionScolaire</h1>
+    <p style="font-size: 18px; color: #6b7280; max-width: 600px; margin: 0 auto 30px;">
+        Plateforme de gestion scolaire intégrée pour la administration des élèves,
+        enseignants, classes, évaluations et résultats.
+    </p>
+    <a href="{% url 'dashboard_admin' %}" class="btn btn-primary" style="padding: 12px 24px; text-decoration: none; border-radius: 8px; background: #2563eb; color: white;">
+        Accéder au tableau de bord
+    </a>
+</div>
+{% endblock %}

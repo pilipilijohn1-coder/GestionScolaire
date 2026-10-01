@@ -1,0 +1,259 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+Modifier une affectation
+{% endblock %}
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/affectations/modifier_affectation.css' %}"
+>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-container">
+
+    <!-- ============================================== -->
+    <!-- EN-TÊTE -->
+    <!-- ============================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>Modifier l'affectation</h1>
+
+            <p>
+                Modifiez les informations relatives à
+                cette affectation d'enseignant.
+            </p>
+
+        </div>
+
+
+        <a
+            href="{% url 'detail_affectation' affectation.id %}"
+            class="btn btn-secondary"
+        >
+            <i class="fa-solid fa-arrow-left"></i>
+            Retour aux détails
+        </a>
+
+    </div>
+
+
+    <!-- ============================================== -->
+    <!-- FORMULAIRE -->
+    <!-- ============================================== -->
+
+    <div class="form-card">
+
+        <form
+            method="post"
+            id="affectation-form"
+            novalidate
+        >
+
+            {% csrf_token %}
+
+
+            <!-- ====================================== -->
+            <!-- ERREURS GÉNÉRALES -->
+            <!-- ====================================== -->
+
+            {% if form.non_field_errors %}
+
+                <div class="alert alert-error">
+
+                    <i class="fa-solid fa-circle-xmark"></i>
+
+                    <div>
+
+                        {% for error in form.non_field_errors %}
+
+                            <p>{{ error }}</p>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- ====================================== -->
+            <!-- ANNÉE SCOLAIRE -->
+            <!-- ====================================== -->
+
+            <div class="form-group">
+
+                <label for="{{ form.annee.id_for_label }}">
+
+                    <i class="fa-solid fa-calendar-days"></i>
+                    Année scolaire
+
+                </label>
+
+
+                {{ form.annee }}
+
+
+                {% if form.annee.errors %}
+
+                    <div class="field-error">
+
+                        {% for error in form.annee.errors %}
+
+                            <span>{{ error }}</span>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- ====================================== -->
+            <!-- CLASSE -->
+            <!-- ====================================== -->
+
+            <div class="form-group">
+
+                <label for="{{ form.classe.id_for_label }}">
+
+                    <i class="fa-solid fa-chalkboard"></i>
+                    Classe
+
+                </label>
+
+
+                {{ form.classe }}
+
+
+                {% if form.classe.errors %}
+
+                    <div class="field-error">
+
+                        {% for error in form.classe.errors %}
+
+                            <span>{{ error }}</span>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- ====================================== -->
+            <!-- MATIÈRE -->
+            <!-- ====================================== -->
+
+            <div class="form-group">
+
+                <label for="{{ form.matiere.id_for_label }}">
+
+                    <i class="fa-solid fa-book"></i>
+                    Matière
+
+                </label>
+
+
+                {{ form.matiere }}
+
+
+                {% if form.matiere.errors %}
+
+                    <div class="field-error">
+
+                        {% for error in form.matiere.errors %}
+
+                            <span>{{ error }}</span>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- ====================================== -->
+            <!-- ENSEIGNANT -->
+            <!-- ====================================== -->
+
+            <div class="form-group">
+
+                <label for="{{ form.enseignant.id_for_label }}">
+
+                    <i class="fa-solid fa-person-chalkboard"></i>
+                    Enseignant
+
+                </label>
+
+
+                {{ form.enseignant }}
+
+
+                {% if form.enseignant.errors %}
+
+                    <div class="field-error">
+
+                        {% for error in form.enseignant.errors %}
+
+                            <span>{{ error }}</span>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- ====================================== -->
+            <!-- ACTIONS -->
+            <!-- ====================================== -->
+
+            <div class="form-actions">
+
+                <a
+                    href="{% url 'detail_affectation' affectation.id %}"
+                    class="btn btn-secondary"
+                >
+
+                    <i class="fa-solid fa-xmark"></i>
+                    Annuler
+
+                </a>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    Enregistrer les modifications
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

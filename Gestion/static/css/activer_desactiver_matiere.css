@@ -1,0 +1,418 @@
+/* ============================================================
+   PAGE : ACTIVATION / DÉSACTIVATION D'UNE MATIÈRE
+   ============================================================ */
+
+.status-page {
+    width: 100%;
+    max-width: 850px;
+
+    margin: 0 auto;
+    padding: 35px 25px;
+}
+
+
+/* ============================================================
+   EN-TÊTE
+   ============================================================ */
+
+.page-header {
+    margin-bottom: 28px;
+}
+
+.back-link {
+    display: inline-block;
+
+    margin-bottom: 12px;
+
+    color: #2563eb;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+.page-header h1 {
+    margin: 0 0 8px;
+
+    color: #111827;
+
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.page-header p {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+
+/* ============================================================
+   CARTE DE CONFIRMATION
+   ============================================================ */
+
+.confirmation-card {
+    display: flex;
+
+    gap: 25px;
+
+    padding: 30px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    box-shadow:
+        0 3px 15px
+        rgba(0, 0, 0, 0.04);
+}
+
+
+/* ============================================================
+   VARIANTES DE LA CARTE
+   ============================================================ */
+
+.danger-card {
+    border-top: 4px solid #ef4444;
+}
+
+.success-card {
+    border-top: 4px solid #22c55e;
+}
+
+
+/* ============================================================
+   ICÔNE
+   ============================================================ */
+
+.status-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 58px;
+    height: 58px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    font-size: 25px;
+    font-weight: 700;
+}
+
+.danger-icon {
+    color: #dc2626;
+    background: #fee2e2;
+}
+
+.success-icon {
+    color: #16a34a;
+    background: #dcfce7;
+}
+
+
+/* ============================================================
+   CONTENU
+   ============================================================ */
+
+.confirmation-content {
+    width: 100%;
+}
+
+.confirmation-content h2 {
+    margin: 0 0 10px;
+
+    color: #111827;
+
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.confirmation-text {
+    margin: 0 0 22px;
+
+    color: #4b5563;
+
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.confirmation-text strong {
+    color: #1f2937;
+}
+
+
+/* ============================================================
+   RÉSUMÉ DE LA MATIÈRE
+   ============================================================ */
+
+.matiere-summary {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 15px;
+
+    margin-bottom: 20px;
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+
+    gap: 7px;
+
+    padding: 14px;
+
+    background: #f9fafb;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+}
+
+.summary-item > span:first-child {
+    color: #9ca3af;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.04em;
+}
+
+.summary-item strong {
+    color: #1f2937;
+
+    font-size: 14px;
+}
+
+
+/* ============================================================
+   STATUT
+   ============================================================ */
+
+.status {
+    display: inline-flex;
+    align-items: center;
+
+    width: fit-content;
+
+    padding: 5px 10px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status.active {
+    color: #166534;
+    background: #dcfce7;
+}
+
+.status.inactive {
+    color: #991b1b;
+    background: #fee2e2;
+}
+
+
+/* ============================================================
+   BOÎTE D'AVERTISSEMENT
+   ============================================================ */
+
+.warning-box {
+    margin-bottom: 22px;
+    padding: 15px 17px;
+
+    color: #92400e;
+    background: #fffbeb;
+
+    border-left: 4px solid #f59e0b;
+    border-radius: 7px;
+
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.warning-box strong {
+    color: #b45309;
+}
+
+
+/* ============================================================
+   BOÎTE DE CONFIRMATION
+   ============================================================ */
+
+.success-box {
+    margin-bottom: 22px;
+    padding: 15px 17px;
+
+    color: #166534;
+    background: #f0fdf4;
+
+    border-left: 4px solid #22c55e;
+    border-radius: 7px;
+
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.success-box strong {
+    color: #15803d;
+}
+
+
+/* ============================================================
+   ACTIONS
+   ============================================================ */
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 12px;
+
+    margin-top: 10px;
+}
+
+
+/* ============================================================
+   BOUTONS
+   ============================================================ */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 44px;
+
+    padding: 10px 20px;
+
+    border: none;
+    border-radius: 7px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease,
+        box-shadow 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+
+/* ============================================================
+   BOUTON SECONDAIRE
+   ============================================================ */
+
+.btn-secondary {
+    color: #374151;
+    background: #e5e7eb;
+}
+
+.btn-secondary:hover {
+    background: #d1d5db;
+}
+
+
+/* ============================================================
+   BOUTON DÉSACTIVATION
+   ============================================================ */
+
+.btn-danger {
+    color: #ffffff;
+    background: #dc2626;
+
+    box-shadow:
+        0 4px 10px
+        rgba(220, 38, 38, 0.15);
+}
+
+.btn-danger:hover {
+    background: #b91c1c;
+}
+
+
+/* ============================================================
+   BOUTON ACTIVATION
+   ============================================================ */
+
+.btn-success {
+    color: #ffffff;
+    background: #16a34a;
+
+    box-shadow:
+        0 4px 10px
+        rgba(22, 163, 74, 0.15);
+}
+
+.btn-success:hover {
+    background: #15803d;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media screen and (max-width: 750px) {
+
+    .status-page {
+        padding: 20px 15px;
+    }
+
+    .confirmation-card {
+        flex-direction: column;
+
+        gap: 18px;
+
+        padding: 22px;
+    }
+
+    .matiere-summary {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media screen and (max-width: 500px) {
+
+    .page-header h1 {
+        font-size: 24px;
+    }
+
+    .confirmation-content h2 {
+        font-size: 18px;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+    }
+
+}

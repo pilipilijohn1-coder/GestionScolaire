@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Connexion - Gestion Scolaire</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background: #f2f4f7;
+        }
+
+        .connexion-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        .connexion-box {
+            background: white;
+            padding: 35px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.10);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 14px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+  background: #f9fafb;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Effet lumineux bleu au focus */
+.form-group input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 6px rgba(37, 99, 235, 0.5);
+  outline: none;
+}
+
+/* Label flottant animé */
+.form-group label {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  color: #666;
+  font-size: 14px;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  background: #f9fafb;
+  padding: 0 4px;
+}
+
+.form-group input:focus ~ label,
+.form-group input:not(:placeholder-shown) ~ label {
+  top: -8px;
+  left: 10px;
+  font-size: 12px;
+  color: #2563eb;
+  transform: none;
+}
+
+/* Icône œil */
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #aaa;
+  font-size: 18px;
+  transition: color 0.3s ease;
+}
+
+.toggle-password:hover {
+  color: #2563eb;
+}
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            background: #1f2937;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #111827;
+        }
+
+        .message {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="connexion-container">
+
+    <div class="connexion-box">
+
+        <h1>Gestion Scolaire</h1>
+
+        <p class="description">
+            Connexion à votre espace
+        </p>
+
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <div class="champ form-group">
+  
+    <input type="text" id="login" name="login" placeholder=" " required>
+  <label for="login">Identifiant</label>
+</div>
+
+<div class="champ form-group">
+  <input type="password" id="mot_de_passe" name="mot_de_passe" placeholder=" " required>
+  <label for="mot_de_passe">Mot de passe</label>
+  <span class="toggle-password" onclick="togglePassword()">
+    <i id="toggleIcon" class="fas fa-eye"></i>
+  </span>
+</div>
+
+            <button type="submit">
+                Se connecter
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+<script>
+function togglePassword() {
+  const input = document.getElementById("mot_de_passe");
+  const icon = document.getElementById("toggleIcon");
+
+  if (input.type === "password") {
+    input.type = "text";
+    icon.classList.remove("fa-eye");
+    icon.classList.add("fa-eye-slash");
+  } else {
+    input.type = "password";
+    icon.classList.remove("fa-eye-slash");
+    icon.classList.add("fa-eye");
+  }
+}
+</script>
+</body>
+
+</html>

@@ -1,0 +1,2499 @@
+{% extends base_template %}
+{% load static %}
+
+
+{% block title %}
+    Créer une matière & affecter
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/creer_matiere.css' %}"
+>
+
+<style>
+    .gm-creation-section {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    /* Section création matière */
+    .gm-matiere-form-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+        margin-bottom: 24px;
+    }
+
+    .gm-matiere-form-card h2 {
+        margin: 0 0 4px;
+        font-size: 18px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .gm-matiere-form-card p {
+        margin: 0 0 16px;
+        color: #64748b;
+        font-size: 13px;
+    }
+
+    /* Section affectation */
+    .gm-affectation-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+    }
+
+    .gm-affectation-card h2 {
+        margin: 0 0 4px;
+        font-size: 16px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .gm-affectation-card p {
+        margin: 0 0 16px;
+        color: #64748b;
+        font-size: 13px;
+    }
+
+    .gm-form-group {
+        margin-bottom: 16px;
+    }
+
+    .gm-form-group label {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #1e293b;
+    }
+
+    .required::after {
+        content: " *";
+        color: #dc2626;
+    }
+
+    .gm-form-control {
+        display: block;
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #1e293b;
+        background: #ffffff;
+    }
+
+    .gm-form-control:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+    }
+
+    .gm-form-help {
+        display: block;
+        margin-top: 4px;
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    .gm-field-error {
+        color: #dc2626;
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+    /* Classe verrouillée display */
+    .gm-classe-locked {
+        padding: 12px 16px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-weight: 600;
+        color: #1e293b;
+        margin-top: 8px;
+    }
+
+    /* Actions */
+    .gm-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .gm-btn {
+        flex: 1;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        text-decoration: none;
+    }
+
+    .gm-btn-cancel {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .gm-btn-cancel:hover {
+        background: #e2e8f0;
+    }
+
+    .gm-btn-submit {
+        background: #2563eb;
+        color: white;
+    }
+
+    .gm-btn-submit:hover {
+        background: #1e40af;
+    }
+
+    /* Info box */
+    .gm-info-box {
+        background: #eff6ff;
+        border: 1px solid #dbeafe;
+        border-radius: 12px;
+        padding: 16px;
+        margin-top: 16px;
+        font-size: 13px;
+        color: #1e40af;
+    }
+    
+    .gm-info-box strong {
+        color: #2563eb;
+    }
+
+    .gm-cours-directs,
+    .gm-matiere-form-card,
+    .gm-affectation-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        background: #ffffff;
+        box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+    }
+
+    .gm-cours-directs {
+        padding: 20px;
+        margin-bottom: 24px;
+    }
+
+    .gm-cours-directs-hint {
+        color: var(--gm-text-secondary, #64748b);
+    }
+
+    .gm-cours-directs-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 16px;
+    }
+
+    .gm-cours-directs h2 {
+        margin: 0;
+        color: #1e293b;
+        font-size: 17px;
+    }
+
+    .gm-cours-directs-header p {
+        margin: 5px 0 0;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .gm-cours-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 12px;
+    }
+
+    .gm-cours-card {
+        width: 100%;
+        min-height: 104px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px;
+        border: 1px solid #dbeafe;
+        border-radius: 12px;
+        background: #f8fafc;
+        color: #1e293b;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .gm-cours-card:hover:not(:disabled) {
+        border-color: #2563eb;
+        background: #eff6ff;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.12);
+    }
+
+    .gm-cours-card:disabled {
+        cursor: default;
+        opacity: 0.65;
+    }
+
+    .gm-cours-card--disabled {
+        border-color: #f59e0b;
+        background: #fffbeb;
+    }
+
+    .gm-cours-card--disabled .gm-cours-teacher {
+        color: #d97706;
+    }
+
+    .gm-cours-card-main {
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        gap: 11px;
+    }
+
+    .gm-cours-icon {
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .gm-cours-card-text {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    .gm-cours-card-text strong,
+    .gm-cours-card-text small {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .gm-cours-card-text strong {
+        color: #1e293b;
+        font-size: 14px;
+    }
+
+    .gm-cours-card-text small {
+        color: #64748b;
+        font-size: 12px;
+    }
+
+    .gm-cours-teacher {
+        overflow: hidden;
+        color: #475569;
+        font-size: 12px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .gm-cours-hours {
+        flex: 0 0 auto;
+        color: #475569;
+        font-size: 12px;
+        text-align: right;
+    }
+
+    .gm-cours-hours strong {
+        display: block;
+        color: #2563eb;
+        font-size: 16px;
+    }
+
+    .gm-cours-empty {
+        padding: 26px 18px;
+        border: 1px dashed #cbd5e1;
+        border-radius: 12px;
+        color: #64748b;
+        text-align: center;
+    }
+
+    .gm-cours-empty i {
+        display: block;
+        margin-bottom: 9px;
+        color: #94a3b8;
+        font-size: 26px;
+    }
+
+    .gm-cours-empty strong {
+        display: block;
+        color: #334155;
+        font-size: 14px;
+    }
+
+    .gm-cours-empty p {
+        margin: 6px auto 14px;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+
+    @media (max-width: 640px) {
+        .gm-actions {
+            flex-direction: column;
+        }
+    }
+
+    /* Modal popup pour les cours */
+    .gm-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .gm-modal-content {
+        background: white;
+        border-radius: 16px;
+        width: 100%;
+        max-width: 700px;
+        max-height: 70vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    }
+
+    .gm-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 24px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .gm-modal-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .gm-modal-close {
+        background: none;
+        border: none;
+        font-size: 22px;
+        color: #64748b;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 6px;
+        transition: all 0.2s;
+    }
+
+    .gm-modal-close:hover {
+        background: #f1f5f9;
+        color: #dc2626;
+    }
+
+    .gm-modal-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+    }
+</style>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="gm-creation-section">
+
+    <!-- =====================================================
+         MESSAGES
+    ====================================================== -->
+    
+
+
+    <form method="post" id="form-programmation-horaire">
+
+        {% csrf_token %}
+
+        <!-- =====================================================
+             CLASSE
+        ====================================================== -->
+
+        <div class="gm-affectation-card">
+
+            <h2>
+                <i class="fas fa-school"></i>
+                Programmation des cours
+            </h2>
+
+            <p>
+                Sélectionnez une classe puis programmez les cours
+                dans les créneaux horaires disponibles.
+            </p>
+
+
+            {% if classe_preselectionnee %}
+
+                <div class="gm-form-group">
+
+                    <label>
+                        Classe
+                    </label>
+
+                    <div class="gm-form-control"
+                         style="background:#f3f4f6;">
+
+                        {{ classe_preselectionnee.niveau.libelle }}
+                        -
+                        {{ classe_preselectionnee.libelle }}
+
+                        {% if classe_preselectionnee.section %}
+                            ({{ classe_preselectionnee.section.libelle }})
+                        {% endif %}
+
+                    </div>
+
+                    <input
+                        type="hidden"
+                        name="classe"
+                        id="id_classe"
+                        value="{{ classe_preselectionnee.id }}"
+                    >
+
+                </div>
+
+            {% else %}
+
+                <div class="gm-form-group">
+
+                    <label for="id_classe">
+                        Classe
+                        <span class="required">*</span>
+                    </label>
+
+                    <select
+                        name="classe"
+                        id="id_classe"
+                        class="gm-form-control"
+                        required
+                    >
+
+                        <option value="">
+                            Sélectionnez une classe
+                        </option>
+
+                        {% for c in classes_pour_affectation %}
+
+                            <option value="{{ c.id }}">
+
+                                {{ c.niveau.libelle }}
+                                {{ c.code }}
+                                -
+                                {{ c.libelle }}
+
+                                {% if c.section %}
+                                    ({{ c.section.libelle }})
+                                {% endif %}
+
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+            {% endif %}
+
+        {% if classe_preselectionnee %}
+            <div class="gm-cours-popup-wrapper">
+                <button type="button" id="btn-cours-popup" class="gm-btn gm-btn-submit" style="width: 100%; justify-content: center;">
+                    <i class="fas fa-list-check"></i>
+                    Voir les cours disponibles ({{ matieres_a_programmer|length }} cours)
+                </button>
+            </div>
+        {% else %}
+            <div class="gm-cours-directs gm-cours-directs-hint" id="cours-directs">
+                <div class="gm-cours-directs-header">
+                    <div>
+                        <h2>
+                            <i class="fas fa-list-check"></i>
+                            Cours disponibles
+                        </h2>
+                        <p>Sélectionnez une classe pour afficher ses cours directement.</p>
+                    </div>
+                </div>
+                <div id="cours-directs-liste"></div>
+            </div>
+        {% endif %}
+
+
+        <!-- POPUP MODAL POUR COURS DISPONIBLES -->
+        <div id="cours-popup" class="gm-modal-overlay" style="display: none;">
+            <div class="gm-modal-content">
+                <div class="gm-modal-header">
+                    <h3><i class="fas fa-list-check"></i> Cours disponibles</h3>
+                    <button type="button" id="cours-popup-close" class="gm-modal-close">
+                        <i class="fas fa-xmark"></i>
+                    </button>
+                </div>
+                <div id="cours-popup-body" class="gm-modal-body">
+                    <div style="padding: 20px; text-align: center; color: #6b7280; font-size: 13px;">
+                        Chargement des cours...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="gm-matiere-form-card">
+
+            <h2>
+                <i class="fas fa-book-open"></i>
+                Ajouter un cours au planning
+            </h2>
+
+            <p>
+                Sélectionnez un cours, vérifiez son enseignant et
+                choisissez ses créneaux horaires.
+            </p>
+
+
+            <!-- COURS -->
+
+            <div class="gm-form-group">
+
+                <label for="id_affectation_matiere">
+
+                    Cours
+
+                    <span class="required">*</span>
+
+                </label>
+
+                <select
+                    id="id_affectation_matiere"
+                    class="gm-form-control"
+                    
+                >
+
+                    <option value="">
+                        Sélectionnez d'abord une classe
+                    </option>
+
+                </select>
+
+                <span
+                    class="gm-form-help"
+                    id="message-cours"
+                >
+                    Les cours disponibles apparaîtront ici.
+                </span>
+
+            </div>
+
+
+            <!-- ENSEIGNANT -->
+
+            <div class="gm-form-group">
+
+                <label for="id_enseignant">
+                    Enseignant
+                </label>
+
+                <input
+                    type="text"
+                    id="id_enseignant"
+                    class="gm-form-control"
+                    readonly
+                    placeholder="Enseignant du cours"
+                >
+
+            </div>
+
+
+            <!-- HEURES -->
+
+            <div class="gm-form-group">
+
+                <label for="id_heures">
+
+                    Heures par semaine
+
+                </label>
+
+                <input
+                    type="number"
+                    id="id_heures"
+                    class="gm-form-control"
+                    readonly
+                    value=""
+                >
+
+                <span
+                    class="gm-form-help"
+                    id="info-heures"
+                >
+                    Le volume hebdomadaire du cours sera affiché.
+                </span>
+
+            </div>
+
+
+            <!-- =================================================
+                 JOUR
+            ================================================== -->
+
+            <div class="gm-form-group">
+
+                <label for="id_jour">
+
+                    Jour
+
+                    <span class="required">*</span>
+
+                </label>
+
+                <select
+                    id="id_jour"
+                    class="gm-form-control"
+                    disabled
+                >
+
+                    <option value="">
+                        Sélectionnez un jour
+                    </option>
+
+                    <option value="LUNDI">Lundi</option>
+                    <option value="MARDI">Mardi</option>
+                    <option value="MERCREDI">Mercredi</option>
+                    <option value="JEUDI">Jeudi</option>
+                    <option value="VENDREDI">Vendredi</option>
+                    <option value="SAMEDI">Samedi</option>
+
+                </select>
+
+            </div>
+
+
+            <!-- =================================================
+                 CRÉNEAU
+            ================================================== -->
+
+            <div class="gm-form-group">
+
+                <label for="id_creneau">
+
+                    Créneau horaire
+
+                    <span class="required">*</span>
+
+                </label>
+
+                <select
+                    id="id_creneau"
+                    class="gm-form-control"
+                    disabled
+                >
+
+                    <option value="">
+                        Sélectionnez d'abord le jour
+                    </option>
+
+                </select>
+
+                <span
+                    class="gm-form-help"
+                    id="message-creneau"
+                >
+                    Les créneaux disponibles apparaîtront ici.
+                </span>
+
+            </div>
+
+
+            <!-- AJOUT DU CRÉNEAU -->
+
+            <div
+                style="
+                    margin-top:15px;
+                    display:flex;
+                    justify-content:flex-end;
+                "
+            >
+
+                <button
+                    type="button"
+                    id="btn-ajouter-creneau"
+                    class="gm-btn gm-btn-submit"
+                    disabled
+                >
+
+                    <i class="fas fa-plus"></i>
+
+                    Ajouter le créneau
+
+                </button>
+
+            </div>
+
+
+            <!-- CRÉNEAUX TEMPORAIRES DU COURS -->
+
+            <div
+                id="creneaux-cours-container"
+                style="display:none; margin-top:20px;"
+            >
+
+                <h3 style="font-size:15px; margin-bottom:10px;">
+
+                    Créneaux sélectionnés pour ce cours
+
+                </h3>
+
+                <div id="liste-creneaux-cours"></div>
+
+            </div>
+
+
+            <!-- AJOUT DU COURS -->
+
+            <div
+                style="
+                    margin-top:20px;
+                    display:flex;
+                    justify-content:flex-end;
+                "
+            >
+
+                <button
+                    type="button"
+                    id="btn-ajouter-cours"
+                    class="gm-btn gm-btn-submit"
+                    disabled
+                >
+
+                    <i class="fas fa-calendar-plus"></i>
+
+                    Ajouter le cours
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             TABLEAU DES COURS PROGRAMMÉS
+        ====================================================== -->
+
+        <div
+            class="gm-affectation-card"
+            id="recapitulatif-container"
+        >
+
+            <h2>
+
+                <i class="fas fa-calendar-alt"></i>
+
+                Cours programmés
+
+            </h2>
+
+            <p id="message-recapitulatif">
+
+                Aucun cours n'a encore été programmé.
+
+            </p>
+
+
+            <div
+                style="
+                    overflow-x:auto;
+                    display:none;
+                "
+                id="table-wrapper"
+            >
+
+                <table
+                    style="
+                        width:100%;
+                        border-collapse:collapse;
+                        font-size:13px;
+                    "
+                >
+
+                    <thead>
+
+                        <tr>
+
+                            <th style="padding:10px; text-align:left;">
+                                Cours
+                            </th>
+
+                            <th style="padding:10px; text-align:left;">
+                                Enseignant
+                            </th>
+
+                            <th style="padding:10px; text-align:center;">
+                                Heures/semaine
+                            </th>
+
+                            <th style="padding:10px; text-align:left;">
+                                Créneaux
+                            </th>
+
+                            <th style="padding:10px; text-align:center;">
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody
+                        id="table-programmations"
+                    >
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             INFORMATIONS
+        ====================================================== -->
+
+        <div class="gm-info-box">
+
+            <strong>Information :</strong>
+
+            Chaque cours doit être programmé selon son nombre
+            d'heures hebdomadaires.
+
+            Un même créneau ne peut pas être utilisé simultanément
+            par deux cours de la même classe ou par un même enseignant.
+
+        </div>
+
+
+        <!-- =====================================================
+             DONNÉES ENVOYÉES AU SERVEUR
+        ====================================================== -->
+
+        <input
+            type="hidden"
+            name="programmations"
+            id="programmations-input"
+            value="[]"
+        >
+
+
+        <!-- =====================================================
+             ACTIONS
+        ====================================================== -->
+
+        <div class="gm-actions">
+
+            <a
+                href="{% url 'gestion_matieres_classes' %}"
+                class="gm-btn gm-btn-cancel"
+            >
+
+                <i class="fas fa-arrow-left"></i>
+
+                Annuler
+
+            </a>
+
+
+            <button
+                type="submit"
+                class="gm-btn gm-btn-submit"
+                id="btn-enregistrer"
+                disabled
+            >
+
+                <i class="fas fa-save"></i>
+
+                Enregistrer
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================= -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const classeSelect = document.getElementById("id_classe");
+    const coursSelect = document.getElementById("id_affectation_matiere");
+    const coursDirectsListe =
+        document.getElementById("cours-directs-liste");
+    const enseignantInput = document.getElementById("id_enseignant");
+    const heuresInput = document.getElementById("id_heures");
+    const jourSelect = document.getElementById("id_jour");
+    const creneauSelect = document.getElementById("id_creneau");
+
+    const btnAjouterCreneau =
+        document.getElementById("btn-ajouter-creneau");
+
+    const btnAjouterCours =
+        document.getElementById("btn-ajouter-cours");
+
+    const btnEnregistrer =
+        document.getElementById("btn-enregistrer");
+
+    const listeCreneaux =
+        document.getElementById("liste-creneaux-cours");
+
+    const creneauxContainer =
+        document.getElementById("creneaux-cours-container");
+
+    const tableWrapper =
+        document.getElementById("table-wrapper");
+
+    const tableBody =
+        document.getElementById("table-programmations");
+
+    const messageRecap =
+        document.getElementById("message-recapitulatif");
+
+    const programmationsInput =
+        document.getElementById("programmations-input");
+
+    const messageCours =
+        document.getElementById("message-cours");
+
+    const messageCreneau =
+        document.getElementById("message-creneau");
+
+    const affectationUrl =
+        "{% url 'creer_affectation_matiere' %}";
+
+    const coursPopupBtn =
+        document.getElementById("btn-cours-popup");
+    const coursPopup =
+        document.getElementById("cours-popup");
+    const coursPopupClose =
+        document.getElementById("cours-popup-close");
+    const coursPopupBody =
+        document.getElementById("cours-popup-body");
+
+    let programmations = [];
+    let creneauxCours = [];
+
+
+    /* ==========================================================
+       POPUP COURS DISPONIBLES
+    ========================================================== */
+
+    if (coursPopupBtn && coursPopup) {
+        coursPopupBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            coursPopup.style.display = 'flex';
+            if (classeSelect && classeSelect.value) {
+                if (typeof chargerCours === 'function') {
+                    chargerCours();
+                }
+                chargerCoursPopup();
+            }
+        });
+
+        coursPopupClose.addEventListener('click', function() {
+            coursPopup.style.display = 'none';
+        });
+
+        coursPopup.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+
+        window.addEventListener('click', function() {
+            if (coursPopup && coursPopup.style.display === 'flex') {
+                coursPopup.style.display = 'none';
+            }
+        });
+    }
+
+    function chargerCoursPopup() {
+        const anneeId = "{{ annee_active.id|default:'' }}";
+        const classeId = classeSelect ? classeSelect.value : "";
+
+        if (!anneeId || !classeId) {
+            coursPopupBody.innerHTML =
+                '<div style="padding: 30px; text-align: center; color: #9ca3af; font-size: 13px;">Sélectionnez une classe.</div>';
+            return;
+        }
+
+        const url =
+            "{% url 'ajax_matieres_programmation' %}" +
+            "?annee_id=" + encodeURIComponent(anneeId) +
+            "&classe_id=" + encodeURIComponent(classeId);
+
+        coursPopupBody.innerHTML =
+            '<div style="padding: 20px; text-align: center; color: #6b7280; font-size: 13px;">Chargement des cours...</div>';
+
+        fetch(url, {
+            method: "GET",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "Accept": "application/json"
+            }
+        })
+        .then(function(response) {
+            if (!response.ok) {
+                throw new Error("Erreur HTTP " + response.status);
+            }
+            return response.json();
+        })
+        .then(function(data) {
+            var html = '';
+            var matieres = data.matieres || [];
+
+            if (matieres.length > 0) {
+                html += '<div class="gm-cours-grid" id="popup-cours-grid">';
+                matieres.forEach(function(matiere) {
+                    var disabledClass = matiere.peut_programmer ? '' : 'gm-cours-card--disabled';
+                    html += '<button type="button" class="gm-cours-card ' + disabledClass + '"';
+                    html += (matiere.peut_programmer ? '' : ' disabled');
+                    html += 'data-affectation-matiere-id="' + (matiere.id || '') + '"';
+                    html += 'data-affectation-id="' + (matiere.affectation_id || '') + '"';
+                    html += 'data-enseignant="' + (matiere.enseignant || '') + '"';
+                    html += 'data-heures="' + (matiere.heures_par_semaine || 0) + '"';
+                    html += 'data-heures-restantes="' + (matiere.heures_restantes || 0) + '"';
+                    if (matiere.peut_programmer) {
+                        html += 'onclick="selectionnerCoursDirect(this)"';
+                    }
+                    html += '>';
+                    html += '<span class="gm-cours-card-main">';
+                    html += '<span class="gm-cours-icon"><i class="fas fa-book"></i></span>';
+                    html += '<span class="gm-cours-card-text">';
+                    html += '<strong>' + (matiere.nom || '') + '</strong>';
+                    html += '<small>' + (matiere.code || '') + '</small>';
+                    html += '<span class="gm-cours-teacher"><i class="fas fa-chalkboard-teacher"></i> ' + (matiere.enseignant || 'Non affecté') + '</span>';
+                    html += '</span></span>';
+                    html += '<span class="gm-cours-hours"><strong>' + matiere.heures_restantes + '</strong> h restantes</span>';
+                    html += '</button>';
+                });
+                html += '</div>';
+            } else {
+                html = '<div style="padding: 30px; text-align: center; color: #9ca3af; font-size: 13px;">Aucun cours n\'est programmable pour le moment.</div>';
+            }
+            coursPopupBody.innerHTML = html;
+        })
+        .catch(function(error) {
+            console.error('Erreur:', error);
+            coursPopupBody.innerHTML =
+                '<div style="padding: 20px; text-align: center; color: #ef4444; font-size: 13px;">Erreur lors du chargement.</div>';
+        });
+    }
+
+
+    function selectionnerCoursDirect(card) {
+
+        if (!card || card.disabled) {
+            return;
+        }
+
+
+        const affectationMatiereId =
+            card.dataset.affectationMatiereId;
+
+        const option = Array.from(
+            coursSelect.options
+        ).find(function (item) {
+
+            return String(item.value) === String(
+                affectationMatiereId
+            );
+
+        });
+
+
+        if (!option) {
+            chargerCours();
+            return;
+        }
+
+
+        coursSelect.value = option.value;
+        coursSelect.dispatchEvent(
+            new Event("change")
+        );
+
+    }
+
+
+    window.selectionnerCoursDirect =
+        selectionnerCoursDirect;
+
+
+    function coursEstDansRecap(affectationMatiereId) {
+
+        return programmations.some(function (item) {
+
+            return String(
+                item.affectation_matiere_id
+            ) === String(
+                affectationMatiereId
+            );
+
+        });
+
+    }
+
+
+    function synchroniserCoursDirects() {
+
+        if (!coursDirectsListe) {
+            return;
+        }
+
+
+        Array.from(
+            coursDirectsListe.querySelectorAll(
+                ".gm-cours-card"
+            )
+        ).forEach(function (card) {
+
+            const estProgramme = coursEstDansRecap(
+                card.dataset.affectationMatiereId
+            );
+
+            const estDesactive = card.classList.contains(
+                "gm-cours-card--disabled"
+            );
+
+            card.disabled = estProgramme || estDesactive;
+            card.classList.toggle(
+                "gm-cours-card-utilise",
+                estProgramme && !estDesactive
+            );
+
+        });
+
+    }
+
+
+    function afficherCoursDirects(
+        matieres,
+        sourceMatiere
+    ) {
+
+        if (!coursDirectsListe) {
+            return;
+        }
+
+
+        const coursDisponibles = Array.isArray(
+            matieres
+        ) ? matieres.filter(function (matiere) {
+
+            return (
+                matiere &&
+                Number(
+                    matiere.heures_restantes
+                ) > 0 &&
+                !coursEstDansRecap(
+                    matiere.id
+                )
+            );
+
+        }) : [];
+
+
+        coursDirectsListe.className = coursDisponibles.length
+            ? "gm-cours-grid"
+            : "gm-cours-empty";
+
+        coursDirectsListe.innerHTML = "";
+
+
+        const sourceTexte = document.querySelector(
+            ".gm-cours-directs-header p"
+        );
+
+        if (sourceTexte) {
+            sourceTexte.textContent =
+                sourceMatiere === "ponderation"
+                    ? "Matières officielles du niveau avec un volume horaire restant."
+                    : "Matières affectées à cette classe avec un volume horaire restant.";
+        }
+
+
+        if (coursDisponibles.length === 0) {
+
+            const icone =
+                document.createElement("i");
+            icone.className = "fas fa-inbox";
+
+            const titre =
+                document.createElement("strong");
+            titre.textContent =
+                "Aucun cours n’est programmable pour le moment.";
+
+            const texte =
+                document.createElement("p");
+            texte.textContent =
+                "Affectez d’abord un enseignant à une matière de cette classe.";
+
+            const lien =
+                document.createElement("a");
+            lien.className = "gm-btn gm-btn-submit";
+            lien.href =
+                affectationUrl +
+                "?classe_id=" +
+                encodeURIComponent(
+                    classeSelect.value || ""
+                );
+            lien.innerHTML =
+                '<i class="fas fa-plus"></i> Affecter un cours';
+
+            coursDirectsListe.appendChild(icone);
+            coursDirectsListe.appendChild(titre);
+            coursDirectsListe.appendChild(texte);
+            coursDirectsListe.appendChild(lien);
+            return;
+
+        }
+
+
+        coursDisponibles.forEach(function (matiere) {
+
+            const card =
+                document.createElement("button");
+             card.type = "button";
+            card.className = "gm-cours-card";
+            card.dataset.affectationMatiereId =
+                matiere.id || "";
+            card.dataset.affectationId =
+                matiere.affectation_id || "";
+            card.dataset.enseignant =
+                matiere.enseignant || "";
+            card.dataset.heures =
+                matiere.heures_par_semaine || 0;
+            card.dataset.heuresRestantes =
+                matiere.heures_restantes || 0;
+
+            if (!matiere.peut_programmer) {
+                card.disabled = true;
+                card.classList.add("gm-cours-card--disabled");
+                card.title =
+                    "Aucun enseignant n’est affecté à cette matière.";
+            }
+
+            card.addEventListener(
+                "click",
+                function () {
+                    if (!matiere.peut_programmer) {
+                        return;
+                    }
+                    selectionnerCoursDirect(card);
+                }
+            );
+
+
+            const contenu =
+                document.createElement("span");
+            contenu.className =
+                "gm-cours-card-main";
+
+
+            const icone =
+                document.createElement("span");
+            icone.className = "gm-cours-icon";
+            icone.innerHTML =
+                '<i class="fas fa-book"></i>';
+
+
+            const texte =
+                document.createElement("span");
+            texte.className =
+                "gm-cours-card-text";
+
+
+            const nom =
+                document.createElement("strong");
+            nom.textContent = matiere.nom || "";
+
+
+            const code =
+                document.createElement("small");
+            code.textContent = matiere.code || "";
+
+
+            const enseignant =
+                document.createElement("span");
+            enseignant.className =
+                "gm-cours-teacher";
+            enseignant.innerHTML =
+                '<i class="fas fa-chalkboard-teacher"></i> ';
+            enseignant.appendChild(
+                document.createTextNode(
+                    matiere.enseignant ||
+                    "Non affecté"
+                )
+            );
+
+
+            texte.appendChild(nom);
+            texte.appendChild(code);
+            texte.appendChild(enseignant);
+            contenu.appendChild(icone);
+            contenu.appendChild(texte);
+
+
+            const heures =
+                document.createElement("span");
+            heures.className = "gm-cours-hours";
+            heures.innerHTML =
+                "<strong></strong> h restantes";
+            heures.querySelector(
+                "strong"
+            ).textContent =
+                matiere.heures_restantes;
+
+
+            card.appendChild(contenu);
+            card.appendChild(heures);
+            coursDirectsListe.appendChild(card);
+
+        });
+
+
+        synchroniserCoursDirects();
+
+    }
+
+
+    /* ==========================================================
+       CHARGEMENT DES COURS
+    ========================================================== */
+
+    function chargerCours() {
+
+        const classeId = classeSelect.value;
+
+        /*
+         * Réinitialisation
+         */
+        coursSelect.innerHTML =
+            '<option value="">Chargement des cours...</option>';
+
+        coursSelect.disabled = true;
+
+        jourSelect.disabled = true;
+        creneauSelect.disabled = true;
+
+        btnAjouterCreneau.disabled = true;
+        btnAjouterCours.disabled = true;
+
+        enseignantInput.value = "";
+        heuresInput.value = "";
+
+        messageCours.textContent =
+            "Chargement des cours disponibles...";
+
+
+        /*
+         * Aucune classe sélectionnée
+         */
+        if (!classeId) {
+
+            coursSelect.innerHTML =
+                '<option value="">Sélectionnez d’abord une classe</option>';
+
+            coursSelect.disabled = true;
+
+            messageCours.textContent =
+                "Sélectionnez une classe pour afficher les cours.";
+
+            return;
+        }
+
+
+        /*
+         * Vérification de l'année scolaire
+         */
+        const anneeId = "{{ annee_active.id|default:'' }}";
+
+        if (!anneeId) {
+
+            coursSelect.innerHTML =
+                '<option value="">Année scolaire non disponible</option>';
+
+            /*
+             * On laisse le select ouvrable pour éviter
+             * l'impression qu'il est bloqué.
+             */
+            coursSelect.disabled = false;
+
+            messageCours.textContent =
+                "Aucune année scolaire active n’a été trouvée.";
+
+            return;
+        }
+
+
+        /*
+         * Appel AJAX
+         */
+        const url =
+            "{% url 'ajax_matieres_programmation' %}" +
+            "?annee_id=" + encodeURIComponent(anneeId) +
+            "&classe_id=" + encodeURIComponent(classeId);
+
+
+        fetch(url, {
+            method: "GET",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "Accept": "application/json"
+            }
+        })
+
+        .then(function (response) {
+
+            if (!response.ok) {
+                throw new Error(
+                    "Erreur HTTP " + response.status
+                );
+            }
+
+            return response.json();
+        })
+
+        .then(function (data) {
+
+            /*
+             * Réinitialiser le select
+             */
+            coursSelect.innerHTML =
+                '<option value="">Sélectionnez un cours</option>';
+
+
+            /*
+             * Vérifier la réponse
+             */
+            if (!data.matieres) {
+
+                throw new Error(
+                    "La réponse du serveur ne contient pas 'matieres'."
+                );
+            }
+
+
+            /*
+             * Filtrer les cours encore programmables
+             */
+            const coursDisponibles =
+                data.matieres.filter(function (matiere) {
+
+                    return (
+                        matiere.peut_programmer !== false &&
+                        Number(matiere.heures_restantes) > 0
+                    );
+
+                });
+
+
+            /*
+             * Aucun cours disponible
+             */
+            if (coursDisponibles.length === 0) {
+
+                coursSelect.innerHTML =
+                    '<option value="">Aucun cours disponible</option>';
+
+                /*
+                 * IMPORTANT :
+                 * on ne bloque plus le select.
+                 */
+                coursSelect.disabled = false;
+
+                messageCours.textContent =
+                    "Aucun cours n’est actuellement disponible pour cette classe.";
+
+                return;
+            }
+
+
+            /*
+             * Ajouter les cours
+             */
+            coursDisponibles.forEach(function (matiere) {
+
+                /*
+                 * Ne pas afficher un cours déjà ajouté
+                 * dans le récapitulatif temporaire.
+                 */
+                const dejaDansRecap =
+                    programmations.some(function (item) {
+
+                         return String(
+                            item.affectation_matiere_id
+                        ) === String(
+                            matiere.id
+                        );
+
+                    });
+
+
+                if (dejaDansRecap) {
+                    return;
+                }
+
+
+                const option =
+                    document.createElement("option");
+
+
+                option.value =
+                    matiere.id;
+
+
+                option.textContent =
+                    matiere.nom +
+                    " — " +
+                    matiere.heures_restantes +
+                    " h restantes";
+
+
+                option.dataset.enseignant =
+                    matiere.enseignant || "";
+
+
+                option.dataset.heures =
+                    matiere.heures_par_semaine || 0;
+
+
+                option.dataset.affectation =
+                    matiere.affectation_id || "";
+
+
+                option.dataset.heuresProgrammees =
+                    matiere.heures_programmees || 0;
+
+
+                coursSelect.appendChild(option);
+
+            });
+
+            /*
+             * Activer le select s'il contient
+             * au moins une vraie option.
+             */
+            if (coursSelect.options.length > 1) {
+
+                coursSelect.disabled = false;
+
+                messageCours.textContent =
+                    "Sélectionnez le cours à programmer.";
+
+            } else {
+
+                coursSelect.disabled = false;
+
+                coursSelect.innerHTML =
+                    '<option value="">Aucun nouveau cours disponible</option>';
+
+                messageCours.textContent =
+                    "Tous les cours disponibles ont déjà été ajoutés.";
+
+            }
+
+            /*
+             * Mettre à jour les boutons de cours directs
+             * avec les matières reçues du serveur.
+             */
+            afficherCoursDirects(
+                data.matieres,
+                data.source_matiere || ""
+            );
+
+        })
+
+        .catch(function (error) {
+
+            console.error(
+                "Erreur lors du chargement des cours :",
+                error
+            );
+
+
+            coursSelect.innerHTML =
+                '<option value="">Erreur de chargement</option>';
+
+
+            /*
+             * Le select reste ouvrable afin que l'utilisateur
+             * ne soit pas face à un champ complètement bloqué.
+             */
+            coursSelect.disabled = false;
+
+
+            messageCours.textContent =
+                "Impossible de charger les cours. Vérifiez la connexion au serveur.";
+
+        });
+    }
+
+
+    /* ==========================================================
+       CHANGEMENT DE CLASSE
+    ========================================================== */
+
+    classeSelect.addEventListener("change", function () {
+
+        programmations = [];
+        creneauxCours = [];
+
+        afficherRecapitulatif();
+
+        chargerCours();
+
+    });
+
+
+    /* ==========================================================
+       CHANGEMENT DE COURS
+    ========================================================== */
+
+    coursSelect.addEventListener("change", function () {
+
+        const option =
+            coursSelect.options[
+                coursSelect.selectedIndex
+            ];
+
+
+        creneauxCours = [];
+
+        afficherCreneauxCours();
+
+
+        if (!coursSelect.value || !option) {
+
+            enseignantInput.value = "";
+            heuresInput.value = "";
+
+            jourSelect.value = "";
+            jourSelect.disabled = true;
+
+            creneauSelect.value = "";
+            creneauSelect.disabled = true;
+
+            btnAjouterCreneau.disabled = true;
+            btnAjouterCours.disabled = true;
+
+            return;
+        }
+
+
+        /*
+         * Afficher l'enseignant
+         */
+        enseignantInput.value =
+            option.dataset.enseignant ||
+            "Non affecté";
+
+
+        /*
+         * Afficher les heures
+         */
+        heuresInput.value =
+            option.dataset.heures || 0;
+
+
+        /*
+         * Activer le jour
+         */
+        jourSelect.disabled = false;
+
+
+        /*
+         * Le créneau reste désactivé
+         * jusqu'au choix du jour
+         */
+        creneauSelect.disabled = true;
+
+        creneauSelect.innerHTML =
+            '<option value="">Sélectionnez d’abord le jour</option>';
+
+        btnAjouterCreneau.disabled = true;
+        btnAjouterCours.disabled = true;
+
+    });
+
+
+    /* ==========================================================
+       CHANGEMENT DE JOUR
+    ========================================================== */
+
+    jourSelect.addEventListener("change", function () {
+
+        const classeId =
+            classeSelect.value;
+
+        const affectationMatiereId =
+            coursSelect.value;
+
+        const jour =
+            jourSelect.value;
+
+
+        creneauSelect.innerHTML =
+            '<option value="">Chargement...</option>';
+
+        creneauSelect.disabled = true;
+
+        btnAjouterCreneau.disabled = true;
+
+
+        if (
+            !classeId ||
+            !affectationMatiereId ||
+            !jour
+        ) {
+
+            return;
+        }
+
+
+        const anneeId =
+            "{{ annee_active.id|default:'' }}";
+
+
+        if (!anneeId) {
+
+            creneauSelect.innerHTML =
+                '<option value="">Année scolaire non disponible</option>';
+
+            creneauSelect.disabled = false;
+
+            return;
+        }
+
+
+        const coursOption =
+            coursSelect.options[
+                coursSelect.selectedIndex
+            ];
+
+        const url =
+            "{% url 'ajax_creneaux_programmation' %}" +
+            "?annee_id=" + encodeURIComponent(anneeId) +
+            "&classe_id=" + encodeURIComponent(classeId) +
+            "&affectation_id=" +
+                encodeURIComponent(
+                    coursOption
+                        ? coursOption.dataset.affectation || ""
+                        : ""
+                ) +
+            "&jour=" + encodeURIComponent(jour);
+
+
+        fetch(url, {
+            method: "GET",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "Accept": "application/json"
+            }
+        })
+
+        .then(function (response) {
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Erreur HTTP " + response.status
+                );
+            }
+
+            return response.json();
+        })
+
+        .then(function (data) {
+
+            creneauSelect.innerHTML =
+                '<option value="">Sélectionnez un créneau</option>';
+
+
+            if (!data.creneaux) {
+
+                throw new Error(
+                    "La réponse ne contient pas 'creneaux'."
+                );
+            }
+
+
+            if (data.creneaux.length === 0) {
+
+                creneauSelect.innerHTML =
+                    '<option value="">Aucun créneau disponible</option>';
+
+                creneauSelect.disabled = false;
+
+                messageCreneau.textContent =
+                    "Aucun créneau disponible pour ce jour.";
+
+                return;
+            }
+
+
+            data.creneaux.forEach(function (creneau) {
+
+                const dejaSelectionne =
+                    creneauxCours.some(function (item) {
+
+                        return (
+                            item.jour === jour &&
+                            String(item.creneau_id) ===
+                            String(creneau.id)
+                        );
+
+                    });
+
+
+                if (dejaSelectionne) {
+                    return;
+                }
+
+
+                const option =
+                    document.createElement("option");
+
+
+                option.value =
+                    creneau.id;
+
+
+                option.textContent =
+                    creneau.libelle;
+
+
+                creneauSelect.appendChild(option);
+
+            });
+
+
+            /*
+             * Activer le select
+             */
+            creneauSelect.disabled = false;
+
+
+            if (creneauSelect.options.length <= 1) {
+
+                creneauSelect.innerHTML =
+                    '<option value="">Aucun nouveau créneau</option>';
+
+                messageCreneau.textContent =
+                    "Tous les créneaux disponibles de ce jour sont déjà sélectionnés.";
+
+            } else {
+
+                messageCreneau.textContent =
+                    "Sélectionnez un créneau horaire.";
+
+            }
+
+        })
+
+        .catch(function (error) {
+
+            console.error(
+                "Erreur lors du chargement des créneaux :",
+                error
+            );
+
+
+            creneauSelect.innerHTML =
+                '<option value="">Erreur de chargement</option>';
+
+            creneauSelect.disabled = false;
+
+
+            messageCreneau.textContent =
+                "Impossible de charger les créneaux.";
+
+        });
+
+    });
+
+
+    /* ==========================================================
+       CHANGEMENT DE CRÉNEAU
+    ========================================================== */
+
+    creneauSelect.addEventListener("change", function () {
+
+        btnAjouterCreneau.disabled =
+            !creneauSelect.value;
+
+    });
+
+
+    /* ==========================================================
+       AJOUT D'UN CRÉNEAU
+    ========================================================== */
+
+    btnAjouterCreneau.addEventListener("click", function () {
+
+        const option =
+            creneauSelect.options[
+                creneauSelect.selectedIndex
+            ];
+
+
+        if (!option || !creneauSelect.value) {
+            return;
+        }
+
+
+        const heures =
+            parseInt(
+                heuresInput.value || 0,
+                10
+            );
+
+
+        if (creneauxCours.length >= heures) {
+
+            alert(
+                "Le nombre d'heures programmées a déjà atteint le volume hebdomadaire."
+            );
+
+            return;
+        }
+
+
+        creneauxCours.push({
+
+            jour:
+                jourSelect.value,
+
+            jour_libelle:
+                jourSelect.options[
+                    jourSelect.selectedIndex
+                ].textContent,
+
+            creneau_id:
+                creneauSelect.value,
+
+            creneau_label:
+                option.textContent
+
+        });
+
+
+        afficherCreneauxCours();
+
+
+        /*
+         * Recharger les créneaux pour retirer
+         * celui qui vient d'être sélectionné.
+         */
+        jourSelect.dispatchEvent(
+            new Event("change")
+        );
+
+    });
+
+
+    /* ==========================================================
+       AFFICHAGE DES CRÉNEAUX DU COURS
+    ========================================================== */
+
+    function afficherCreneauxCours() {
+
+        listeCreneaux.innerHTML = "";
+
+
+        if (creneauxCours.length === 0) {
+
+            creneauxContainer.style.display =
+                "none";
+
+            btnAjouterCours.disabled =
+                true;
+
+            return;
+        }
+
+
+        creneauxContainer.style.display =
+            "block";
+
+
+        creneauxCours.forEach(function (item, index) {
+
+            const ligne =
+                document.createElement("div");
+
+
+            ligne.style.cssText = `
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                padding:8px 10px;
+                margin-bottom:6px;
+                background:#f8fafc;
+                border:1px solid #e5e7eb;
+                border-radius:6px;
+            `;
+
+
+            ligne.innerHTML = `
+
+                <span>
+
+                    <strong>
+                        ${item.jour_libelle}
+                    </strong>
+
+                    — ${item.creneau_label}
+
+                </span>
+
+                <button
+                    type="button"
+                    class="gm-btn"
+                    style="
+                        padding:5px 9px;
+                        background:#fee2e2;
+                        color:#991b1b;
+                    "
+                >
+
+                    <i class="fas fa-trash"></i>
+
+                </button>
+            `;
+
+
+            ligne
+                .querySelector("button")
+                .addEventListener("click", function () {
+
+                    creneauxCours.splice(index, 1);
+
+                    afficherCreneauxCours();
+
+                    /*
+                     * Si un jour est actuellement sélectionné,
+                     * on recharge ses créneaux.
+                     */
+                    if (jourSelect.value) {
+
+                        jourSelect.dispatchEvent(
+                            new Event("change")
+                        );
+                    }
+
+                });
+
+
+            listeCreneaux.appendChild(ligne);
+
+        });
+
+
+        const heures =
+            parseInt(
+                heuresInput.value || 0,
+                10
+            );
+
+
+        btnAjouterCours.disabled =
+            creneauxCours.length !== heures;
+
+    }
+
+
+    /* ==========================================================
+       AJOUT DU COURS AU RÉCAPITULATIF
+    ========================================================== */
+
+    btnAjouterCours.addEventListener("click", function () {
+
+        const option =
+            coursSelect.options[
+                coursSelect.selectedIndex
+            ];
+
+
+        if (!coursSelect.value || !option) {
+            return;
+        }
+
+
+        const heures =
+            parseInt(
+                heuresInput.value || 0,
+                10
+            );
+
+
+        if (creneauxCours.length !== heures) {
+
+            alert(
+                "Vous devez sélectionner exactement " +
+                heures +
+                " créneau(x) pour ce cours."
+            );
+
+            return;
+        }
+
+
+        const existe =
+            programmations.some(function (item) {
+
+                return String(
+                    item.affectation_matiere_id
+                ) === String(
+                    coursSelect.value
+                );
+
+            });
+
+
+        if (existe) {
+
+            alert(
+                "Ce cours est déjà présent dans le planning."
+            );
+
+            return;
+        }
+
+
+        programmations.push({
+
+            affectation_matiere_id:
+                coursSelect.value,
+
+            affectation_id:
+                option.dataset.affectation,
+
+            creneaux:
+                creneauxCours.map(function (item) {
+
+                    return {
+
+                        jour:
+                            item.jour,
+
+                        creneau_id:
+                            item.creneau_id
+
+                    };
+
+                }),
+
+            matiere_libelle:
+                option.textContent,
+
+            enseignant:
+                enseignantInput.value,
+
+            heures_par_semaine:
+                heures,
+
+            creneaux_affichage:
+                [...creneauxCours]
+
+        });
+
+
+        /*
+         * Retirer le cours de la liste
+         */
+        coursSelect.remove(
+            coursSelect.selectedIndex
+        );
+
+
+        /*
+         * Réinitialiser
+         */
+        coursSelect.value = "";
+
+        enseignantInput.value = "";
+        heuresInput.value = "";
+
+        jourSelect.value = "";
+        jourSelect.disabled = true;
+
+        creneauSelect.innerHTML =
+            '<option value="">Sélectionnez d’abord le jour</option>';
+
+        creneauSelect.disabled = true;
+
+        btnAjouterCreneau.disabled = true;
+        btnAjouterCours.disabled = true;
+
+        creneauxCours = [];
+
+
+        afficherCreneauxCours();
+        afficherRecapitulatif();
+
+    });
+
+
+    /* ==========================================================
+       RÉCAPITULATIF
+    ========================================================== */
+
+    function afficherRecapitulatif() {
+
+        tableBody.innerHTML = "";
+
+
+        if (programmations.length === 0) {
+
+            tableWrapper.style.display =
+                "none";
+
+            messageRecap.style.display =
+                "block";
+
+            btnEnregistrer.disabled =
+                true;
+
+            programmationsInput.value =
+                "[]";
+
+            return;
+        }
+
+
+        tableWrapper.style.display =
+            "block";
+
+        messageRecap.style.display =
+            "none";
+
+        btnEnregistrer.disabled =
+            false;
+
+
+        programmations.forEach(function (
+            programmation,
+            index
+        ) {
+
+            const tr =
+                document.createElement("tr");
+
+
+            const creneaux =
+                programmation.creneaux_affichage
+                    .map(function (item) {
+
+                        return (
+                            item.jour_libelle +
+                            " — " +
+                            item.creneau_label
+                        );
+
+                    })
+                    .join("<br>");
+
+
+            tr.innerHTML = `
+
+                <td style="padding:10px;">
+                    ${programmation.matiere_libelle}
+                </td>
+
+                <td style="padding:10px;">
+                    ${programmation.enseignant}
+                </td>
+
+                <td style="
+                    padding:10px;
+                    text-align:center;
+                ">
+                    ${programmation.heures_par_semaine}
+                </td>
+
+                <td style="padding:10px;">
+                    ${creneaux}
+                </td>
+
+                <td style="
+                    padding:10px;
+                    text-align:center;
+                ">
+
+                    <button
+                        type="button"
+                        class="gm-btn"
+                        style="
+                            padding:6px 9px;
+                            background:#fee2e2;
+                            color:#991b1b;
+                        "
+                    >
+
+                        <i class="fas fa-trash"></i>
+
+                    </button>
+
+                </td>
+            `;
+
+
+            tr
+                .querySelector("button")
+                .addEventListener("click", function () {
+
+                    programmations.splice(
+                        index,
+                        1
+                    );
+
+                    afficherRecapitulatif();
+
+                    /*
+                     * Recharge les cours.
+                     * La fonction chargerCours()
+                     * exclut maintenant ceux déjà présents
+                     * dans programmations.
+                     */
+                    chargerCours();
+
+                });
+
+
+            tableBody.appendChild(tr);
+
+        });
+
+
+        programmationsInput.value =
+            JSON.stringify(
+
+                programmations.map(function (item) {
+
+                    return {
+
+                        affectation_matiere_id:
+                            item.affectation_matiere_id,
+
+                        affectation_id:
+                            item.affectation_id,
+
+                        creneaux:
+                            item.creneaux
+
+                    };
+
+                })
+
+            );
+
+    }
+
+
+    /* ==========================================================
+       SOUMISSION
+    ========================================================== */
+
+    document
+        .getElementById("form-programmation-horaire")
+        .addEventListener("submit", function (event) {
+
+            if (programmations.length === 0) {
+
+                event.preventDefault();
+
+                alert(
+                    "Veuillez programmer au moins un cours."
+                );
+
+                return;
+            }
+
+
+            programmationsInput.value =
+                JSON.stringify(
+
+                    programmations.map(function (item) {
+
+                        return {
+
+                            affectation_matiere_id:
+                                item.affectation_matiere_id,
+
+                            affectation_id:
+                                item.affectation_id,
+
+                            creneaux:
+                                item.creneaux
+
+                        };
+
+                    })
+
+                );
+
+        });
+
+
+    /* ==========================================================
+       INITIALISATION
+    ========================================================== */
+
+    chargerCours();
+
+});
+</script>
+
+
+{% endblock %}

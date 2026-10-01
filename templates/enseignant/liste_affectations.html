@@ -1,0 +1,670 @@
+{% extends base_template %}
+{% load static %}
+
+
+{% block title %}
+Liste des affectations
+{% endblock %}
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/affectations/liste_affectations.css' %}"
+>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="page-container">
+
+    <!-- ================================================= -->
+    <!-- EN-TÊTE DE LA PAGE -->
+    <!-- ================================================= -->
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>
+                Affectations des enseignants
+            </h1>
+
+
+        </div>
+
+
+        <a
+            href="{% url 'creer_affectation' %}"
+            class="btn btn-primary"
+        >
+            <i class="fa-solid fa-plus"></i>
+            Nouvelle affectation
+        </a>
+
+        <a
+            href="{% url 'gestion_affectations_enseignants' %}"
+            class="btn btn-secondary"
+            style="background: #2563eb; color: white; margin-left: 10px;"
+        >
+            <i class="fas fa-th"></i> Cards par enseignant
+        </a>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- MESSAGES DJANGO -->
+    <!-- ================================================= -->
+
+    {% if messages %}
+
+        <div class="messages-container">
+
+            {% for message in messages %}
+
+                <div class="message message-{{ message.tags }}">
+
+                    {% if message.tags == "success" %}
+
+                        <i class="fa-solid fa-circle-check"></i>
+
+                    {% elif message.tags == "error" %}
+
+                        <i class="fa-solid fa-circle-xmark"></i>
+
+                    {% elif message.tags == "warning" %}
+
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+
+                    {% else %}
+
+                        <i class="fa-solid fa-circle-info"></i>
+
+                    {% endif %}
+
+                    <span>
+                        {{ message }}
+                    </span>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- ================================================= -->
+    <!-- FILTRES -->
+    <!-- ================================================= -->
+
+    <div class="filter-card">
+
+        <div class="filter-header">
+
+            <h2>
+
+                <i class="fa-solid fa-filter"></i>
+                Rechercher une affectation
+
+            </h2>
+
+
+        </div>
+
+
+        <form
+            method="get"
+            class="filter-form"
+        >
+
+
+            <!-- ========================================= -->
+            <!-- ANNÉE SCOLAIRE -->
+            <!-- ========================================= -->
+
+            <div class="filter-group">
+
+                <label for="annee">
+
+                    <i class="fa-solid fa-calendar-days"></i>
+                    Année scolaire
+
+                </label>
+
+
+                <select
+                    name="annee"
+                    id="annee"
+                    class="form-select"
+                >
+
+                    <option value="">
+                        Toutes les années
+                    </option>
+
+
+                    {% for annee in annees %}
+
+                        <option
+                            value="{{ annee.id }}"
+                            {% if request.GET.annee == annee.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+
+                            {{ annee }}
+
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- ========================================= -->
+            <!-- ENSEIGNANT -->
+            <!-- ========================================= -->
+
+            <div class="filter-group">
+
+                <label for="enseignant">
+
+                    <i class="fa-solid fa-person-chalkboard"></i>
+                    Enseignant
+
+                </label>
+
+
+                <select
+                    name="enseignant"
+                    id="enseignant"
+                    class="form-select"
+                >
+
+                    <option value="">
+                        Tous les enseignants
+                    </option>
+
+
+                    {% for enseignant in enseignants %}
+
+                        <option
+                            value="{{ enseignant.id }}"
+                            {% if request.GET.enseignant == enseignant.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+
+                            {{ enseignant }}
+
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- ========================================= -->
+            <!-- CLASSE -->
+            <!-- ========================================= -->
+
+            <div class="filter-group">
+
+                <label for="classe">
+
+                    <i class="fa-solid fa-chalkboard"></i>
+                    Classe
+
+                </label>
+
+
+                <select
+                    name="classe"
+                    id="classe"
+                    class="form-select"
+                >
+
+                    <option value="">
+                        Toutes les classes
+                    </option>
+
+
+                    {% for classe in classes %}
+
+                        <option
+                            value="{{ classe.id }}"
+                            {% if request.GET.classe == classe.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+
+                            {{ classe }}
+
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- ========================================= -->
+            <!-- MATIÈRE -->
+            <!-- ========================================= -->
+
+            <div class="filter-group">
+
+                <label for="matiere">
+
+                    <i class="fa-solid fa-book"></i>
+                    Matière
+
+                </label>
+
+
+                <select
+                    name="matiere"
+                    id="matiere"
+                    class="form-select"
+                >
+
+                    <option value="">
+                        Toutes les matières
+                    </option>
+
+
+                    {% for matiere in matieres %}
+
+                        <option
+                            value="{{ matiere.id }}"
+                            {% if request.GET.matiere == matiere.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+
+                            {{ matiere }}
+
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- ========================================= -->
+            <!-- ACTIONS DES FILTRES -->
+            <!-- ========================================= -->
+
+            <div class="filter-actions">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    Rechercher
+
+                </button>
+
+
+                <a
+                    href="{% url 'liste_affectations' %}"
+                    class="btn btn-secondary"
+                >
+
+                    <i class="fa-solid fa-rotate-left"></i>
+                    Réinitialiser
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- LISTE DES AFFECTATIONS -->
+    <!-- ================================================= -->
+
+    <div class="table-card">
+
+        <div class="table-header">
+
+            <div>
+
+                <h2>
+                    Liste des affectations
+                </h2>
+
+                <p>
+
+                    {{ affectations|length }}
+                    affectation{{ affectations|length|pluralize }}
+                    trouvée{{ affectations|length|pluralize }}
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- ============================================= -->
+        <!-- TABLEAU -->
+        <!-- ============================================= -->
+
+        <div class="table-responsive">
+
+            <table class="data-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Enseignant
+                        </th>
+
+                        <th>
+                            Année scolaire
+                        </th>
+
+                        <th>
+                            Classe
+                        </th>
+
+                        <th>
+                            Matière
+                        </th>
+
+                        <th class="text-center">
+                            Statut
+                        </th>
+
+                        <th class="text-center">
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for affectation in affectations %}
+
+                        <tr>
+
+
+                            <!-- ========================= -->
+                            <!-- ENSEIGNANT -->
+                            <!-- ========================= -->
+
+                            <td>
+
+                                <div class="enseignant-info">
+
+                                    {% if affectation.enseignant.utilisateur.photo %}
+
+                                        <img
+                                            src="{{ affectation.enseignant.utilisateur.photo.url }}"
+                                            alt="Photo de {{ affectation.enseignant }}"
+                                            class="enseignant-photo"
+                                        >
+
+                                    {% else %}
+
+                                        <div class="enseignant-avatar">
+
+                                            <i class="fa-solid fa-user"></i>
+
+                                        </div>
+
+                                    {% endif %}
+
+
+                                    <div>
+
+                                        <span class="enseignant-nom">
+
+                                            {{ affectation.enseignant.utilisateur.nom }}
+                                            {{ affectation.enseignant.utilisateur.postnom }}
+                                            {{ affectation.enseignant.utilisateur.prenom }}
+
+                                        </span>
+
+
+                                        <small>
+
+                                            {{ affectation.enseignant.matricule }}
+
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+
+                            <!-- ========================= -->
+                            <!-- ANNÉE SCOLAIRE -->
+                            <!-- ========================= -->
+
+                            <td>
+
+                                {{ affectation.affectation_matiere.classe.annee }}
+
+                            </td>
+
+
+                            <!-- ========================= -->
+                            <!-- CLASSE -->
+                            <!-- ========================= -->
+
+                            <td>
+
+                                {{ affectation.affectation_matiere.classe }}
+
+                            </td>
+
+
+                            <!-- ========================= -->
+                            <!-- MATIÈRE -->
+                            <!-- ========================= -->
+
+                            <td>
+
+                                {{ affectation.affectation_matiere.matiere }}
+
+                            </td>
+
+
+                            <!-- ========================= -->
+                            <!-- STATUT -->
+                            <!-- ========================= -->
+
+                            <td class="text-center">
+
+                                {% if affectation.actif %}
+
+                                    <span class="status status-active">
+
+                                        <i class="fa-solid fa-circle-check"></i>
+                                        Active
+
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="status status-inactive">
+
+                                        <i class="fa-solid fa-circle-xmark"></i>
+                                        Inactive
+
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- ========================= -->
+                            <!-- ACTIONS -->
+                            <!-- ========================= -->
+
+                            <td class="text-center">
+
+                                <div class="action-buttons">
+
+
+                                    <!-- DÉTAIL -->
+
+                                    <a
+                                        href="{% url 'detail_affectation' affectation.id %}"
+                                        class="action-btn action-view"
+                                        title="Voir les détails"
+                                    >
+
+                                        <i class="fa-solid fa-eye"></i>
+
+                                    </a>
+
+
+                                    <!-- MODIFICATION -->
+
+                                    <a
+                                        href="{% url 'modifier_affectation' affectation.id %}"
+                                        class="action-btn action-edit"
+                                        title="Modifier"
+                                    >
+
+                                        <i class="fa-solid fa-pen"></i>
+
+                                    </a>
+
+
+                                    <!-- ACTIVER / DÉSACTIVER -->
+
+                                    <a
+                                        href="{% url 'activer_desactiver_affectation' affectation.id %}"
+                                        class="action-btn action-status"
+                                        title="
+                                            {% if affectation.actif %}
+                                                Désactiver
+                                            {% else %}
+                                                Activer
+                                            {% endif %}
+                                        "
+                                    >
+
+                                        {% if affectation.actif %}
+
+                                            <i class="fa-solid fa-toggle-on"></i>
+
+                                        {% else %}
+
+                                            <i class="fa-solid fa-toggle-off"></i>
+
+                                        {% endif %}
+
+                                    </a>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+
+                    {% empty %}
+
+                        <!-- ============================= -->
+                        <!-- AUCUNE AFFECTATION -->
+                        <!-- ============================= -->
+
+                        <tr>
+
+                            <td
+                                colspan="6"
+                                class="empty-table"
+                            >
+
+                                <div class="empty-state">
+
+                                    <i class="fa-solid fa-clipboard-list"></i>
+
+
+                                    <h3>
+                                        Aucune affectation trouvée
+                                    </h3>
+
+
+                                    <p>
+
+                                        Aucune affectation ne correspond
+                                        aux critères sélectionnés.
+
+                                    </p>
+
+
+                                    {% if request.GET %}
+
+                                        <a
+                                            href="{% url 'liste_affectations' %}"
+                                            class="btn btn-secondary"
+                                        >
+
+                                            <i class="fa-solid fa-rotate-left"></i>
+                                            Réinitialiser les filtres
+
+                                        </a>
+
+                                    {% else %}
+
+                                        <a
+                                            href="{% url 'creer_affectation' %}"
+                                            class="btn btn-primary"
+                                        >
+
+                                            <i class="fa-solid fa-plus"></i>
+                                            Créer une affectation
+
+                                        </a>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

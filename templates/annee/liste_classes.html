@@ -1,0 +1,430 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+    Gestion des classes
+{% endblock %}
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/liste_classes.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="classes-page">
+
+    <!-- ===================================================== -->
+    <!-- EN-TÊTE -->
+    <!-- ===================================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>Gestion des classes</h1>
+
+            <p>
+                Consultez et gérez les classes de l'établissement.
+            </p>
+
+        </div>
+
+
+        {% if "classe.creer" in permissions_connecte %}
+            <a
+                href="{% url 'creer_classe' %}"
+                class="btn btn-primary"
+            >
+                + Nouvelle classe
+            </a>
+        {% endif %}
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- STATISTIQUES -->
+    <!-- ===================================================== -->
+
+    <div class="stats-grid">
+
+        <div class="stat-card">
+
+            <span class="stat-label">
+                Total des classes
+            </span>
+
+            <strong class="stat-number">
+                {{ total_classes }}
+            </strong>
+
+        </div>
+
+
+        <div class="stat-card active-card">
+
+            <span class="stat-label">
+                Classes actives
+            </span>
+
+            <strong class="stat-number">
+                {{ total_classes_actives }}
+            </strong>
+
+        </div>
+
+
+        <div class="stat-card inactive-card">
+
+            <span class="stat-label">
+                Classes désactivées
+            </span>
+
+            <strong class="stat-number">
+                {{ total_classes_desactivees }}
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- FILTRES -->
+    <!-- ===================================================== -->
+
+    <form
+        method="get"
+        class="filters-form"
+    >
+
+        <div class="filter-group">
+
+            <label for="annee">
+                Année scolaire
+            </label>
+
+            <select
+                name="annee"
+                id="annee"
+            >
+
+                <option value="">
+                    Toutes les années
+                </option>
+
+                {% for annee in annees %}
+
+                    <option
+                        value="{{ annee.id }}"
+                        {% if annee_selectionnee == annee.id|stringformat:"s" %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ annee.libelle }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+
+        <div class="filter-group">
+
+            <label for="niveau">
+                Niveau
+            </label>
+
+            <select
+                name="niveau"
+                id="niveau"
+            >
+
+                <option value="">
+                    Tous les niveaux
+                </option>
+
+                {% for niveau in niveaux %}
+
+                    <option
+                        value="{{ niveau.id }}"
+                        {% if niveau_selectionne == niveau.id|stringformat:"s" %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ niveau.libelle }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+
+        <div class="filter-group">
+
+            <label for="section">
+                Section
+            </label>
+
+            <select
+                name="section"
+                id="section"
+            >
+
+                <option value="">
+                    Toutes les sections
+                </option>
+
+                {% for section in sections %}
+
+                    <option
+                        value="{{ section.id }}"
+                        {% if section_selectionnee == section.id|stringformat:"s" %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ section.libelle }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+
+        <div class="filter-group">
+
+            <label for="statut">
+                Statut
+            </label>
+
+            <select
+                name="statut"
+                id="statut"
+            >
+
+                <option value="">
+                    Tous
+                </option>
+
+                <option
+                    value="actif"
+                    {% if statut_selectionne == "actif" %}
+                        selected
+                    {% endif %}
+                >
+                    Actives
+                </option>
+
+                <option
+                    value="inactif"
+                    {% if statut_selectionne == "inactif" %}
+                        selected
+                    {% endif %}
+                >
+                    Désactivées
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="filter-actions">
+
+            <button
+                type="submit"
+                class="btn btn-filter"
+            >
+                Filtrer
+            </button>
+
+
+            <a
+                href="{% url 'liste_classes' %}"
+                class="btn btn-reset"
+            >
+                Réinitialiser
+            </a>
+
+        </div>
+
+    </form>
+
+
+    <!-- ===================================================== -->
+    <!-- TABLEAU DES CLASSES -->
+    <!-- ===================================================== -->
+
+    <div class="table-container">
+
+        <table class="classes-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>Code</th>
+
+                    <th>Classe</th>
+
+                    <th>Année scolaire</th>
+
+                    <th>Niveau</th>
+
+                    <th>Section</th>
+
+                    <th>Statut</th>
+
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for classe in classes %}
+
+                    <tr>
+
+                        <td>
+                            <span class="classe-code">
+                                {{ classe.code }}
+                            </span>
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+                                {{ classe.libelle }}
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+                            {{ classe.annee_scolaire.libelle }}
+                        </td>
+
+
+                        <td>
+                            {{ classe.niveau.libelle }}
+                        </td>
+
+
+                        <td>
+
+                            {% if classe.section %}
+
+                                {{ classe.section.libelle }}
+
+                            {% else %}
+
+                                <span class="no-section">
+                                    —
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            {% if classe.actif %}
+
+                                <span class="status active">
+                                    ● Active
+                                </span>
+
+                            {% else %}
+
+                                <span class="status inactive">
+                                    ● Désactivée
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            <a
+                                href="{% url 'detail_classe' classe.id %}"
+                                class="action-link"
+                            >
+                                Voir
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+
+                {% empty %}
+
+                    <tr>
+
+                        <td
+                            colspan="7"
+                            class="empty-state"
+                        >
+
+                            <div>
+
+                                <strong>
+                                    Aucune classe trouvée
+                                </strong>
+
+                                <p>
+                                    Aucune classe ne correspond
+                                    aux critères sélectionnés.
+                                </p>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- INFORMATIONS -->
+    <!-- ===================================================== -->
+
+    <div class="page-info">
+
+        <p>
+            Une classe appartient à une année scolaire et à un niveau.
+            Pour les niveaux spécialisés, elle peut également être liée
+            à une section.
+        </p>
+
+    </div>
+
+</div>
+
+{% endblock %}

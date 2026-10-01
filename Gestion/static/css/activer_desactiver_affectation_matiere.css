@@ -1,0 +1,423 @@
+/* ============================================================
+   PAGE : ACTIVATION / DÉSACTIVATION D'UNE AFFECTATION
+   ============================================================ */
+
+.activation-page {
+    width: 100%;
+    max-width: 900px;
+
+    margin: 0 auto;
+    padding: 35px 25px;
+}
+
+
+/* ============================================================
+   EN-TÊTE
+   ============================================================ */
+
+.page-header {
+    margin-bottom: 28px;
+}
+
+.back-link {
+    display: inline-block;
+
+    margin-bottom: 12px;
+
+    color: #2563eb;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+.page-header h1 {
+    margin: 0 0 8px;
+
+    color: #111827;
+
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.page-header p {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+
+/* ============================================================
+   CARTE PRINCIPALE
+   ============================================================ */
+
+.confirmation-card {
+    overflow: hidden;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    box-shadow:
+        0 4px 18px
+        rgba(0, 0, 0, 0.05);
+}
+
+
+/* ============================================================
+   STATUT ACTUEL
+   ============================================================ */
+
+.status-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 18px 25px;
+
+    background: #f9fafb;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.status-label {
+    color: #6b7280;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.status {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 7px 12px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+.status.active {
+    color: #166534;
+    background: #dcfce7;
+}
+
+.status.inactive {
+    color: #991b1b;
+    background: #fee2e2;
+}
+
+
+/* ============================================================
+   RÉSUMÉ DE L'AFFECTATION
+   ============================================================ */
+
+.affectation-summary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 35px;
+
+    padding: 30px 25px;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+
+    min-width: 220px;
+
+    gap: 6px;
+}
+
+.summary-label {
+    color: #9ca3af;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.05em;
+}
+
+.summary-item strong {
+    color: #1f2937;
+
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.summary-item small {
+    color: #6b7280;
+
+    font-size: 12px;
+}
+
+.relation-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 45px;
+    height: 45px;
+
+    color: #2563eb;
+    background: #eff6ff;
+
+    border-radius: 50%;
+
+    font-size: 24px;
+    font-weight: 600;
+}
+
+
+/* ============================================================
+   MESSAGE DE CONFIRMATION
+   ============================================================ */
+
+.confirmation-message {
+    margin: 25px;
+    padding: 22px;
+
+    border-radius: 8px;
+}
+
+.confirmation-message h2 {
+    margin: 0 0 10px;
+
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.confirmation-message p {
+    margin: 0;
+
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+
+/* ============================================================
+   MESSAGE DE DÉSACTIVATION
+   ============================================================ */
+
+.danger-message {
+    color: #991b1b;
+    background: #fef2f2;
+
+    border-left: 4px solid #ef4444;
+}
+
+.danger-message h2 {
+    color: #991b1b;
+}
+
+
+/* ============================================================
+   MESSAGE D'ACTIVATION
+   ============================================================ */
+
+.success-message {
+    color: #166534;
+    background: #f0fdf4;
+
+    border-left: 4px solid #22c55e;
+}
+
+.success-message h2 {
+    color: #166534;
+}
+
+
+/* ============================================================
+   ACTIONS
+   ============================================================ */
+
+.confirmation-actions {
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 12px;
+
+    padding: 0 25px 25px;
+}
+
+
+/* ============================================================
+   BOUTONS
+   ============================================================ */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 44px;
+
+    padding: 10px 20px;
+
+    border: none;
+    border-radius: 7px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease,
+        box-shadow 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+
+/* ============================================================
+   BOUTON ANNULER
+   ============================================================ */
+
+.btn-secondary {
+    color: #374151;
+    background: #e5e7eb;
+}
+
+.btn-secondary:hover {
+    background: #d1d5db;
+}
+
+
+/* ============================================================
+   BOUTON DÉSACTIVER
+   ============================================================ */
+
+.btn-danger {
+    color: #ffffff;
+    background: #dc2626;
+
+    box-shadow:
+        0 4px 10px
+        rgba(220, 38, 38, 0.15);
+}
+
+.btn-danger:hover {
+    background: #b91c1c;
+}
+
+
+/* ============================================================
+   BOUTON ACTIVER
+   ============================================================ */
+
+.btn-success {
+    color: #ffffff;
+    background: #16a34a;
+
+    box-shadow:
+        0 4px 10px
+        rgba(22, 163, 74, 0.15);
+}
+
+.btn-success:hover {
+    background: #15803d;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media screen and (max-width: 700px) {
+
+    .activation-page {
+        padding: 25px 18px;
+    }
+
+    .affectation-summary {
+        flex-direction: column;
+
+        gap: 18px;
+
+        text-align: center;
+    }
+
+    .summary-item {
+        align-items: center;
+    }
+
+    .relation-arrow {
+        transform: rotate(90deg);
+    }
+
+}
+
+
+@media screen and (max-width: 550px) {
+
+    .status-section {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .confirmation-actions {
+        flex-direction: column-reverse;
+    }
+
+    .confirmation-actions .btn {
+        width: 100%;
+    }
+
+}
+
+
+@media screen and (max-width: 450px) {
+
+    .activation-page {
+        padding: 20px 12px;
+    }
+
+    .page-header h1 {
+        font-size: 24px;
+    }
+
+    .affectation-summary {
+        padding: 25px 18px;
+    }
+
+    .summary-item {
+        min-width: auto;
+    }
+
+    .confirmation-message {
+        margin: 18px;
+    }
+
+    .confirmation-actions {
+        padding:
+            0 18px 18px;
+    }
+
+}

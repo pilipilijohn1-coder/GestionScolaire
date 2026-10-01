@@ -1,0 +1,409 @@
+{% extends base_template %}
+{% load static %}
+
+
+{% block title %}
+    Détail de la classe
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/detail_classe.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="classe-detail-page">
+
+
+    <!-- =====================================================
+         EN-TÊTE
+    ====================================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <a
+                href="{% url 'liste_classes' %}"
+                class="back-link"
+            >
+                ← Retour à la liste
+            </a>
+
+
+            <div class="title-row">
+
+                <div>
+
+                    <h1>
+                        {{ classe.libelle }}
+                    </h1>
+
+                    <p>
+                        Informations et gestion de la classe.
+                    </p>
+
+                </div>
+
+
+                {% if classe.actif %}
+
+                    <span class="status active">
+                        ● Active
+                    </span>
+
+                {% else %}
+
+                    <span class="status inactive">
+                        ● Désactivée
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <!-- ACTIONS PRINCIPALES -->
+
+        <div class="header-actions">
+
+            <a
+                href="{% url 'modifier_classe' classe.id %}"
+                class="btn btn-secondary"
+            >
+                Modifier
+            </a>
+
+
+            <a
+                href="{% url 'activer_desactiver_classe' classe.id %}"
+                class="btn btn-status"
+            >
+
+                {% if classe.actif %}
+
+                    Désactiver
+
+                {% else %}
+
+                    Activer
+
+                {% endif %}
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         INFORMATIONS PRINCIPALES
+    ====================================================== -->
+
+    <div class="detail-card">
+
+
+        <div class="card-header">
+
+            <div>
+
+                <h2>
+                    Informations générales
+                </h2>
+
+                <p>
+                    Identification et position de la classe
+                    dans la structure académique.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="details-grid">
+
+
+            <!-- CODE -->
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Code
+                </span>
+
+                <strong class="classe-code">
+                    {{ classe.code }}
+                </strong>
+
+            </div>
+
+
+            <!-- LIBELLÉ -->
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Libellé
+                </span>
+
+                <strong>
+                    {{ classe.libelle }}
+                </strong>
+
+            </div>
+
+
+            <!-- ANNÉE SCOLAIRE -->
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Année scolaire
+                </span>
+
+                <strong>
+                    {{ classe.annee.libelle }}
+                </strong>
+
+            </div>
+
+
+            <!-- NIVEAU -->
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Niveau
+                </span>
+
+                <strong>
+                    {{ classe.niveau.libelle }}
+                </strong>
+
+            </div>
+
+
+            <!-- SECTION -->
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Section
+                </span>
+
+                {% if classe.section %}
+
+                    <strong>
+                        {{ classe.section.libelle }}
+                    </strong>
+
+                {% else %}
+
+                    <span class="not-defined">
+                        Non applicable
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- STATUT -->
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    Statut
+                </span>
+
+                {% if classe.actif %}
+
+                    <span class="status active">
+                        ● Active
+                    </span>
+
+                {% else %}
+
+                    <span class="status inactive">
+                        ● Désactivée
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         RÉSUMÉ DE LA CLASSE
+    ====================================================== -->
+
+    <div class="summary-grid">
+
+
+        <!-- ÉLÈVES -->
+
+        <div class="summary-card">
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Élèves inscrits
+                </span>
+
+                <strong class="summary-number">
+                    {{ nombre_eleves }}
+                </strong>
+
+            </div>
+
+            <span class="summary-icon">
+                👨‍🎓
+            </span>
+
+        </div>
+
+
+        <!-- ENSEIGNANTS -->
+
+        <div class="summary-card">
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Enseignants
+                </span>
+
+                <strong class="summary-number">
+                    {{ nombre_enseignants }}
+                </strong>
+
+            </div>
+
+            <span class="summary-icon">
+                👨‍🏫
+            </span>
+
+        </div>
+
+
+        <!-- TITULAIRE -->
+
+        <div class="summary-card">
+
+            <div class="summary-content">
+
+                <span class="summary-label">
+                    Titulaire
+                </span>
+
+                {% if titulaire %}
+
+                    <strong class="titulaire-name">
+                        {{ titulaire }}
+                    </strong>
+
+                {% else %}
+
+                    <strong class="not-defined">
+                        Non attribué
+                    </strong>
+
+                {% endif %}
+
+            </div>
+
+            <span class="summary-icon">
+                👤
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         INFORMATIONS À VENIR
+    ====================================================== -->
+
+    <div class="future-card">
+
+        <h2>
+            Gestion pédagogique
+        </h2>
+
+        <p>
+            Les informations pédagogiques de cette classe seront
+            disponibles ici après la configuration des enseignants,
+            des matières et du titulaire.
+        </p>
+
+        <div class="future-items">
+
+            <div class="future-item">
+                <span>•</span>
+                Matières enseignées
+            </div>
+
+            <div class="future-item">
+                <span>•</span>
+                Enseignants affectés
+            </div>
+
+            <div class="future-item">
+                <span>•</span>
+                Enseignant titulaire
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         INFORMATIONS SYSTÈME
+    ====================================================== -->
+
+    <div class="system-info">
+
+        <p>
+
+            Cette classe appartient à l'année scolaire
+            <strong>{{ classe.annee.libelle }}</strong>.
+
+            {% if classe.niveau.est_ecole_base %}
+
+                Elle appartient à l'École de base et ne nécessite
+                aucune section.
+
+            {% else %}
+
+                Elle est associée à la section
+                <strong>
+                    {{ classe.section.libelle }}
+                </strong>.
+
+            {% endif %}
+
+        </p>
+
+    </div>
+
+
+</div>
+
+{% endblock %}

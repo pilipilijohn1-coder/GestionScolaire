@@ -1,0 +1,157 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Liste des présences{% endblock %}
+
+{% block extra_css %}
+<style>
+    .presence-page {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .filters {
+        background: #fff;
+        padding: 20px;
+        border-radius: 14px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+    }
+    .filters form {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: flex-end;
+    }
+    .filters label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 6px;
+    }
+    .filters input, .filters select {
+        padding: 10px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 14px;
+    }
+    .filters button {
+        padding: 10px 20px;
+        background: #2563eb;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .table-wrap {
+        overflow-x: auto;
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    th {
+        background: #f9fafb;
+        font-weight: 600;
+        color: #374151;
+        font-size: 13px;
+    }
+    .badge {
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .badge-present { background: #dcfce7; color: #166534; }
+    .badge-absent { background: #fee2e2; color: #991b1b; }
+    .badge-retard { background: #fef3c7; color: #92400e; }
+    .badge-justifie { background: #dbeafe; color: #1e40af; }
+    .btn {
+        display: inline-block;
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-warning { background: #f59e0b; color: #fff; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="presence-page">
+    <h1>Présences</h1>
+
+    <div class="filters">
+        <form method="get">
+            <div>
+                <label for="classe">Classe</label>
+                <select name="classe" id="classe">
+                    <option value="">Toutes les classes</option>
+                    {% for c in classes %}
+                        <option value="{{ c.id }}" {% if classe_id == c.id|stringformat:"i" %}selected{% endif %}>
+                            {{ c.libelle }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="date">Date</label>
+                <input type="date" name="date" id="date" value="{{ date_str|default:'' }}">
+            </div>
+            <button type="submit">Filtrer</button>
+        </form>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Éève</th>
+                    <th>Classe</th>
+                    <th>Statut</th>
+                    <th>Justification</th>
+                    <th>Saisi par</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in presences %}
+                <tr>
+                    <td>{{ p.date_presence|date:"d/m/Y" }}</td>
+                    <td>{{ p.inscription.eleve.nom }} {{ p.inscription.eleve.prenom }}</td>
+                    <td>{{ p.inscription.classe.libelle }}</td>
+                    <td>
+                        <span class="badge badge-{{ p.statut|lower }}">
+                            {{ p.get_statut_display }}
+                        </span>
+                    </td>
+                    <td>{{ p.justification|default:"—" }}</td>
+                    <td>{{ p.saisi_par.nom|default:"—" }}</td>
+                    <td>
+                        <a href="{% url 'justifier_presence' p.id %}" class="btn btn-warning">Justifier</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align:center; padding: 20px;">
+                        Aucune présence enregistrée.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

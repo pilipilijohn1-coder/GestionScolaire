@@ -1,0 +1,405 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+    Clôture de l'année scolaire
+{% endblock %}
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{% static 'css/cloturer_annee.css' %}"
+>
+{% endblock %}
+
+{% block content %}
+
+<div class="cloture-page">
+
+    <!-- ================================================== -->
+    <!-- EN-TÊTE -->
+    <!-- ================================================== -->
+
+    <div class="page-header">
+
+        <div>
+            <h1>Clôture de l'année scolaire</h1>
+
+            <p>
+                Suivi des conditions nécessaires à la clôture
+                de l'année scolaire.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'detail_annee' annee_id=annee.id %}"
+            class="btn btn-secondary"
+        >
+            Retour
+        </a>
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- STATUT GLOBAL -->
+    <!-- ================================================== -->
+
+    {% if annee.statut == "CLOTUREE" %}
+
+        <div class="status-card status-closed-card">
+
+            <div class="status-icon">
+                ✓
+            </div>
+
+            <div>
+                <h2>Année scolaire clôturée</h2>
+
+                <p>
+                    L'année scolaire
+                    <strong>{{ annee.libelle }}</strong>
+                    est déjà clôturée.
+                </p>
+            </div>
+
+        </div>
+
+    {% elif cloture_possible %}
+
+        <div class="status-card status-ready-card">
+
+            <div class="status-icon">
+                ✓
+            </div>
+
+            <div>
+                <h2>Prête pour la clôture</h2>
+
+                <p>
+                    Toutes les conditions principales sont
+                    actuellement satisfaites.
+                </p>
+            </div>
+
+        </div>
+
+    {% else %}
+
+        <div class="status-card status-waiting-card">
+
+            <div class="status-icon">
+                !
+            </div>
+
+            <div>
+                <h2>Clôture en attente</h2>
+
+                <p>
+                    Certaines conditions nécessaires à la clôture
+                    de l'année scolaire ne sont pas encore remplies.
+                </p>
+            </div>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- ================================================== -->
+    <!-- INFORMATIONS DE L'ANNÉE -->
+    <!-- ================================================== -->
+
+    <div class="cloture-card">
+
+        <div class="card-header">
+
+            <div>
+                <h2>Informations de l'année scolaire</h2>
+
+                <p>
+                    Informations utilisées pour le processus
+                    de clôture.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="information-grid">
+
+            <div class="info-item">
+
+                <span class="info-label">
+                    Année scolaire
+                </span>
+
+                <span class="info-value info-main">
+                    {{ annee.libelle }}
+                </span>
+
+            </div>
+
+
+            <div class="info-item">
+
+                <span class="info-label">
+                    Date de début
+                </span>
+
+                <span class="info-value">
+                    {{ annee.date_debut|date:"d/m/Y" }}
+                </span>
+
+            </div>
+
+
+            <div class="info-item">
+
+                <span class="info-label">
+                    Date de fin prévue
+                </span>
+
+                <span class="info-value">
+                    {{ annee.date_fin|date:"d/m/Y" }}
+                </span>
+
+            </div>
+
+
+            <div class="info-item">
+
+                <span class="info-label">
+                    Statut actuel
+                </span>
+
+                <span class="info-value">
+
+                    {% if annee.statut == "PLANIFIEE" %}
+
+                        <span class="status status-planned">
+                            Planifiée
+                        </span>
+
+                    {% elif annee.statut == "ACTIVE" %}
+
+                        <span class="status status-active">
+                            Active
+                        </span>
+
+                    {% elif annee.statut == "CLOTUREE" %}
+
+                        <span class="status status-closed">
+                            Clôturée
+                        </span>
+
+                    {% endif %}
+
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- CONDITIONS DE CLÔTURE -->
+    <!-- ================================================== -->
+
+    <div class="cloture-card">
+
+        <div class="card-header">
+
+            <div>
+                <h2>Conditions de clôture</h2>
+
+                <p>
+                    Le système vérifie ces éléments avant de
+                    permettre ou déclencher la clôture.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="conditions-list">
+
+
+            <!-- Date de fin -->
+
+            <div class="condition-item">
+
+                <div>
+
+                    <h3>Date de fin atteinte</h3>
+
+                    <p>
+                        La date de fin prévue de l'année scolaire
+                        doit être atteinte.
+                    </p>
+
+                </div>
+
+                {% if date_fin_atteinte %}
+
+                    <span class="condition-valid">
+                        ✓ Validée
+                    </span>
+
+                {% else %}
+
+                    <span class="condition-pending">
+                        En attente
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- Proclamation -->
+
+            <div class="condition-item">
+
+                <div>
+
+                    <h3>Dernière proclamation</h3>
+
+                    <p>
+                        La dernière proclamation de l'année doit
+                        être terminée.
+                    </p>
+
+                </div>
+
+                {% if proclamation_terminee %}
+
+                    <span class="condition-valid">
+                        ✓ Terminée
+                    </span>
+
+                {% else %}
+
+                    <span class="condition-pending">
+                        En attente
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- Résultats -->
+
+            <div class="condition-item">
+
+                <div>
+
+                    <h3>Résultats annuels</h3>
+
+                    <p>
+                        Les résultats annuels doivent être
+                        finalisés et verrouillés.
+                    </p>
+
+                </div>
+
+                {% if resultats_finalises %}
+
+                    <span class="condition-valid">
+                        ✓ Finalisés
+                    </span>
+
+                {% else %}
+
+                    <span class="condition-pending">
+                        En attente
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- Opérations -->
+
+            <div class="condition-item">
+
+                <div>
+
+                    <h3>Opérations obligatoires</h3>
+
+                    <p>
+                        Aucune opération essentielle ne doit
+                        rester ouverte pour cette année.
+                    </p>
+
+                </div>
+
+                {% if operations_terminees %}
+
+                    <span class="condition-valid">
+                        ✓ Terminées
+                    </span>
+
+                {% else %}
+
+                    <span class="condition-pending">
+                        En attente
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================== -->
+    <!-- INFORMATIONS SUR L'AUTOMATISATION -->
+    <!-- ================================================== -->
+
+    {% if annee.statut != "CLOTUREE" %}
+
+        <div class="automatic-info">
+
+            <h2>Clôture automatique</h2>
+
+            <p>
+                La clôture de cette année scolaire sera effectuée
+                automatiquement lorsque toutes les conditions
+                nécessaires seront réunies.
+            </p>
+
+            <p>
+                Si une condition reste incomplète, l'année
+                restera active jusqu'à sa régularisation.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- ================================================== -->
+    <!-- ACTIONS -->
+    <!-- ================================================== -->
+
+    <div class="page-actions">
+
+        <a
+            href="{% url 'detail_annee' annee_id=annee.id %}"
+            class="btn btn-secondary"
+        >
+            Retour au détail
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

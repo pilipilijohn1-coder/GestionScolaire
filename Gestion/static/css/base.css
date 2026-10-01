@@ -1,0 +1,204 @@
+  /* ==========================================================
+RESET
+========================================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f4f6f9;
+  color: #1f2937;
+}
+
+/* ==========================================================
+TOPBAR
+========================================================== */
+.topbar {
+  height: 65px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 25px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.sidebar-toggle {
+  border: none;
+  background: transparent;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+/* ==========================================================
+UTILISATEUR
+========================================================== */
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2563eb;
+  color: white;
+  font-weight: bold;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-info strong {
+  font-weight: 600;
+}
+
+.user-info small {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* ==========================================================
+STRUCTURE
+========================================================== */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  padding-top: 65px;
+}
+
+.sidebar {
+  width: 250px;
+  background: #111827;
+  color: white;
+  position: fixed;
+  top: 65px;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  transition: width 0.3s ease;
+}
+
+.sidebar-collapsed .sidebar {
+  width: 70px;
+}
+
+.sidebar-collapsed .main-content {
+  margin-left: 70px;
+  width: calc(100% - 70px);
+}
+
+/* ==========================================================
+MENU
+========================================================== */
+.main-menu ul {
+  list-style: none;
+  padding: 0;
+}
+
+.main-menu li {
+  margin: 4px 0;
+}
+
+.main-menu a span {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 6px;
+  color: #d1d5db;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.main-menu a span:hover {
+  background: #1f2937;
+  color: white;
+}
+
+.menu-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #9ca3af;
+  padding: 15px 12px 8px;
+}
+
+/* ==========================================================
+CONTENU
+========================================================== */
+.main-content {
+  margin-left: 250px;
+  width: calc(100% - 250px);
+  padding: 30px;
+  transition: margin-left 0.3s ease, width 0.3s ease;
+}
+
+.footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* ==========================================================
+RESPONSIVE
+========================================================== */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 210px;
+  }
+
+  .main-content {
+    margin-left: 210px;
+    width: calc(100% - 210px);
+  }
+
+  .user-info {
+    display: none;
+  }
+}
+
+@media (max-width: 576px) {
+  .sidebar {
+    position: fixed;
+    left: -250px;
+    transition: left 0.3s ease;
+  }
+
+  .sidebar-collapsed .sidebar {
+    left: 0;
+  }
+
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+  }
+}

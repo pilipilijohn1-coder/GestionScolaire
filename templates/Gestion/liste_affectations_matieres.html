@@ -1,0 +1,365 @@
+{% extends base_template %}
+{% load static %}
+
+
+{% block title %}
+    Affectation des matières
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'css/liste_affectations_matieres.css' %}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="affectations-page">
+
+
+    <!-- =====================================================
+         EN-TÊTE
+    ====================================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>
+                Affectation des matières
+            </h1>
+
+
+        </div>
+
+
+        <a
+            href="{% url 'creer_affectation_matiere' %}"
+            class="btn btn-primary"
+        >
+            Affecter une matière
+        </a>
+
+        <a
+            href="{% url 'gestion_matieres_classes' %}"
+            class="btn btn-secondary"
+            style="background: #2563eb; color: white; margin-left: 10px;"
+        >
+            <i class="fas fa-th"></i> Cartes par classe
+        </a>
+
+    </div>
+
+
+    <!-- =====================================================
+         FILTRES
+    ====================================================== -->
+
+    <div class="filter-card">
+
+        <form method="get">
+
+            <div class="filter-group">
+
+                <label for="classe">
+                    Classe
+                </label>
+
+                <select
+                    name="classe"
+                    id="classe"
+                >
+
+                    <option value="">
+                        Toutes les classes
+                    </option>
+
+
+                    {% for classe in classes %}
+
+                        <option
+                            value="{{ classe.id }}"
+                            {% if classe_selectionnee == classe.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ classe.libelle }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="filter-group">
+
+                <label for="matiere">
+                    Matière
+                </label>
+
+                <select
+                    name="matiere"
+                    id="matiere"
+                >
+
+                    <option value="">
+                        Toutes les matières
+                    </option>
+
+
+                    {% for matiere in matieres %}
+
+                        <option
+                            value="{{ matiere.id }}"
+                            {% if matiere_selectionnee == matiere.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ matiere.libelle }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="filter-actions">
+
+                <button
+                    type="submit"
+                    class="btn btn-filter"
+                >
+                    Filtrer
+                </button>
+
+
+                <a
+                    href="{% url 'liste_affectations_matieres' %}"
+                    class="btn btn-reset"
+                >
+                    Réinitialiser
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- =====================================================
+         TABLEAU
+    ====================================================== -->
+
+    <div class="table-card">
+
+        <div class="table-header">
+
+            <div>
+
+                <h2>
+                    Liste des affectations
+                </h2>
+
+                <p>
+                    {{ affectations|length }}
+                    affectation{{ affectations|length|pluralize }}
+                    trouvée{{ affectations|length|pluralize }}
+                </p>
+
+            </div>
+
+        </div>
+
+
+        {% if affectations %}
+
+            <div class="table-responsive">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Classe
+                            </th>
+
+                            <th>
+                                Niveau
+                            </th>
+
+                            <th>
+                                Matière
+                            </th>
+
+                            <th>
+                                Heures/semaine
+                            </th>
+
+                            <th>
+                                Statut
+                            </th>
+
+                            <th class="actions-column">
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for affectation in affectations %}
+
+                            <tr>
+
+                                <!-- CLASSE -->
+
+                                <td>
+
+                                    <strong>
+                                        {{ affectation.classe.libelle }}
+                                    </strong>
+
+                                </td>
+
+
+                                <!-- NIVEAU -->
+
+                                <td>
+
+                                    {{ affectation.classe.niveau.libelle }}
+
+                                </td>
+
+
+                                <!-- MATIÈRE -->
+
+                                <td>
+
+                                    <div class="matiere-cell">
+
+                                        <span class="matiere-code">
+                                            {{ affectation.matiere.code }}
+                                        </span>
+
+                                        <span>
+                                            {{ affectation.matiere.libelle }}
+                                        </span>
+
+                                    </div>
+
+                                </td>
+
+                                <td>
+
+                                    {{ affectation.heures_par_semaine }}
+
+                                </td>
+
+
+                                <!-- STATUT -->
+
+                                <td>
+
+                                    {% if affectation.actif %}
+
+                                        <span class="status active">
+                                            Active
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="status inactive">
+                                            Désactivée
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- ACTIONS -->
+
+                                <td class="actions-column">
+
+                                    <div class="actions">
+
+                                        <a
+                                            href="{% url 'detail_affectation_matiere' affectation.id %}"
+                                            class="action-link"
+                                        >
+                                            Détail
+                                        </a>
+
+
+                                        <a
+                                            href="{% url 'modifier_affectation_matiere' affectation.id %}"
+                                            class="action-link"
+                                        >
+                                            Modifier
+                                        </a>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+        {% else %}
+
+            <!-- =============================================
+                 ÉTAT VIDE
+            ============================================== -->
+
+            <div class="empty-state">
+
+                <h3>
+                    Aucune affectation trouvée
+                </h3>
+
+                <p>
+                    Aucune matière n'a encore été affectée
+                    à une classe.
+                </p>
+
+                <a
+                    href="{% url 'creer_affectation_matiere' %}"
+                    class="btn btn-primary"
+                >
+                    Affecter une matière
+                </a>
+
+            </div>
+
+        {% endif %}
+
+
+    </div>
+
+
+</div>
+
+{% endblock %}
