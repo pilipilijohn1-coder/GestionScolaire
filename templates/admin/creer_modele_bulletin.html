@@ -93,7 +93,7 @@
         </div>
     {% endif %}
 
-    <form method="post">
+    <form method="post" class="form-floating">
         {% csrf_token %}
         {% for field in form %}
             <div class="form-group">
@@ -112,4 +112,15 @@
         </div>
     </form>
 </div>
+
+<script>
+    // Add placeholders for floating labels in Django forms
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.form-floating .form-group input, .form-floating .form-group select, .form-floating .form-group textarea').forEach(function(el) {
+            if (!el.placeholder) {
+                el.placeholder = ' ';
+            }
+        });
+    });
+</script>
 {% endblock %}

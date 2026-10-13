@@ -264,6 +264,77 @@
         color: #d97706;
     }
 
+    /*
+     * Un cours incomplet reste cliquable : c'est depuis son panneau
+     * qu'on lui attribue un volume et un enseignant. La bordure
+     * signale l'action restante sans bloquer la carte.
+     */
+    .gm-cours-card--incomplet {
+        border-color: #f59e0b;
+        background: #fffbeb;
+    }
+
+    .gm-cours-card--incomplet .gm-cours-teacher {
+        color: #b45309;
+    }
+
+    .gm-cours-card--hors-programme {
+        border-color: #dc2626;
+        background: #fef2f2;
+    }
+
+    .gm-cours-badge {
+        display: inline-block;
+        border-radius: 999px;
+        padding: 2px 8px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .03em;
+        white-space: nowrap;
+    }
+
+    .gm-cours-badge-officiel {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .gm-cours-badge-hors {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .gm-cours-badge-warn {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .gm-creneau-place {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 7px 10px;
+        margin-bottom: 6px;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        font-size: 12.5px;
+        background: #f9fafb;
+    }
+
+    .gm-creneau-place-retirer {
+        border: 1px solid #fecaca;
+        background: #fef2f2;
+        color: #991b1b;
+        border-radius: 5px;
+        padding: 3px 9px;
+        font-size: 11px;
+        cursor: pointer;
+    }
+
+    .gm-creneau-place-retirer:hover {
+        background: #fee2e2;
+    }
+
     .gm-cours-card-main {
         min-width: 0;
         display: flex;
@@ -538,7 +609,7 @@
             <div class="gm-cours-popup-wrapper">
                 <button type="button" id="btn-cours-popup" class="gm-btn gm-btn-submit" style="width: 100%; justify-content: center;">
                     <i class="fas fa-list-check"></i>
-                    Voir les cours disponibles ({{ matieres_a_programmer|length }} cours)
+                    Voir les cours disponibles ({{ nb_cours_programme }} cours)
                 </button>
             </div>
         {% else %}
@@ -569,6 +640,114 @@
                 <div id="cours-popup-body" class="gm-modal-body">
                     <div style="padding: 20px; text-align: center; color: #6b7280; font-size: 13px;">
                         Chargement des cours...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- EDITION D'UN COURS : PONDERATION, ENSEIGNANT, CRENEAUX -->
+        <div id="cours-edition" class="gm-modal-overlay" style="display: none;">
+            <div class="gm-modal-content" style="max-width: 720px;">
+                <div class="gm-modal-header">
+                    <h3>
+                        <i class="fas fa-pen-to-square"></i>
+                        <span id="cours-edition-titre">Modifier le cours</span>
+                    </h3>
+                    <button type="button" id="cours-edition-close" class="gm-modal-close">
+                        <i class="fas fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="gm-modal-body">
+                    <div id="cours-edition-message"
+                         style="display:none; margin-bottom:12px; padding:9px 12px; border-radius:6px; font-size:12.5px;"></div>
+
+                    <!-- IDENTITE DU COURS -->
+                    <div class="gm-form-group">
+                        <label>Cours</label>
+                        <div id="cours-edition-identite"
+                             style="font-size:13px; font-weight:600; color:#111827;"></div>
+                        <span class="gm-form-help" id="cours-edition-source"></span>
+                    </div>
+
+                    <!-- PONDERATION -->
+                    <div id="cours-edition-ponderation-bloc">
+                        <h4 style="margin:14px 0 8px; font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:#6b7280;">
+                            Pondération officielle
+                        </h4>
+                        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                            <div class="gm-form-group" style="flex:1 1 180px;">
+                                <label for="cours-edition-tj">
+                                    Travaux journaliers max
+                                </label>
+                                <input type="number" min="0" step="1"
+                                       id="cours-edition-tj"
+                                       class="gm-form-control">
+                            </div>
+                            <div class="gm-form-group" style="flex:1 1 180px;">
+                                <label for="cours-edition-examen">
+                                    Examen max
+                                </label>
+                                <input type="number" min="0" step="1"
+                                       id="cours-edition-examen"
+                                       class="gm-form-control">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ENSEIGNANT ET VOLUME -->
+                    <h4 style="margin:14px 0 8px; font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:#6b7280;">
+                        Affectation
+                    </h4>
+                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                        <div class="gm-form-group" style="flex:2 1 260px;">
+                            <label for="cours-edition-enseignant">
+                                Enseignant
+                            </label>
+                            <select id="cours-edition-enseignant"
+                                    class="gm-form-control"></select>
+                        </div>
+                        <div class="gm-form-group" style="flex:1 1 140px;">
+                            <label for="cours-edition-volume">
+                                Volume h/semaine
+                            </label>
+                            <input type="number" min="1" step="1"
+                                   id="cours-edition-volume"
+                                   class="gm-form-control">
+                        </div>
+                    </div>
+
+                    <button type="button" id="cours-edition-affecter"
+                            class="gm-btn gm-btn-submit"
+                            style="margin-top:4px;">
+                        <i class="fas fa-user-check"></i>
+                        Enregistrer l'affectation
+                    </button>
+
+                    <!-- CRENEAUX -->
+                    <h4 style="margin:18px 0 8px; font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:#6b7280;">
+                        Créneaux placés
+                    </h4>
+                    <div id="cours-edition-creneaux"></div>
+
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+                        <div class="gm-form-group" style="flex:1 1 170px; margin:0;">
+                            <label for="cours-edition-jour">Jour</label>
+                            <select id="cours-edition-jour"
+                                    class="gm-form-control"></select>
+                        </div>
+                        <div class="gm-form-group" style="flex:1 1 170px; margin:0;">
+                            <label for="cours-edition-creneau">Créneau</label>
+                            <select id="cours-edition-creneau"
+                                    class="gm-form-control"></select>
+                        </div>
+                        <div class="gm-form-group" style="flex:0 0 auto; margin:0; align-self:flex-end;">
+                            <button type="button" id="cours-edition-placer"
+                                    class="gm-btn gm-btn-submit">
+                                <i class="fas fa-plus"></i> Placer
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1091,21 +1270,32 @@ document.addEventListener("DOMContentLoaded", function () {
             var html = '';
             var matieres = data.matieres || [];
 
+            /*
+             * Mémorise le détail des cours pour que le panneau
+             * d'édition puisse se remplir au clic, y compris pour un
+             * cours officiel encore sans volume ni enseignant.
+             */
+            window.__coursProgrammation = {
+                matieres: matieres,
+                enseignants: data.enseignants || [],
+                creneaux: data.creneaux || [],
+                jours: data.jours || [],
+                classe_id: data.classe_id || ""
+            };
+
             if (matieres.length > 0) {
                 html += '<div class="gm-cours-grid" id="popup-cours-grid">';
                 matieres.forEach(function(matiere) {
-                    var disabledClass = matiere.peut_programmer ? '' : 'gm-cours-card--disabled';
-                    html += '<button type="button" class="gm-cours-card ' + disabledClass + '"';
-                    html += (matiere.peut_programmer ? '' : ' disabled');
-                    html += 'data-affectation-matiere-id="' + (matiere.id || '') + '"';
-                    html += 'data-affectation-id="' + (matiere.affectation_id || '') + '"';
-                    html += 'data-enseignant="' + (matiere.enseignant || '') + '"';
-                    html += 'data-heures="' + (matiere.heures_par_semaine || 0) + '"';
-                    html += 'data-heures-restantes="' + (matiere.heures_restantes || 0) + '"';
-                    if (matiere.peut_programmer) {
-                        html += 'onclick="selectionnerCoursDirect(this)"';
+                    var etatClass = '';
+                    if (matiere.hors_programme) {
+                        etatClass = 'gm-cours-card--hors-programme';
+                    } else if (!matiere.peut_programmer) {
+                        etatClass = 'gm-cours-card--incomplet';
                     }
-                    html += '>';
+
+                    html += '<button type="button" class="gm-cours-card ' + etatClass + '"';
+                    html += ' data-matiere-id="' + (matiere.matiere_id || '') + '"';
+                    html += ' onclick="ouvrirCours(this)">';
                     html += '<span class="gm-cours-card-main">';
                     html += '<span class="gm-cours-icon"><i class="fas fa-book"></i></span>';
                     html += '<span class="gm-cours-card-text">';
@@ -1113,6 +1303,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     html += '<small>' + (matiere.code || '') + '</small>';
                     html += '<span class="gm-cours-teacher"><i class="fas fa-chalkboard-teacher"></i> ' + (matiere.enseignant || 'Non affecté') + '</span>';
                     html += '</span></span>';
+                    if (matiere.source === 'ponderation') {
+                        html += '<span class="gm-cours-badge gm-cours-badge-officiel">Officiel</span>';
+                    } else if (matiere.hors_programme) {
+                        html += '<span class="gm-cours-badge gm-cours-badge-hors">Hors programme</span>';
+                    }
+                    if (!matiere.enseignant) {
+                        html += '<span class="gm-cours-badge gm-cours-badge-warn">Sans enseignant</span>';
+                    }
                     html += '<span class="gm-cours-hours"><strong>' + matiere.heures_restantes + '</strong> h restantes</span>';
                     html += '</button>';
                 });
@@ -1169,16 +1367,669 @@ document.addEventListener("DOMContentLoaded", function () {
         selectionnerCoursDirect;
 
 
-    function coursEstDansRecap(affectationMatiereId) {
+    /* ==========================================================
+       EDITION D'UN COURS DEPUIS LE POPUP
+       ========================================================== */
 
-        return programmations.some(function (item) {
+    const coursEdition =
+        document.getElementById("cours-edition");
+    const coursEditionTitre =
+        document.getElementById("cours-edition-titre");
+    const coursEditionMessage =
+        document.getElementById("cours-edition-message");
+    const coursEditionIdentite =
+        document.getElementById("cours-edition-identite");
+    const coursEditionSource =
+        document.getElementById("cours-edition-source");
+    const coursEditionPonderationBloc =
+        document.getElementById(
+            "cours-edition-ponderation-bloc"
+        );
+    const coursEditionTj =
+        document.getElementById("cours-edition-tj");
+    const coursEditionExamen =
+        document.getElementById("cours-edition-examen");
+    const coursEditionEnseignant =
+        document.getElementById(
+            "cours-edition-enseignant"
+        );
+    const coursEditionVolume =
+        document.getElementById("cours-edition-volume");
+    const coursEditionCreneaux =
+        document.getElementById("cours-edition-creneaux");
+    const coursEditionJour =
+        document.getElementById("cours-edition-jour");
+    const coursEditionCreneau =
+        document.getElementById("cours-edition-creneau");
 
-            return String(
-                item.affectation_matiere_id
-            ) === String(
-                affectationMatiereId
+    /*
+     * Cours actuellement ouvert dans le panneau d'édition.
+     */
+    let coursEditionCourant = null;
+
+
+    function coursProgrammation() {
+        return window.__coursProgrammation || {
+            matieres: [],
+            enseignants: [],
+            creneaux: [],
+            jours: [],
+            classe_id: ""
+        };
+    }
+
+
+    function coursTrouve(matiereId) {
+
+        const detail = coursProgrammation();
+
+        return (detail.matieres || []).find(
+            function (item) {
+                return String(item.matiere_id) ===
+                    String(matiereId);
+            }
+        ) || null;
+
+    }
+
+
+    function afficherMessageCoursEdition(
+        texte,
+        estErreur
+    ) {
+
+        if (!coursEditionMessage) {
+            return;
+        }
+
+        if (!texte) {
+            coursEditionMessage.style.display = "none";
+            return;
+        }
+
+        coursEditionMessage.style.display = "block";
+        coursEditionMessage.textContent = texte;
+
+        if (estErreur) {
+            coursEditionMessage.style.background =
+                "#fef2f2";
+            coursEditionMessage.style.color =
+                "#991b1b";
+            coursEditionMessage.style.border =
+                "1px solid #fecaca";
+        } else {
+            coursEditionMessage.style.background =
+                "#ecfdf5";
+            coursEditionMessage.style.color =
+                "#065f46";
+            coursEditionMessage.style.border =
+                "1px solid #a7f3d0";
+        }
+
+    }
+
+
+    function remplirSelectCoursEdition(
+        select,
+        elements,
+        valeurVide
+    ) {
+
+        select.innerHTML = "";
+
+        const vide = document.createElement("option");
+        vide.value = "";
+        vide.textContent = valeurVide;
+        select.appendChild(vide);
+
+        elements.forEach(function (item) {
+            const option =
+                document.createElement("option");
+            option.value = item.id;
+            option.textContent = item.libelle;
+            select.appendChild(option);
+        });
+
+    }
+
+
+    function rendreCreneauxCours(cours) {
+
+        coursEditionCreneaux.innerHTML = "";
+
+        const creneaux = cours.creneaux_places || [];
+
+        if (creneaux.length === 0) {
+            const vide = document.createElement("p");
+            vide.style.cssText =
+                "font-size:12.5px; color:#9ca3af; margin:0;";
+            vide.textContent =
+                "Aucun créneau placé pour ce cours.";
+            coursEditionCreneaux.appendChild(vide);
+            return;
+        }
+
+        creneaux.forEach(function (item) {
+
+            const ligne =
+                document.createElement("div");
+            ligne.className = "gm-creneau-place";
+
+            const detail = coursProgrammation();
+            const jour = (detail.jours || []).find(
+                function (j) {
+                    return j.code === item.jour;
+                }
             );
 
+            const texte =
+                document.createElement("span");
+            texte.textContent =
+                (jour ? jour.libelle : item.jour) +
+                " — " +
+                item.heure_debut +
+                " à " +
+                item.heure_fin;
+
+            const retirer =
+                document.createElement("button");
+            retirer.type = "button";
+            retirer.className =
+                "gm-creneau-place-retirer";
+            retirer.textContent = "Retirer";
+            retirer.addEventListener(
+                "click",
+                function () {
+                    retirerCreneauCours(
+                        item.repartition_id
+                    );
+                }
+            );
+
+            ligne.appendChild(texte);
+            ligne.appendChild(retirer);
+            coursEditionCreneaux.appendChild(ligne);
+
+        });
+
+    }
+
+
+    function ouvrirCours(card) {
+
+        if (!coursEdition) {
+            return;
+        }
+
+        if (card && card.disabled) {
+            return;
+        }
+
+        const matiereId = card
+            ? card.dataset.matiereId
+            : null;
+
+        const cours = coursTrouve(matiereId);
+
+        if (!cours) {
+            return;
+        }
+
+        coursEditionCourant = cours;
+
+        coursEditionTitre.textContent =
+            cours.nom || "Modifier le cours";
+        coursEditionIdentite.textContent =
+            (cours.nom || "") +
+            (cours.code ? " (" + cours.code + ")" : "");
+
+        /*
+         * Un cours hors programme n'a pas de pondération officielle à
+         * modifier : les champs sont alors masqués.
+         */
+        const aPonderation =
+            cours.source === "ponderation";
+
+        coursEditionSource.textContent = aPonderation
+            ? "Cours officiel : volume et pondération modifiables."
+            : "Cours saisi manuellement : hors programme officiel.";
+
+        coursEditionPonderationBloc.style.display =
+            aPonderation ? "block" : "none";
+
+        coursEditionTj.value =
+            cours.travaux_journaliers_max === null ||
+            cours.travaux_journaliers_max === undefined
+                ? ""
+                : cours.travaux_journaliers_max;
+
+        coursEditionExamen.value =
+            cours.examen_max === null ||
+            cours.examen_max === undefined
+                ? ""
+                : cours.examen_max;
+
+        const detail = coursProgrammation();
+
+        remplirSelectCoursEdition(
+            coursEditionEnseignant,
+            (detail.enseignants || []).map(
+                function (item) {
+                    return {
+                        id: item.id,
+                        libelle: item.nom
+                    };
+                }
+            ),
+            "Aucun enseignant"
+        );
+
+        const affectationEnseignant = (
+            detail.enseignants || []
+        ).find(function (item) {
+            return item.nom === cours.enseignant;
+        });
+
+        coursEditionEnseignant.value =
+            affectationEnseignant
+                ? affectationEnseignant.id
+                : "";
+
+        coursEditionVolume.value =
+            cours.heures_par_semaine > 0
+                ? cours.heures_par_semaine
+                : 1;
+
+        remplirSelectCoursEdition(
+            coursEditionJour,
+            (detail.jours || []).map(function (item) {
+                return {
+                    id: item.code,
+                    libelle: item.libelle
+                };
+            }),
+            "Choisissez un jour"
+        );
+
+        remplirSelectCoursEdition(
+            coursEditionCreneau,
+            (detail.creneaux || []).map(function (item) {
+                return {
+                    id: item.id,
+                    libelle:
+                        item.ordre +
+                        " — " +
+                        item.heure_debut +
+                        " à " +
+                        item.heure_fin
+                };
+            }),
+            "Choisissez un créneau"
+        );
+
+        rendreCreneauxCours(cours);
+
+        afficherMessageCoursEdition("", false);
+
+        coursEdition.style.display = "flex";
+
+    }
+
+
+    window.ouvrirCours = ouvrirCours;
+
+
+    /*
+     * Django valide le jeton reçu dans l'en-tête contre celui du
+     * cookie. Lire le cookie en JavaScript donnait une valeur mal
+     * formée et chaque enregistrement était refusé en403. La valeur
+     * rendue par la balise csrf_token est masquée et toujours
+     * valide, contrairement à une lecture manuelle du cookie.
+     */
+    const csrfTokenCours = "{{ csrf_token }}";
+
+
+    function posterEditionCours(donnees) {
+
+        const detail = coursProgrammation();
+
+        donnees.append("classe_id", detail.classe_id);
+        donnees.append("csrfmiddlewaretoken", csrfTokenCours);
+
+        return fetch(
+            "{% url 'ajax_modifier_cours' %}",
+            {
+                method: "POST",
+                headers: {
+                    "X-Requested-With":
+                        "XMLHttpRequest",
+                    "Accept": "application/json",
+                    "Content-Type":
+                        "application/x-www-form-urlencoded; charset=UTF-8",
+                    "X-CSRFToken": csrfTokenCours
+                },
+                body: donnees.toString()
+            }
+        )
+        .then(function (response) {
+
+            /*
+             * Une erreur Django renvoie une page HTML, pas du JSON.
+             * Sans ce test, le navigateur echouait sur un obscur
+             * « Unexpected token '<' » au lieu du vrai motif.
+             */
+            const type = response.headers.get(
+                "Content-Type"
+            ) || "";
+
+            if (type.indexOf("application/json") === -1) {
+                return response.text().then(function (corps) {
+                    let motif = "";
+
+                    const entete = corps.match(
+                        /<h1>([\s\S]*?)<\/h1>/
+                    );
+
+                    if (entete) {
+                        motif = entete[1].trim();
+                    }
+
+                    throw new Error(
+                        (motif ||
+                            "Erreur " + response.status) +
+                        " (code " + response.status + ")"
+                    );
+                });
+            }
+
+            return response.json()
+                .then(function (data) {
+                    if (!response.ok) {
+                        throw new Error(
+                            data.error ||
+                            "Erreur HTTP " +
+                                response.status
+                        );
+                    }
+                    return data;
+                });
+        });
+
+    }
+
+
+    function enregistrerAffectationCours() {
+
+        if (!coursEditionCourant) {
+            return;
+        }
+
+        const donnees = new URLSearchParams();
+
+        /*
+     * Un seul bouton enregistre les trois réglages : pondération,
+     * volume et enseignant. Les séparer obligeait l'utilisateur à
+     * valider plusieurs fois des modifications liées.
+     */
+        donnees.append("action", "enregistrer");
+        donnees.append(
+            "matiere_id",
+            coursEditionCourant.matiere_id
+        );
+        donnees.append(
+            "heures_par_semaine",
+            coursEditionVolume.value || "1"
+        );
+        donnees.append(
+            "travaux_journaliers_max",
+            coursEditionTj.value || "0"
+        );
+        donnees.append(
+            "examen_max",
+            coursEditionExamen.value || "0"
+        );
+
+        posterEditionCours(donnees)
+            .then(function (donneesRecues) {
+                return enregistrerEnseignantCours(
+                    donneesRecues
+                );
+            })
+            .then(function (resultat) {
+                afficherMessageCoursEdition(
+                    resultat,
+                    false
+                );
+                if (typeof chargerCoursPopup ===
+                    "function") {
+                    chargerCoursPopup();
+                }
+                if (typeof chargerCours ===
+                    "function") {
+                    chargerCours();
+                }
+            })
+            .catch(function (erreur) {
+                afficherMessageCoursEdition(
+                    erreur.message,
+                    true
+                );
+            });
+
+    }
+
+
+    function enregistrerEnseignantCours(message) {
+
+        if (!coursEditionEnseignant.value) {
+            return Promise.resolve(
+                message || "Cours enregistré."
+            );
+        }
+
+        const donnees = new URLSearchParams();
+
+        donnees.append(
+            "action",
+            "affecter_enseignant"
+        );
+        donnees.append(
+            "matiere_id",
+            coursEditionCourant.matiere_id
+        );
+        donnees.append(
+            "heures_par_semaine",
+            coursEditionVolume.value || "1"
+        );
+        donnees.append(
+            "enseignant_id",
+            coursEditionEnseignant.value
+        );
+
+        return posterEditionCours(donnees)
+            .then(function (donneesRecues) {
+                return donneesRecues.message;
+            });
+
+    }
+
+
+    function placerCreneauCours() {
+
+        if (!coursEditionCourant) {
+            return;
+        }
+
+        if (!coursEditionJour.value ||
+            !coursEditionCreneau.value) {
+            afficherMessageCoursEdition(
+                "Choisissez un jour et un créneau.",
+                true
+            );
+            return;
+        }
+
+        const donnees = new URLSearchParams();
+
+        donnees.append("action", "placer_creneau");
+        donnees.append(
+            "matiere_id",
+            coursEditionCourant.matiere_id
+        );
+        donnees.append(
+            "jour",
+            coursEditionJour.value
+        );
+        donnees.append(
+            "creneau_id",
+            coursEditionCreneau.value
+        );
+
+        posterEditionCours(donnees)
+            .then(function (data) {
+                afficherMessageCoursEdition(
+                    data.message,
+                    false
+                );
+                return chargerCoursPopup();
+            })
+            .then(function () {
+                const rafraichi =
+                    coursTrouve(
+                        coursEditionCourant
+                            .matiere_id
+                    );
+                if (rafraichi) {
+                    rendreCreneauxCours(
+                        rafraichi
+                    );
+                }
+            })
+            .catch(function (erreur) {
+                afficherMessageCoursEdition(
+                    erreur.message,
+                    true
+                );
+            });
+
+    }
+
+
+    function retirerCreneauCours(repartitionId) {
+
+        const donnees = new URLSearchParams();
+
+        donnees.append(
+            "action",
+            "retirer_creneau"
+        );
+        donnees.append(
+            "repartition_id",
+            repartitionId
+        );
+
+        if (coursEditionCourant) {
+            donnees.append(
+                "matiere_id",
+                coursEditionCourant.matiere_id
+            );
+        }
+
+        posterEditionCours(donnees)
+            .then(function (data) {
+                afficherMessageCoursEdition(
+                    data.message,
+                    false
+                );
+                return chargerCoursPopup();
+            })
+            .then(function () {
+                if (coursEditionCourant) {
+                    const rafraichi =
+                        coursTrouve(
+                            coursEditionCourant
+                                .matiere_id
+                        );
+                    if (rafraichi) {
+                        rendreCreneauxCours(
+                            rafraichi
+                        );
+                    }
+                }
+            })
+            .catch(function (erreur) {
+                afficherMessageCoursEdition(
+                    erreur.message,
+                    true
+                );
+            });
+
+    }
+
+
+    if (coursEdition) {
+
+        document.getElementById(
+            "cours-edition-close"
+        ).addEventListener("click", function () {
+            coursEdition.style.display = "none";
+        });
+
+        coursEdition.addEventListener(
+            "click",
+            function (e) {
+                e.stopPropagation();
+            }
+        );
+
+        document.getElementById(
+            "cours-edition-affecter"
+        ).addEventListener(
+            "click",
+            enregistrerAffectationCours
+        );
+
+        document.getElementById(
+            "cours-edition-placer"
+        ).addEventListener(
+            "click",
+            placerCreneauCours
+        );
+
+        /*
+         * Séparer les enregistrements obligeait l'utilisateur à
+         * valider plusieurs fois des réglages liés : le bouton
+         * enregistre la pondération, le volume et l'enseignant.
+         */
+    }
+
+
+    function coursEstDansRecap(matiereId) {
+
+        if (matiereId === undefined || matiereId === null) {
+            return false;
+        }
+
+        /*
+         * Le récapitulatif raisonne en affectation_matiere_id alors que
+         * les cartes portent la matiere. On ramène les deux idènes sur
+         * le même terrain avant de comparer.
+         */
+        const detail = window.__coursProgrammation || {};
+        const matieres = detail.matieres || [];
+
+        const correspondant = matieres.find(function (item) {
+            return String(item.matiere_id) === String(matiereId);
+        });
+
+        if (!correspondant || !correspondant.id) {
+            return false;
+        }
+
+        return programmations.some(function (item) {
+            return String(
+                item.affectation_matiere_id
+            ) === String(correspondant.id);
         });
 
     }
@@ -1197,18 +2048,21 @@ document.addEventListener("DOMContentLoaded", function () {
             )
         ).forEach(function (card) {
 
+            /*
+             * Le cours reste cliquable meme sans enseignant : c'est
+             * depuis ce panneau qu'on lui en affecte un. Seul un cours
+             * deja place dans le récapitulatif temporaire passe en
+             * inactif.
+             */
             const estProgramme = coursEstDansRecap(
-                card.dataset.affectationMatiereId
+                card.dataset.matiereId
             );
 
-            const estDesactive = card.classList.contains(
-                "gm-cours-card--disabled"
-            );
+            card.disabled = estProgramme;
 
-            card.disabled = estProgramme || estDesactive;
             card.classList.toggle(
                 "gm-cours-card-utilise",
-                estProgramme && !estDesactive
+                estProgramme
             );
 
         });
@@ -1226,21 +2080,19 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
 
-        const coursDisponibles = Array.isArray(
-            matieres
-        ) ? matieres.filter(function (matiere) {
-
-            return (
-                matiere &&
-                Number(
-                    matiere.heures_restantes
-                ) > 0 &&
-                !coursEstDansRecap(
-                    matiere.id
-                )
-            );
-
-        }) : [];
+        /*
+     * Tous les cours sont affichés, y compris ceux qui n'ont encore
+     * ni volume ni enseignant. Les filtrer sur les heures restantes
+     * rendait le panneau vide pour un cours officiel, alors que c'est
+     * precisement ce cours qu'on vient y completer.
+     */
+    const coursDisponibles = Array.isArray(
+        matieres
+    ) ? matieres.filter(function (matiere) {
+        return matiere && !coursEstDansRecap(
+            matiere.matiere_id
+        );
+    }) : [];
 
 
         coursDirectsListe.className = coursDisponibles.length
@@ -1305,6 +2157,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 document.createElement("button");
              card.type = "button";
             card.className = "gm-cours-card";
+            card.dataset.matiereId =
+                matiere.matiere_id || "";
             card.dataset.affectationMatiereId =
                 matiere.id || "";
             card.dataset.affectationId =
@@ -1316,20 +2170,24 @@ document.addEventListener("DOMContentLoaded", function () {
             card.dataset.heuresRestantes =
                 matiere.heures_restantes || 0;
 
-            if (!matiere.peut_programmer) {
-                card.disabled = true;
-                card.classList.add("gm-cours-card--disabled");
+            if (matiere.hors_programme) {
+                card.classList.add(
+                    "gm-cours-card--hors-programme"
+                );
                 card.title =
-                    "Aucun enseignant n’est affecté à cette matière.";
+                    "Saisi manuellement, aucun cours officiel ne porte ce nom.";
+            } else if (!matiere.peut_programmer) {
+                card.classList.add(
+                    "gm-cours-card--incomplet"
+                );
+                card.title =
+                    "Volume ou enseignant à renseigner.";
             }
 
             card.addEventListener(
                 "click",
                 function () {
-                    if (!matiere.peut_programmer) {
-                        return;
-                    }
-                    selectionnerCoursDirect(card);
+                    ouvrirCours(card);
                 }
             );
 
@@ -1396,6 +2254,35 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
             card.appendChild(contenu);
+
+            if (matiere.source === "ponderation") {
+                const badge = document.createElement(
+                    "span"
+                );
+                badge.className =
+                    "gm-cours-badge gm-cours-badge-officiel";
+                badge.textContent = "Officiel";
+                card.appendChild(badge);
+            } else if (matiere.hors_programme) {
+                const badge = document.createElement(
+                    "span"
+                );
+                badge.className =
+                    "gm-cours-badge gm-cours-badge-hors";
+                badge.textContent = "Hors programme";
+                card.appendChild(badge);
+            }
+
+            if (!matiere.enseignant) {
+                const badge = document.createElement(
+                    "span"
+                );
+                badge.className =
+                    "gm-cours-badge gm-cours-badge-warn";
+                badge.textContent = "Sans enseignant";
+                card.appendChild(badge);
+            }
+
             card.appendChild(heures);
             coursDirectsListe.appendChild(card);
 
@@ -1901,6 +2788,20 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
 
+                /*
+                 * Un créneau déjà occupé par un autre cours de la
+                 * classe ne peut plus être proposé. Sans ce test, le
+                 * créneau ne disparaissait que le temps du formulaire
+                 * puis réapparaissait à la sélection d'un autre jour.
+                 */
+                if (
+                    creneau.deja_utilise &&
+                    !creneau.propre
+                ) {
+                    return;
+                }
+
+
                 const option =
                     document.createElement("option");
 
@@ -1930,7 +2831,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     '<option value="">Aucun nouveau créneau</option>';
 
                 messageCreneau.textContent =
-                    "Tous les créneaux disponibles de ce jour sont déjà sélectionnés.";
+                    "Tous les créneaux libres de ce jour sont déjà sélectionnés.";
 
             } else {
 

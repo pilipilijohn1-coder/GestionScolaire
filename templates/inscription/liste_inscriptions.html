@@ -38,6 +38,7 @@
                             <th>Type</th>
                             <th>Statut</th>
                             <th>Date</th>
+                            <th style="text-align:right;">Billet</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -45,6 +46,9 @@
                             <tr>
                                 <td>
                                     <strong>{{ inscription.eleve.nom }} {{ inscription.eleve.postnom|default:"" }} {{ inscription.eleve.prenom }}</strong>
+                                    <div style="font-family:'Courier New',monospace;font-size:11px;color:#64748b;">
+                                        {{ inscription.eleve.matricule }}
+                                    </div>
                                 </td>
                                 <td>{{ inscription.classe.libelle }}</td>
                                 <td>{{ inscription.annee.libelle }}</td>
@@ -61,6 +65,29 @@
                                     {% endif %}
                                 </td>
                                 <td>{{ inscription.date_inscription|date:"d/m/Y" }}</td>
+                                <td style="text-align:right; white-space:nowrap;">
+                                    {% if inscription.billet %}
+                                        <a
+                                            href="{% url 'billet_inscription' inscription.id %}"
+                                            class="btn btn-secondary"
+                                            target="_blank"
+                                            title="Billet {{ inscription.billet.numero }}"
+                                        >
+                                            <i class="fa-solid fa-receipt"></i>
+                                            {{ inscription.billet.numero }}
+                                        </a>
+                                    {% else %}
+                                        <a
+                                            href="{% url 'billet_inscription' inscription.id %}"
+                                            class="btn btn-primary"
+                                            target="_blank"
+                                            title="Générer le billet d'inscription"
+                                        >
+                                            <i class="fa-solid fa-ticket"></i>
+                                            Générer
+                                        </a>
+                                    {% endif %}
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>

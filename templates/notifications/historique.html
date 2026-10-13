@@ -1,0 +1,68 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}
+Historique des notifications
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/notifications.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="notifications-page">
+
+    <div class="page-header">
+        <div>
+            <h1>Historique des notifications</h1>
+            <p>
+                {% if nb_lues > 0 %}
+                    {{ nb_lues }} message(s) déjà lu(s), de la plus récente à la plus ancienne.
+                {% else %}
+                    Aucun message lu pour le moment.
+                {% endif %}
+            </p>
+        </div>
+        <a href="{% url 'liste_notifications' %}" class="btn btn-sm btn-outline">
+            <i class="fa-solid fa-bell"></i>
+            Notifications actives ({{ nb_non_lues }})
+        </a>
+    </div>
+
+    {% if notifications %}
+    <div class="notifications-list">
+        {% for notif in notifications %}
+        <div class="notification-card notification-card--lue">
+            <div class="notification-card__header">
+                <span class="notification-type {{ notif.notification.type_notification.code|lower }}">
+                    {{ notif.notification.type_notification.libelle }}
+                </span>
+                <span class="notification-date">
+                    {{ notif.notification.date_creation|date:"d/m/Y H:i" }}
+                </span>
+            </div>
+            <div class="notification-card__content">
+                <h3>{{ notif.notification.objet }}</h3>
+                <p>{{ notif.notification.contenu }}</p>
+            </div>
+            <div class="notification-card__actions">
+                {% if notif.notification.utilisateur_createur %}
+                <span class="notification-creator">
+                    Par : {{ notif.notification.utilisateur_createur }}
+                </span>
+                {% endif %}
+                <span class="badge badge-read">Lu</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="notifications-empty">
+        <i class="fas fa-box-archive"></i>
+        <p>Aucune notification dans l'historique pour le moment.</p>
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

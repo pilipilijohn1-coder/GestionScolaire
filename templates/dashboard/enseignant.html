@@ -49,10 +49,35 @@
         border: 1px solid #e5e7eb;
         box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         text-align: center;
+        transition: all 0.2s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        border-color: #2563eb;
     }
     .stat-icon {
-        font-size: 32px;
-        margin-bottom: 10px;
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        font-size: 24px;
+        line-height: 1;
+    }
+    .stat-icon.fa-book-open {
+        background: linear-gradient(135deg, #2563eb, #1e40af);
+        color: #ffffff;
+    }
+    .stat-icon.fa-school {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: #ffffff;
+    }
+    .stat-icon.fa-clipboard-check {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        color: #ffffff;
     }
     .stat-value {
         display: block;
@@ -83,14 +108,195 @@
     .action-card:hover {
         background: #f9fafb;
         border-color: #c7d2fe;
+        transform: translateY(-2px);
     }
     .action-icon {
-        font-size: 28px;
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         margin-bottom: 10px;
+        font-size: 24px;
+        line-height: 1;
+    }
+    .action-icon.fa-book-open {
+        background: linear-gradient(135deg, #2563eb, #1e40af);
+        color: #ffffff;
+    }
+    .action-icon.fa-clipboard-check {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        color: #ffffff;
+    }
+    .action-icon.fa-pen-to-square {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: #ffffff;
+    }
+    .action-icon.fa-user-graduate {
+        background: linear-gradient(135deg, #9333ea, #7e22ce);
+        color: #ffffff;
+    }
+    .action-icon.fa-calendar-days {
+        background: linear-gradient(135deg, #0891b2, #0e7490);
+        color: #ffffff;
+    }
+    .action-icon.fa-school {
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        color: #ffffff;
     }
     .action-title {
         font-weight: 600;
         font-size: 14px;
+    }
+
+    /* New styles for next creneau card */
+    .dashboard-main-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+
+    .next-creneau-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .next-creneau-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .next-creneau-header h2 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .next-creneau-header h2 i {
+        color: #2563eb;
+    }
+
+    .next-creneau-alert {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: #fef3c7;
+        color: #92400e;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 600;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+
+    .next-creneau-time {
+        background: #f0f9ff;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+        border: 1px solid #bae6fd;
+    }
+
+    .time-label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #0369a1;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 4px;
+    }
+
+    .time-value {
+        display: block;
+        font-size: 24px;
+        font-weight: 700;
+        color: #0c4a6e;
+    }
+
+    .next-creneau-details {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .detail-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        background: #f8fafc;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .detail-row i {
+        width: 20px;
+        color: #64748b;
+        text-align: center;
+    }
+
+    .detail-row span {
+        font-size: 14px;
+        color: #1e293b;
+        font-weight: 500;
+    }
+
+    .next-creneau-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #2563eb;
+        font-weight: 600;
+        font-size: 14px;
+        text-decoration: none;
+        padding: 10px 16px;
+        border: 1px solid #2563eb;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+
+    .next-creneau-link:hover {
+        background: #2563eb;
+        color: white;
+    }
+
+    .next-creneau-empty {
+        text-align: center;
+        padding: 30px;
+        color: #9ca3af;
+    }
+
+    .next-creneau-empty i {
+        font-size: 48px;
+        margin-bottom: 12px;
+        display: block;
+    }
+
+    @media (max-width: 900px) {
+        .dashboard-main-grid {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 {% endblock %}
@@ -109,54 +315,105 @@
 
     <div class="stats-grid">
         <div class="stat-card">
-            <div class="stat-icon">📚</div>
+            <div class="stat-icon"><i class="fa-solid fa-book-open"></i></div>
             <span class="stat-value">{{ nombre_affectations }}</span>
             <span class="stat-label">Affectations</span>
         </div>
         <div class="stat-card">
-            <div class="stat-icon">🏫</div>
+            <div class="stat-icon"><i class="fa-solid fa-school"></i></div>
             <span class="stat-value">{{ nombre_classes }}</span>
             <span class="stat-label">Classes</span>
         </div>
         <div class="stat-card">
-            <div class="stat-icon">📝</div>
+            <div class="stat-icon"><i class="fa-solid fa-clipboard-check"></i></div>
             <span class="stat-value">{{ nombre_evaluations }}</span>
             <span class="stat-label">Évaluations</span>
         </div>
     </div>
 
-    <div class="info-card">
-        <h2>Accès rapide</h2>
-        <p style="color:#6b7280;">Accédez rapidement à vos fonctionnalités.</p>
+    <div class="dashboard-main-grid">
+        <div class="next-creneau-card">
+            <div class="next-creneau-header">
+                <h2>
+                    <i class="fa-solid fa-clock"></i>
+                    Prochain créneau
+                </h2>
+                {% if prochain_creneau %}
+                <span class="next-creneau-alert">
+                    <i class="fa-solid fa-bell"></i>
+                    Cours dans {{ prochain_creneau.creneau.heure_debut|time:"H:i" }}
+                </span>
+                {% endif %}
+            </div>
+            
+            {% if prochain_creneau %}
+            <div class="next-creneau-content">
+                <div class="next-creneau-main">
+                    <div class="next-creneau-time">
+                        <span class="time-label">{{ prochain_creneau.jour }}</span>
+                        <span class="time-value">{{ prochain_creneau.creneau.heure_debut|time:"H:i" }} - {{ prochain_creneau.creneau.heure_fin|time:"H:i" }}</span>
+                    </div>
+                    <div class="next-creneau-details">
+                        <div class="detail-row">
+                            <i class="fa-solid fa-book"></i>
+                            <span>{{ prochain_creneau.affectation.affectation_matiere.matiere.libelle }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <i class="fa-solid fa-school"></i>
+                            <span>{{ prochain_creneau.affectation.affectation_matiere.classe.libelle }}</span>
+                        </div>
+                        {% if prochain_creneau.creneau.salle %}
+                        <div class="detail-row">
+                            <i class="fa-solid fa-door-open"></i>
+                            <span>Salle {{ prochain_creneau.creneau.salle }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <a href="{% url 'emploi_du_temps' %}" class="next-creneau-link">
+                    <i class="fa-solid fa-calendar-days"></i> Voir l'emploi du temps
+                </a>
+            </div>
+            {% else %}
+            <div class="next-creneau-empty">
+                <i class="fa-solid fa-calendar-check"></i>
+                <p>Aucun cours prévu pour le moment.</p>
+            </div>
+            {% endif %}
+        </div>
 
-        <div class="actions-grid">
-            <a href="{% url 'mes_affectations' %}" class="action-card">
-                <div class="action-icon">📚</div>
-                <div class="action-title">Mes affectations</div>
-            </a>
-            <a href="{% url 'mes_evaluations' %}" class="action-card">
-                <div class="action-icon">📝</div>
-                <div class="action-title">Mes évaluations</div>
-            </a>
-            <a href="{% url 'mes_evaluations' %}" class="action-card">
-                <div class="action-icon">✏️</div>
-                <div class="action-title">Saisie des notes</div>
-            </a>
-            <a href="{% url 'mes_eleves' %}" class="action-card">
-                <div class="action-icon">👨‍🎓</div>
-                <div class="action-title">Mes élèves</div>
-            </a>
-            <a href="{% url 'emploi_du_temps' %}" class="action-card">
-                <div class="action-icon">📅</div>
-                <div class="action-title">Emploi du temps</div>
-            </a>
-            <a href="{% url 'ma_classe' %}" class="action-card">
-                <div class="action-icon">🏫</div>
-                <div class="action-title">Ma classe</div>
-            </a>
+        <div class="info-card">
+            <h2>Accès rapide</h2>
+            <p style="color:#6b7280;">Accédez rapidement à vos fonctionnalités.</p>
+
+            <div class="actions-grid">
+                <a href="{% url 'mes_affectations' %}" class="action-card">
+                    <div class="action-icon"><i class="fa-solid fa-book-open"></i></div>
+                    <div class="action-title">Mes affectations</div>
+                </a>
+                <a href="{% url 'mes_evaluations' %}" class="action-card">
+                    <div class="action-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+                    <div class="action-title">Mes évaluations</div>
+                </a>
+                <a href="{% url 'mes_evaluations' %}" class="action-card">
+                    <div class="action-icon"><i class="fa-solid fa-pen-to-square"></i></div>
+                    <div class="action-title">Saisie des notes</div>
+                </a>
+                <a href="{% url 'mes_eleves' %}" class="action-card">
+                    <div class="action-icon"><i class="fa-solid fa-user-graduate"></i></div>
+                    <div class="action-title">Mes élèves</div>
+                </a>
+                <a href="{% url 'emploi_du_temps' %}" class="action-card">
+                    <div class="action-icon"><i class="fa-solid fa-calendar-days"></i></div>
+                    <div class="action-title">Emploi du temps</div>
+                </a>
+                <a href="{% url 'ma_classe' %}" class="action-card">
+                    <div class="action-icon"><i class="fa-solid fa-school"></i></div>
+                    <div class="action-title">Ma classe</div>
+                </a>
+            </div>
         </div>
     </div>
-</div>
 
 <!-- BOUTON FLOTTANT : MON PROFIL -->
 <div class="profile-float">

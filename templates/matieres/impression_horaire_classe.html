@@ -1,0 +1,319 @@
+{% load static %}<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Horaire — {{ classe.libelle }}</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 10mm;
+        }
+
+        @page {
+            size: A4 landscape;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            /* Force le gabarit A4 paysage quelle que soit la
+               fenetre du navigateur. */
+            width: 297mm;
+        }
+
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            color: #0f172a;
+            font-size: 10.5px;
+            background: #ffffff;
+            /* Sans cela les fonds et les couleurs de tableau
+               disparaissent a l'impression. */
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .entete {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #0f766e;
+            margin-bottom: 14px;
+        }
+
+        .entete h1 {
+            font-size: 17px;
+            color: #115e59;
+        }
+
+        .entete p {
+            font-size: 10px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .titre-document {
+            font-size: 14px;
+            font-weight: 700;
+            color: #115e59;
+            text-align: right;
+        }
+
+        .meta {
+            font-size: 10px;
+            color: #64748b;
+            text-align: right;
+            margin-top: 2px;
+        }
+
+        .classe-bloc {
+            margin-bottom: 12px;
+        }
+
+        .classe-bloc span {
+            display: inline-block;
+            margin-right: 18px;
+            font-size: 11px;
+        }
+
+        .classe-bloc strong {
+            color: #115e59;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        thead th {
+            background: #0f766e;
+            color: #ffffff;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            padding: 7px 4px;
+            text-align: center;
+            border: 1px solid #0f766e;
+        }
+
+        thead th.heure {
+            width: 78px;
+        }
+
+        tbody td {
+            border: 1px solid #cbd5e1;
+            padding: 5px 4px;
+            vertical-align: top;
+            text-align: center;
+        }
+
+        tbody td.heure {
+            background: #f1f5f9;
+            font-weight: 700;
+            font-size: 10px;
+            white-space: nowrap;
+        }
+
+        tbody td.occupe {
+            background: #f0fdfa;
+        }
+
+        tbody td.libre {
+            background: #ffffff;
+        }
+
+        /* La pause barre toute la largeur de la journee. */
+        td.pause {
+            background: #fef3c7;
+            color: #92400e;
+            font-size: 9.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            text-align: center;
+        }
+
+        tr.ligne-pause td.heure {
+            background: #fef9e7;
+        }
+
+        .matiere {
+            display: block;
+            font-weight: 600;
+            font-size: 10.5px;
+            color: #0f172a;
+        }
+
+        .enseignant {
+            display: block;
+            font-size: 8.5px;
+            color: #64748b;
+            margin-top: 1px;
+        }
+
+        .pied {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #cbd5e1;
+            font-size: 9.5px;
+            color: #64748b;
+        }
+
+        .barre-outils {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #115e59;
+            color: #ffffff;
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .18);
+            z-index: 10;
+        }
+
+        .barre-outils button {
+            color: #ffffff;
+            background: rgba(255, 255, 255, .14);
+            border: 1px solid rgba(255, 255, 255, .3);
+            border-radius: 5px;
+            padding: 6px 13px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .barre-outils button:hover {
+            background: rgba(255, 255, 255, .26);
+        }
+
+        @media print {
+            .barre-outils {
+                display: none;
+            }
+
+            html,
+            body {
+                width: auto;
+            }
+
+            thead {
+                display: table-header-group;
+            }
+
+            tbody tr {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="barre-outils">
+    <button type="button" onclick="window.close()">Fermer</button>
+    <button type="button" onclick="window.print()">Imprimer</button>
+</div>
+
+<div style="height:44px;"></div>
+
+<div class="entete">
+    <div>
+        <h1>Emploi du temps</h1>
+        <p>{{ classe.annee.libelle }}</p>
+    </div>
+    <div>
+        <div class="titre-document">{{ classe.libelle }}</div>
+        <div class="meta">
+            {% if classe.niveau %}{{ classe.niveau.libelle }}{% endif %}
+            {% if classe.section %} — Section {{ classe.section.libelle }}{% endif %}
+        </div>
+        <div class="meta">Édité le {{ imprime_le|date:"d/m/Y à H:i" }}</div>
+    </div>
+</div>
+
+<div class="classe-bloc">
+    <span>Code : <strong>{{ classe.code }}</strong></span>
+    <span>Créneaux occupés : <strong>{{ nb_creneaux }}</strong></span>
+    <span>Volume hebdomadaire : <strong>{{ volume_total|floatformat:"-2" }} h</strong></span>
+</div>
+
+{% if grille %}
+    <table>
+        <colgroup>
+            <col style="width: 74px;">
+            {% for ligne in grille %}{% if not ligne.est_pause %}<col>{% endif %}{% endfor %}
+        </colgroup>
+        <thead>
+            <tr>
+                <th class="heure">Horaire</th>
+                {% for code, libelle in jours_libelles.items %}
+                    <th>{{ libelle }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for ligne in grille %}
+                {% if ligne.est_pause %}
+                    <tr class="ligne-pause">
+                        <td class="heure">
+                            {{ ligne.creneau.heure_debut|date:"H:i" }}<br>
+                            {{ ligne.creneau.heure_fin|date:"H:i" }}
+                        </td>
+                        <td colspan="{{ nb_jours }}" class="pause">
+                            {{ ligne.creneau }}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td class="heure">
+                            {{ ligne.creneau.heure_debut|date:"H:i" }}<br>
+                            {{ ligne.creneau.heure_fin|date:"H:i" }}
+                        </td>
+                        {% for cellule in ligne.cellules %}
+                            <td class="{% if cellule.cours %}occupe{% else %}libre{% endif %}">
+                                {% if cellule.cours %}
+                                    <span class="matiere">
+                                        {{ cellule.cours.affectation.affectation_matiere.matiere.libelle }}
+                                    </span>
+                                    <span class="enseignant">
+                                        {{ cellule.cours.affectation.enseignant }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p style="padding:18px; text-align:center; color:#94a3b8; border:1px solid #cbd5e1;">
+        Aucun créneau de cours n'est configuré pour cette année scolaire.
+    </p>
+{% endif %}
+
+<div class="pied">
+    <div>
+        Signature du titulaire :
+        <div style="margin-top:28px; border-top:1px solid #94a3b8; width:190px;"></div>
+    </div>
+    <div style="text-align:right;">
+        Document éditable<br>
+        École de gestion scolaire
+    </div>
+</div>
+
+</body>
+</html>

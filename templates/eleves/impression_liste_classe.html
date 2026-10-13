@@ -1,0 +1,396 @@
+{% load static %}<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des élèves — {{ classe.libelle }}</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 10mm;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        html,
+        body {
+            /* Gabarit A4 paysage impose, independamment de la
+               fenetre du navigateur. */
+            width: 297mm;
+        }
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            color: #0f172a;
+            font-size: 11px;
+            background: #ffffff;
+            /* Sans cela les fonds de tableau disparaissent a
+               l'impression. */
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        /* ---------- Bandeau d'en-tete ---------- */
+
+        .entete {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #1d4ed8;
+            margin-bottom: 16px;
+        }
+
+        .etablissement h1 {
+            font-size: 17px;
+            color: #1e3a8a;
+            letter-spacing: .01em;
+        }
+
+        .etablissement p {
+            font-size: 10px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .entete-droite {
+            text-align: right;
+        }
+
+        .titre-document {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .meta {
+            font-size: 10px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        /* ---------- Bandeau de contexte ---------- */
+
+        .bandeau {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0;
+            border: 1px solid #dbe3ef;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .bandeau-cellule {
+            flex: 1 1 160px;
+            padding: 8px 12px;
+            border-right: 1px solid #e8eef7;
+            background: #f8fafc;
+        }
+
+        .bandeau-cellule:last-child {
+            border-right: none;
+        }
+
+        .bandeau-label {
+            font-size: 8.5px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: #64748b;
+            font-weight: 700;
+        }
+
+        .bandeau-valeur {
+            font-size: 12px;
+            font-weight: 600;
+            color: #0f172a;
+            margin-top: 2px;
+        }
+
+        /* ---------- Tableau ---------- */
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            background: #1e3a8a;
+            color: #ffffff;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            padding: 7px 6px;
+            text-align: left;
+            border: 1px solid #1e3a8a;
+        }
+
+        thead th.centre,
+        tbody td.centre {
+            text-align: center;
+        }
+
+        tbody td {
+            border: 1px solid #dbe3ef;
+            padding: 5px 6px;
+            vertical-align: top;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .num {
+            width: 26px;
+            font-weight: 700;
+            color: #64748b;
+            text-align: center;
+        }
+
+        .matricule {
+            font-family: "Courier New", monospace;
+            font-weight: 700;
+            color: #1e3a8a;
+            white-space: nowrap;
+        }
+
+        .nom {
+            font-weight: 600;
+        }
+
+        .secondaire {
+            color: #64748b;
+            font-size: 9.5px;
+        }
+
+        .vide {
+            color: #94a3b8;
+        }
+
+        .principal-marque {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            border-radius: 3px;
+            padding: 0 5px;
+            font-size: 8.5px;
+            font-weight: 700;
+            margin-right: 4px;
+        }
+
+        /* ---------- Pied de page ---------- */
+
+        .pied {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 22px;
+            padding-top: 10px;
+            border-top: 1px solid #dbe3ef;
+            font-size: 9.5px;
+            color: #64748b;
+        }
+
+        .signatures {
+            display: flex;
+            gap: 40px;
+            margin-top: 6px;
+        }
+
+        .signature {
+            width: 150px;
+            text-align: center;
+            font-size: 9px;
+        }
+
+        .signature-ligne {
+            border-top: 1px solid #94a3b8;
+            margin-top: 26px;
+        }
+
+        /* ---------- Boutons hors impression ---------- */
+
+        .barre-outils {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #1e3a8a;
+            color: #ffffff;
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: "Segoe UI", sans-serif;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .18);
+            z-index: 10;
+        }
+
+        .barre-outils a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, .14);
+            border: 1px solid rgba(255, 255, 255, .3);
+            border-radius: 5px;
+            padding: 6px 13px;
+        }
+
+        .barre-outils a:hover {
+            background: rgba(255, 255, 255, .26);
+        }
+
+        @media print {
+            .barre-outils {
+                display: none;
+            }
+
+            thead {
+                display: table-header-group;
+            }
+
+            tbody tr {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="barre-outils">
+    <a href="{% url 'eleves_par_classe' classe.id %}">&larr; Retour à la liste</a>
+    <a href="#" onclick="window.print()">Imprimer cette liste</a>
+</div>
+
+<div style="height:44px;"></div>
+
+<div class="entete">
+    <div class="etablissement">
+        <h1>{{ etablissement|default:"Établissement" }}</h1>
+        <p>{{ annee.libelle }}</p>
+    </div>
+    <div class="entete-droite">
+        <div class="titre-document">Liste des élèves</div>
+        <div class="meta">
+            Édité le {{ maintenant|date:"d/m/Y à H:i" }}
+        </div>
+    </div>
+</div>
+
+<div class="bandeau">
+    <div class="bandeau-cellule">
+        <div class="bandeau-label">Classe</div>
+        <div class="bandeau-valeur">{{ classe.libelle }}</div>
+    </div>
+    <div class="bandeau-cellule">
+        <div class="bandeau-label">Niveau</div>
+        <div class="bandeau-valeur">{{ classe.niveau.libelle|default:"—" }}</div>
+    </div>
+    <div class="bandeau-cellule">
+        <div class="bandeau-label">Section</div>
+        <div class="bandeau-valeur">{{ classe.section.libelle|default:"—" }}</div>
+    </div>
+    <div class="bandeau-cellule">
+        <div class="bandeau-label">Code</div>
+        <div class="bandeau-valeur">{{ classe.code }}</div>
+    </div>
+    <div class="bandeau-cellule">
+        <div class="bandeau-label">Effectif</div>
+        <div class="bandeau-valeur">{{ inscriptions|length }} élève{{ inscriptions|length|pluralize }}</div>
+    </div>
+    <div class="bandeau-cellule">
+        <div class="bandeau-label">Filles / Garçons</div>
+        <div class="bandeau-valeur">{{ nb_filles }} / {{ nb_garcons }}</div>
+    </div>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th class="centre num">N°</th>
+            <th>Matricule</th>
+            <th>Nom et prénom</th>
+            <th class="centre">Sexe</th>
+            <th>Date de naissance</th>
+            <th>Lieu de naissance</th>
+            <th>Adresse</th>
+            <th>Téléphone</th>
+            <th>Email</th>
+            <th>Responsable légal</th>
+            <th>Contact du responsable</th>
+            <th>Date d'inscription</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for inscription in inscriptions %}
+            <tr>
+                <td class="centre num">{{ forloop.counter }}</td>
+                <td class="matricule">{{ inscription.eleve.matricule }}</td>
+                <td>
+                    <span class="nom">{{ inscription.eleve.nom|title }} {{ inscription.eleve.prenom|title }}</span>
+                    {% if inscription.eleve.postnom %}
+                        <div class="secondaire">{{ inscription.eleve.postnom|title }}</div>
+                    {% endif %}
+                </td>
+                <td class="centre">{{ inscription.eleve.get_sexe_display|default:"—" }}</td>
+                <td>{{ inscription.eleve.date_naissance|date:"d/m/Y"|default:"—" }}</td>
+                <td>{{ inscription.eleve.lieu_naissance|default:"—" }}</td>
+                <td>{{ inscription.eleve.adresse|default:"—" }}</td>
+                <td>{{ inscription.eleve.telephone|default:"—" }}</td>
+                <td>{{ inscription.eleve.email|default:"—" }}</td>
+                <td>
+                    {% if inscription.responsable_principal %}
+                        <span class="principal-marque">
+                            {{ inscription.responsable_principal.get_type_responsabilite_display }}
+                        </span>
+                        {{ inscription.responsable_principal.responsable.nom|title }}
+                        {{ inscription.responsable_principal.responsable.prenom|title }}
+                    {% else %}
+                        <span class="vide">Aucun responsable rattaché</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if inscription.responsable_principal %}
+                        {{ inscription.responsable_principal.responsable.telephone|default:"—" }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td>{{ inscription.date_inscription|date:"d/m/Y"|default:"—" }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="12" style="text-align:center; padding:22px; color:#94a3b8;">
+                    Aucun élève inscrit dans cette classe.
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="pied">
+    <div>
+        <strong>Total :</strong> {{ inscriptions|length }} élève{{ inscriptions|length|pluralize }}
+        &nbsp;·&nbsp; {{ nb_filles }} fille{{ nb_filles|pluralize }}
+        &nbsp;·&nbsp; {{ nb_garcons }} garçon{{ nb_garcons|pluralize }}
+        <div class="signatures">
+            <div class="signature">
+                Le titulaire de classe
+                <div class="signature-ligne"></div>
+            </div>
+            <div class="signature">
+                Le chef d'établissement
+                <div class="signature-ligne"></div>
+            </div>
+        </div>
+    </div>
+    <div style="text-align:right;">
+        Document éditable<br>
+        École de gestion scolaire
+    </div>
+</div>
+
+</body>
+</html>

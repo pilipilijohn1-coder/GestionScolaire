@@ -2,6 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 
 from django.db import models
+from django.db.utils import IntegrityError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
 from django.db.models import Q
@@ -238,6 +239,19 @@ class Matiere(models.Model):
 class AffectationMatiere(models.Model):
 
     # =========================================================
+    # PLAFONDS HEBDOMADAIRES
+    #
+    # Une erreur de saisie suffit à rendre un cours impossible à
+    # programmer : un volume de 20 ou 40 heures n'a aucun sens dans
+    # une semaine de classe. Ces deux plafonds bornent donc le volume
+    # déclaré comme le nombre de créneaux réellement occupés, quelle
+    # que soit la saisie.
+    # =========================================================
+
+    HEURES_MAX_PAR_SEMAINE = 5
+    CRENEAUX_MAX = 5
+
+    # =========================================================
     # CLASSE
     # =========================================================
     classe = models.ForeignKey(
@@ -293,6 +307,18 @@ class AffectationMatiere(models.Model):
         if self.heures_par_semaine < 1:
             errors["heures_par_semaine"] = (
                 "Le nombre d'heures par semaine doit être supérieur à zéro."
+            )
+
+        if (
+            self.heures_par_semaine
+            > self.HEURES_MAX_PAR_SEMAINE
+        ):
+            errors["heures_par_semaine"] = (
+                f"Une matière ne peut pas dépasser "
+                f"{self.HEURES_MAX_PAR_SEMAINE} heures par semaine "
+                f"en classe. Vous avez saisi "
+                f"{self.heures_par_semaine} heures, ce qui est "
+                f"probablement une erreur de frappe."
             )
 
         if errors:
@@ -427,6 +453,10 @@ class ResponsableLegal(models.Model):
     )
     prenom = models.CharField(max_length=80)
 
+    # Le telephone est l'identifiant du responsable : les inscriptions
+    # le reutilisent pour retrouver le parent deja connu au lieu de le
+    # dupliquer. La contrainte doit rester declaree ici, sans quoi la
+    # base la refuse while les formulaires ne podem pas l'expliquer.
     telephone = models.CharField(
         max_length=30,
         blank=True,
@@ -456,6 +486,16 @@ class ResponsableLegal(models.Model):
     class Meta:
         db_table = "responsable_legal"
         ordering = ["nom", "prenom"]
+
+        constraints = [
+            # Un numero absent n'identifie personne : la contrainte ne
+            # porte que sur les responsables renseignes.
+            models.UniqueConstraint(
+                fields=["telephone"],
+                condition=Q(telephone__isnull=False),
+                name="uq_responsable_telephone",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.nom} {self.prenom}"
@@ -610,6 +650,147 @@ class Inscription(models.Model):
 
     def __str__(self):
         return f"{self.eleve} - {self.annee}"
+
+
+class BilletInscription(models.Model):
+    """Billet d'inscription remis a l'eleve apres son inscription.
+
+    Ce document atteste que le dossier a ete enregistre et donne la
+    main sur l'annee et la classe concernees. Il ne dit rien d'un
+    paiement : les recus de versement relevent du modele Recu, rattache
+    a un Paiement. Confondre les deux obligeait a inventer un paiement
+    pour chaque inscription, y compris celles qui n'ont rien verse.
+    """
+
+    BROUILLON = "BROUILLON"
+    VALIDE = "VALIDE"
+    ANNULE = "ANNULE"
+
+    STATUT_CHOICES = [
+        (BROUILLON, "Brouillon"),
+        (VALIDE, "Validé"),
+        (ANNULE, "Annulé"),
+    ]
+
+    inscription = models.OneToOneField(
+        Inscription,
+        on_delete=models.PROTECT,
+        related_name="billet",
+    )
+
+    numero = models.CharField(
+        max_length=50,
+        unique=True,
+    )
+
+    date_generation = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    genere_par = models.ForeignKey(
+        "Utilisateur",
+        on_delete=models.PROTECT,
+        related_name="billets_inscription",
+        blank=True,
+        null=True,
+    )
+
+    statut = models.CharField(
+        max_length=20,
+        choices=STATUT_CHOICES,
+        default=VALIDE,
+    )
+
+    class Meta:
+        db_table = "billet_inscription"
+        ordering = ["-date_generation"]
+
+    def __str__(self):
+        return f"{self.numero} - {self.inscription}"
+
+    @classmethod
+    def generer_numero(cls, inscription):
+        """Numero du billet, au format BI + annee de fin + sequence.
+
+        L'annee de fin est reprise de la matricule des eleves : le
+        prefixe change donc a chaque rentree, ce qui rend un numero
+        d'une annee obsolete identifiable d'un coup d'oeil.
+        """
+        annee = getattr(inscription, "annee", None)
+
+        if annee and hasattr(annee, "date_fin"):
+            yy = str(annee.date_fin.year)[-2:]
+        else:
+            yy = str(datetime.now().year + 1)[-2:]
+
+        prefixe = f"BI{yy}"
+        dernier = (
+            cls.objects
+            .filter(numero__startswith=prefixe)
+            .order_by("-id")
+            .first()
+        )
+
+        if dernier is None:
+            numero = 1
+        else:
+            suffixe = dernier.numero[len(prefixe):]
+            try:
+                numero = int(suffixe) + 1
+            except ValueError:
+                numero = 1
+
+        while cls.objects.filter(numero=f"{prefixe}{numero:04d}").exists():
+            numero += 1
+
+        return f"{prefixe}{numero:04d}"
+
+    @classmethod
+    def generer(cls, inscription, utilisateur=None):
+        """Retourne le billet de l'inscription, en le creant au besoin.
+
+        Le second element du retour indique si le billet vient d'etre
+        cree : l'appelant peut ainsi distinguer une premiere emission
+        d'une simple reconsultation.
+
+        Deux secretaires qui ouvrent le billet au meme instant doivent
+        obtenir un seul et meme document. Le OneToOne le garantit en
+        base, mais la creation peut encore echouer sur le numero, pris
+        entre-temps par un autre billet : on retente alors.
+        """
+        existant = cls.objects.filter(inscription=inscription).first()
+
+        if existant is not None:
+            return existant, False
+
+        for _ in range(5):
+            billet = cls(
+                inscription=inscription,
+                numero=cls.generer_numero(inscription),
+                genere_par=utilisateur,
+                statut=cls.VALIDE,
+            )
+
+            try:
+                billet.save()
+            except IntegrityError:
+                # Le billet a pu etre cree entre-temps, ou le numero
+                # est parti a une autre inscription.
+                confident = cls.objects.filter(
+                    inscription=inscription
+                ).first()
+
+                if confident is not None:
+                    return confident, False
+
+                continue
+
+            return billet, True
+
+        raise ValidationError(
+            "Impossible d'attribuer un numero de billet. "
+            "Veuillez réessayer."
+        )
 
 
 # ============================================================
@@ -1336,20 +1517,15 @@ class Evaluation(models.Model):
     def clean(self):
         errors = {}
 
-        if self.periode_id and self.affectation_id:
+        if (
+            self.periode_id
+            and self.affectation_id
+            and self.affectation.affectation_matiere_id
+        ):
 
             if (
                 self.periode.semestre.annee_id
-                != self.affectation.annee_id
-            ):
-                errors["periode"] = (
-                    "La période doit appartenir à la même "
-                    "année scolaire que l'affectation."
-                )
-
-            if (
-                self.periode.semestre.annee_id
-                != self.affectation.classe.annee_id
+                != self.affectation.affectation_matiere.classe.annee_id
             ):
                 errors["periode"] = (
                     "La période et la classe doivent "
@@ -1413,9 +1589,10 @@ class ResultatEvaluation(models.Model):
         if (
             self.evaluation_id
             and self.inscription_id
+            and self.evaluation.affectation.affectation_matiere_id
         ):
             if (
-                self.evaluation.affectation.classe_id
+                self.evaluation.affectation.affectation_matiere.classe_id
                 != self.inscription.classe_id
             ):
                 errors["inscription"] = (
@@ -1424,7 +1601,7 @@ class ResultatEvaluation(models.Model):
                 )
 
             if (
-                self.evaluation.affectation.annee_id
+                self.evaluation.affectation.affectation_matiere.classe.annee_id
                 != self.inscription.annee_id
             ):
                 errors["inscription"] = (
@@ -1501,20 +1678,15 @@ class Examen(models.Model):
     def clean(self):
         errors = {}
 
-        if self.semestre_id and self.affectation_id:
+        if (
+            self.semestre_id
+            and self.affectation_id
+            and self.affectation.affectation_matiere_id
+        ):
 
             if (
                 self.semestre.annee_id
-                != self.affectation.annee_id
-            ):
-                errors["semestre"] = (
-                    "Le semestre doit appartenir à la même "
-                    "année que l'affectation."
-                )
-
-            if (
-                self.semestre.annee_id
-                != self.affectation.classe.annee_id
+                != self.affectation.affectation_matiere.classe.annee_id
             ):
                 errors["semestre"] = (
                     "Le semestre et la classe doivent "
@@ -1578,9 +1750,10 @@ class ResultatExamen(models.Model):
         if (
             self.examen_id
             and self.inscription_id
+            and self.examen.affectation.affectation_matiere_id
         ):
             if (
-                self.examen.affectation.classe_id
+                self.examen.affectation.affectation_matiere.classe_id
                 != self.inscription.classe_id
             ):
                 errors["inscription"] = (
@@ -1589,7 +1762,7 @@ class ResultatExamen(models.Model):
                 )
 
             if (
-                self.examen.affectation.annee_id
+                self.examen.affectation.affectation_matiere.classe.annee_id
                 != self.inscription.annee_id
             ):
                 errors["inscription"] = (
@@ -3273,6 +3446,30 @@ class RepartitionHoraire(models.Model):
                     f"a déjà atteint son volume horaire "
                     f"hebdomadaire de "
                     f"{heures_prevues} heure(s)."
+                )
+
+            # -------------------------------------------------
+            # PLAFOND ABSOLU DE CRÉNEAUX
+            #
+            # Le volume saisi peut être faux : sans ce plafond,
+            # un cours à 40 heures accepterait des dizaines de
+            # créneaux et rendrait la grille illisible.
+            # -------------------------------------------------
+
+            if (
+                nombre_heures
+                >= affectation_matiere.CRENEAUX_MAX
+                and "affectation" not in errors
+            ):
+
+                errors["affectation"] = (
+                    f"La matière "
+                    f"« {affectation_matiere.matiere.libelle} » "
+                    f"occupe déjà "
+                    f"{nombre_heures} créneaux. Un cours ne "
+                    f"peut pas dépasser "
+                    f"{affectation_matiere.CRENEAUX_MAX} créneaux "
+                    f"par semaine."
                 )
 
         # =====================================================

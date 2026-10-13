@@ -7,6 +7,7 @@
         <span class="mcl-modal-count">
             {{ nb_cours|default:matieres|length }} cours
             &mdash; {{ nb_affectes|default:0 }} affect&eacute;s
+            &mdash; {{ nb_programmes|default:0 }} programm&eacute;s
         </span>
     </div>
 
@@ -23,6 +24,51 @@
                     </div>
                 </div>
 
+                <div class="mcl-modal-enseignant">
+                    <span class="mcl-modal-label">Enseignant</span>
+                    {% if ligne.enseignant %}
+                        <strong>{{ ligne.enseignant }}</strong>
+                    {% else %}
+                        <strong class="mcl-modal-vide">Non affecté</strong>
+                    {% endif %}
+                </div>
+
+                <div class="mcl-modal-enseignant">
+                    <span class="mcl-modal-label">Heures par semaine</span>
+                    {% if ligne.volume %}
+                        <strong>{{ ligne.volume }} h</strong>
+                    {% else %}
+                        <strong class="mcl-modal-vide">Non défini</strong>
+                    {% endif %}
+                </div>
+
+                <div class="mcl-modal-enseignant">
+                    <span class="mcl-modal-label">Jours</span>
+                    {% if ligne.jours_distincts %}
+                        <strong>
+                            {{ ligne.jours_distincts|join:", " }}
+                        </strong>
+                    {% else %}
+                        <strong class="mcl-modal-vide">Aucun jour placé</strong>
+                    {% endif %}
+                </div>
+
+                <div class="mcl-modal-enseignant mcl-modal-creneaux">
+                    <span class="mcl-modal-label">Créneaux occupés</span>
+                    {% if ligne.creneaux %}
+                        <ul class="mcl-modal-liste-creneaux">
+                            {% for creneau in ligne.creneaux %}
+                                <li>
+                                    {{ creneau.jour_libelle }}
+                                    <em>{{ creneau.heure_debut }} &ndash; {{ creneau.heure_fin }}</em>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <strong class="mcl-modal-vide">Aucun créneau placé</strong>
+                    {% endif %}
+                </div>
+
                 <div class="mcl-modal-meta">
                     {% if ligne.ponderation %}
                         <span>
@@ -33,20 +79,16 @@
                             <i class="fas fa-file-pen"></i>
                             Examen : {{ ligne.ponderation.examen_max }}
                         </span>
-                        <span>
-                            <i class="fas fa-star"></i>
-                            Total : {{ ligne.ponderation.total_semestre_max }}
-                        </span>
                     {% endif %}
-                    {% if ligne.affectation %}
+                    {% if ligne.creneaux %}
                         <span class="ok">
-                            <i class="fas fa-user-check"></i>
-                            {{ ligne.affectation.heures_par_semaine }} h/semaine
+                            <i class="fas fa-calendar-check"></i>
+                            Programmé
                         </span>
                     {% else %}
                         <span class="warn">
-                            <i class="fas fa-user-slash"></i>
-                            Sans enseignant
+                            <i class="fas fa-calendar-xmark"></i>
+                            À placer
                         </span>
                     {% endif %}
                 </div>
@@ -101,13 +143,63 @@
 
     .mcl-modal-card {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
+        flex-wrap: wrap;
         gap: 14px;
         padding: 13px;
         border: 1px solid #e2e8f0;
         border-radius: 12px;
         background: #ffffff;
+    }
+
+    .mcl-modal-enseignant {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 105px;
+        font-size: 12px;
+        color: #1e293b;
+    }
+
+    .mcl-modal-enseignant strong {
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    .mcl-modal-label {
+        font-size: 9.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        color: #94a3b8;
+    }
+
+    .mcl-modal-vide {
+        color: #94a3b8;
+        font-weight: 500;
+    }
+
+    .mcl-modal-creneaux {
+        min-width: 175px;
+    }
+
+    .mcl-modal-liste-creneaux {
+        list-style: none;
+        padding: 0;
+        margin: 2px 0 0;
+        font-size: 11.5px;
+        color: #475569;
+    }
+
+    .mcl-modal-liste-creneaux li {
+        line-height: 1.5;
+    }
+
+    .mcl-modal-liste-creneaux em {
+        font-style: normal;
+        color: #94a3b8;
+        font-size: 10.5px;
     }
 
     .mcl-modal-card-main {

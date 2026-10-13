@@ -6,6 +6,246 @@
 {% block extra_css %}
 <style>
     .page-container { max-width: 1200px; margin: 0 auto; }
+
+    /* Modal styles */
+    .gm-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1050;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(15, 23, 42, 0.58);
+    }
+
+    .gm-overlay.open {
+        display: flex;
+    }
+
+    .gm-modal {
+        width: 100%;
+        max-width: 900px;
+        max-height: 88vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        background: #ffffff;
+        border-radius: 18px;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+    }
+
+    .gm-modal-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 20px 22px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .gm-modal-title {
+        margin: 0;
+        color: #1e293b;
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    .gm-modal-subtitle {
+        margin: 5px 0 0;
+        color: #64748b;
+        font-size: 13px;
+    }
+
+    .gm-modal-close {
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 17px;
+        cursor: pointer;
+    }
+
+    .gm-modal-close:hover {
+        background: #e2e8f0;
+        color: #1e293b;
+    }
+
+    .gm-modal-body {
+        min-height: 200px;
+        overflow-y: auto;
+        padding: 20px 22px;
+    }
+
+    .gm-modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 14px 22px;
+        border-top: 1px solid #e2e8f0;
+        background: #f8fafc;
+    }
+
+    .gm-loading {
+        padding: 28px;
+        text-align: center;
+        color: #64748b;
+    }
+
+    body.gm-overlay-open {
+        overflow: hidden;
+    }
+
+    .emploi-grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 16px;
+    }
+
+    .emploi-classe-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    .emploi-classe-card h4 {
+        margin: 0 0 12px;
+        font-size: 16px;
+        font-weight: 700;
+        color: #1e293b;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .emploi-matieres-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .emploi-matieres-list li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .emploi-matieres-list li:last-child {
+        border-bottom: none;
+    }
+
+    .matiere-nom {
+        font-size: 14px;
+        color: #1e293b;
+        font-weight: 500;
+    }
+
+    .matiere-heures {
+        font-size: 13px;
+        color: #2563eb;
+        font-weight: 600;
+        background: #eff6ff;
+        padding: 2px 8px;
+        border-radius: 999px;
+    }
+
+    .gm-empty {
+        padding: 30px;
+        text-align: center;
+        color: #9ca3af;
+    }
+
+    /* Schedule grid styles */
+    .emploi-schedule-container {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .emploi-classe-grid {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    .emploi-classe-title {
+        margin: 0 0 16px;
+        font-size: 16px;
+        font-weight: 700;
+        color: #1e293b;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .emploi-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+
+    .emploi-table th,
+    .emploi-table td {
+        padding: 8px 10px;
+        border: 1px solid #e2e8f0;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .emploi-table th {
+        background: #f1f5f9;
+        font-weight: 600;
+        color: #64748b;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .emploi-creneau-header {
+        background: #f8fafc !important;
+        font-weight: 600;
+    }
+
+    .emploi-creneau-cell {
+        font-size: 11px;
+        color: #64748b;
+        background: #f8fafc;
+        font-weight: 600;
+        white-space: nowrap;
+        min-width: 90px;
+    }
+
+    .emploi-cours-cell {
+        font-size: 12px;
+        color: #1e293b;
+        font-weight: 500;
+        background: #f0f9ff;
+    }
+
+    .emploi-cours-vide {
+        color: #cbd5e1;
+        background: #ffffff;
+    }
+
+    @media (max-width: 768px) {
+        .emploi-table {
+            font-size: 11px;
+        }
+        .emploi-table th,
+        .emploi-table td {
+            padding: 6px 4px;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -27,6 +267,9 @@
                 <h2>Liste des affectations</h2>
                 <p>{{ affectations|length }} affectation{{ affectations|length|pluralize }}</p>
             </div>
+            <button type="button" class="btn btn-secondary" onclick="openEmploiGrid()">
+                <i class="fa-solid fa-table-cells-large"></i> Affectation hebdomadaire
+            </button>
         </div>
 
         {% if affectations %}
@@ -83,4 +326,131 @@
     </div>
 
 </div>
+
+<div class="gm-overlay" id="emploiGridOverlay" aria-hidden="true">
+    <section class="gm-modal" role="dialog" aria-modal="true" aria-labelledby="emploiGridTitle">
+        <header class="gm-modal-header">
+            <div>
+                <h2 class="gm-modal-title" id="emploiGridTitle">Affectation hebdomadaire</h2>
+                <p class="gm-modal-subtitle">Vue planning de vos cours par classe</p>
+            </div>
+            <button type="button" class="gm-modal-close" onclick="closeEmploiGrid()" aria-label="Fermer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </header>
+        <div class="gm-modal-body" id="emploiGridBody">
+            <div class="gm-loading">Chargement de la grille...</div>
+        </div>
+        <footer class="gm-modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeEmploiGrid()">
+                <i class="fa-solid fa-times"></i> Fermer
+            </button>
+        </footer>
+    </section>
+</div>
+
+{% block extra_js %}
+<script>
+    function openEmploiGrid() {
+        const overlay = document.getElementById('emploiGridOverlay');
+        const body = document.getElementById('emploiGridBody');
+        body.innerHTML = '<div class="gm-loading">Chargement de la grille...</div>';
+        overlay.classList.add('open');
+        overlay.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('gm-overlay-open');
+        renderEmploiGrid();
+    }
+
+    function closeEmploiGrid() {
+        const overlay = document.getElementById('emploiGridOverlay');
+        overlay.classList.remove('open');
+        overlay.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('gm-overlay-open');
+    }
+
+    function renderEmploiGrid() {
+        const body = document.getElementById('emploiGridBody');
+        const scheduleData = {{ schedule_json|safe }};
+        const jours = scheduleData.jours || [];
+        const joursCodes = scheduleData.jours_codes || [];
+        const creneaux = scheduleData.creneaux || [];
+        const classes = scheduleData.classes || {};
+
+        if (jours.length === 0 || creneaux.length === 0 || Object.keys(classes).length === 0) {
+            body.innerHTML = '<div class="gm-empty"><i class="fa-solid fa-calendar-xmark"></i><p>Aucun emploi du temps défini pour vos affectations.</p></div>';
+            return;
+        }
+
+        let html = '<div class="emploi-schedule-container">';
+        
+        // For each class, create a grid
+        for (const [classeId, classeData] of Object.entries(classes)) {
+            html += '<div class="emploi-classe-grid">';
+            html += '<h4 class="emploi-classe-title">' + classeData.classe_libelle + '</h4>';
+            
+            // Table header
+            html += '<table class="emploi-table">';
+            html += '<thead><tr><th class="emploi-creneau-header">Créneau</th>';
+            for (const jour of jours) {
+                html += '<th>' + jour + '</th>';
+            }
+            html += '</tr></thead><tbody>';
+            
+            // For each creneau
+            for (const ordre of creneaux) {
+                const creneauData = creneaux.find(c => c === ordre);
+                if (!creneauData) continue;
+                
+                html += '<tr>';
+                // Time column - we need to find the time for this ordre
+                let heureDebut = '', heureFin = '';
+                for (const jourCode of joursCodes) {
+                    const coursList = classeData.jours[jourCode] || [];
+                    const cours = coursList.find(c => c.ordre === ordre);
+                    if (cours) {
+                        heureDebut = cours.heure_debut;
+                        heureFin = cours.heure_fin;
+                        break;
+                    }
+                }
+                html += '<td class="emploi-creneau-cell">' + heureDebut + ' - ' + heureFin + '</td>';
+                
+                // Day columns
+                for (const jourCode of joursCodes) {
+                    const coursList = classeData.jours[jourCode] || [];
+                    const cours = coursList.find(c => c.ordre === ordre);
+                    if (cours) {
+                        html += '<td class="emploi-cours-cell">' + cours.matiere + '</td>';
+                    } else {
+                        html += '<td class="emploi-cours-cell emploi-cours-vide">—</td>';
+                    }
+                }
+                html += '</tr>';
+            }
+            html += '</tbody></table></div>';
+        }
+        html += '</div>';
+        
+        body.innerHTML = html;
+    }
+
+    // Close on overlay click
+    const emploiOverlay = document.getElementById('emploiGridOverlay');
+    if (emploiOverlay) {
+        emploiOverlay.addEventListener('click', function(event) {
+            if (event.target === event.currentTarget) {
+                closeEmploiGrid();
+            }
+        });
+    }
+
+    // Close on Escape
+    document.addEventListener('keydown', function(event) {
+        const overlay = document.getElementById('emploiGridOverlay');
+        if (overlay && event.key === 'Escape' && overlay.classList.contains('open')) {
+            closeEmploiGrid();
+        }
+    });
+</script>
+{% endblock %}
 {% endblock %}

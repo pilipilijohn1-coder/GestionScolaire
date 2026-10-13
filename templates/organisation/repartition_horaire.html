@@ -357,7 +357,78 @@
 
                                             <form
                                                 method="post"
-                                                action="{% url 'supprimer_horaire' cours.id %}"
+                                                action="{% url 'supprimer_horaire' cours.id %}?source={{ cours.table_source }}"
+                                                class="cours-supprimer"
+                                                onsubmit="return confirm('Retirer ce cours de la grille ?');"
+                                            >
+                                                {% csrf_token %}
+                                                <button type="submit" class="cours-supprimer-btn" title="Retirer le cours">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </form>
+
+                                        </div>
+                                    {% else %}
+
+                                        <a
+                                            href="{% url 'affecter_cours' annee_selectionnee.id classe_selectionnee.id creneau.id 1 %}"
+                                            class="cell-action">
+
+                                            <i class="fas fa-plus"></i>
+
+                                            <span>
+                                                Affecter un cours
+                                            </span>
+
+                                        </a>
+
+                                    {% endif %}
+                                            {% endif %}
+
+                                </td>
+
+
+<!-- =================================
+                                     LUNDI
+                                 ================================== -->
+
+                                <td class="horaire-cell">
+
+                                    {% if creneau.type_creneau == "PAUSE" %}
+
+                                        <div class="pause-cell">
+
+                                            <i class="fas fa-coffee"></i>
+
+                                            <span>
+                                                Pause
+                                            </span>
+
+                                        </div>
+
+                                    {% else %}
+                                    {% cours_cellule horaires creneau.id 1 as cours %}
+                                    {% if cours %}
+                                        <div class="cours-cell">
+
+                                            <span class="cours-matiere">
+                                                {{ cours.affectation.affectation_matiere.matiere.libelle }}
+                                            </span>
+
+                                            <span class="cours-enseignant">
+                                                <i class="fas fa-user-tie"></i>
+                                                {{ cours.affectation.enseignant.nom }} {{ cours.affectation.enseignant.prenom }}
+                                            </span>
+
+                                            {% if cours.salle %}
+                                                <span class="cours-salle">
+                                                    <i class="fas fa-door-open"></i> {{ cours.salle }}
+                                                </span>
+                                            {% endif %}
+
+                                            <form
+                                                method="post"
+                                                action="{% url 'supprimer_horaire' cours.id %}?source={{ cours.table_source }}"
                                                 class="cours-supprimer"
                                                 onsubmit="return confirm('Retirer ce cours de la grille ?');"
                                             >
@@ -390,7 +461,7 @@
 
                                 <!-- =================================
                                      MARDI
-                                ================================== -->
+                                 ================================== -->
 
                                 <td class="horaire-cell">
 
@@ -428,7 +499,7 @@
 
                                             <form
                                                 method="post"
-                                                action="{% url 'supprimer_horaire' cours.id %}"
+                                                action="{% url 'supprimer_horaire' cours.id %}?source={{ cours.table_source }}"
                                                 class="cours-supprimer"
                                                 onsubmit="return confirm('Retirer ce cours de la grille ?');"
                                             >
@@ -499,7 +570,7 @@
 
                                             <form
                                                 method="post"
-                                                action="{% url 'supprimer_horaire' cours.id %}"
+                                                action="{% url 'supprimer_horaire' cours.id %}?source={{ cours.table_source }}"
                                                 class="cours-supprimer"
                                                 onsubmit="return confirm('Retirer ce cours de la grille ?');"
                                             >
@@ -570,7 +641,7 @@
 
                                             <form
                                                 method="post"
-                                                action="{% url 'supprimer_horaire' cours.id %}"
+                                                action="{% url 'supprimer_horaire' cours.id %}?source={{ cours.table_source }}"
                                                 class="cours-supprimer"
                                                 onsubmit="return confirm('Retirer ce cours de la grille ?');"
                                             >
@@ -641,7 +712,7 @@
 
                                             <form
                                                 method="post"
-                                                action="{% url 'supprimer_horaire' cours.id %}"
+                                                action="{% url 'supprimer_horaire' cours.id %}?source={{ cours.table_source }}"
                                                 class="cours-supprimer"
                                                 onsubmit="return confirm('Retirer ce cours de la grille ?');"
                                             >
@@ -712,7 +783,7 @@
 
                                             <form
                                                 method="post"
-                                                action="{% url 'supprimer_horaire' cours.id %}"
+                                                action="{% url 'supprimer_horaire' cours.id %}?source={{ cours.table_source }}"
                                                 class="cours-supprimer"
                                                 onsubmit="return confirm('Retirer ce cours de la grille ?');"
                                             >

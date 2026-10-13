@@ -155,6 +155,72 @@
         display: block;
     }
 
+    .stat-row {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .stat-box {
+        flex: 1 1 160px;
+        background: var(--cp-card-shadow);
+        border: 1px solid var(--cp-border);
+        border-radius: 8px;
+        padding: 12px 16px;
+    }
+
+    .stat-box .stat-label {
+        font-size: 12px;
+        color: var(--cp-text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+
+    .stat-box .stat-value {
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--cp-text);
+    }
+
+    .filtres {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+    }
+
+    .filtre-actif {
+        font-weight: 600;
+        background: var(--cp-primary);
+        color: #fff;
+    }
+
+    .btn-valider {
+        background: var(--cp-success);
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 4px 10px;
+        cursor: pointer;
+        font-size: 12px;
+    }
+
+    .btn-annuler {
+        background: var(--cp-danger);
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 4px 10px;
+        cursor: pointer;
+        font-size: 12px;
+        margin-left: 6px;
+    }
+
+    .form-inline {
+        display: inline;
+    }
+
     @media (max-width: 768px) {
         .page-header {
             flex-direction: column;
@@ -175,6 +241,28 @@
             <h1>Paiements</h1>
             <p>Consultez l'ensemble des paiements enregistrés dans le système.</p>
         </div>
+    </div>
+
+    <div class="stat-row">
+        <div class="stat-box">
+            <div class="stat-label">En attente de validation</div>
+            <div class="stat-value">{{ nb_enregistres }}</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Validés</div>
+            <div class="stat-value">{{ nb_valides }}</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Total encaissé validé</div>
+            <div class="stat-value">{{ total_valide|floatformat:2 }}</div>
+        </div>
+    </div>
+
+    <div class="filtres">
+        <a href="{% url 'liste_paiements' %}" class="action-link {% if not filtre %}filtre-actif{% endif %}">Tous</a>
+        <a href="{% url 'liste_paiements' %}?statut=ENREGISTRE" class="action-link {% if filtre == 'ENREGISTRE' %}filtre-actif{% endif %}">À valider</a>
+        <a href="{% url 'liste_paiements' %}?statut=VALIDE" class="action-link {% if filtre == 'VALIDE' %}filtre-actif{% endif %}">Validés</a>
+        <a href="{% url 'liste_paiements' %}?statut=ANNULE" class="action-link {% if filtre == 'ANNULE' %}filtre-actif{% endif %}">Annulés</a>
     </div>
 
     <div class="card">
@@ -199,8 +287,16 @@
                 <tbody>
                 {% for paiement in paiements %}
                     <tr>
-                        <td>{{ paiement.inscription.eleve }}</td>
-                        <td>{{ paiement.tranche.libelle }}</td>
+                        <td>
+                            {{ paiement.inscription.eleve }}
+                            <br>
+                            <small>{{ paiement.inscription.classe.nom }}</small>
+                        </td>
+                        <td>
+                            {{ paiement.tranche.frais.libelle }}
+                            <br>
+                            <small>Tranche n° {{ paiement.tranche.numero }}</small>
+                        </td>
                         <td>{{ paiement.montant|floatformat:2 }}</td>
                         <td>{{ paiement.date_paiement|date:"d/m/Y H:i" }}</td>
                         <td>
@@ -215,6 +311,18 @@
                         <td>{{ paiement.enregistre_par }}</td>
                         <td>
                             <a href="{% url 'detail_paiement' paiement.id %}" class="action-link">Voir</a>
+                            {% if paiement.statut == "ENREGISTRE" and peut_valider %}
+                                <form class="form-inline" method="post" action="{% url 'valider_paiement' paiement.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-valider">Valider</button>
+                                </form>
+                            {% endif %}
+                            {% if paiement.statut != "ANNULE" and peut_annuler %}
+                                <form class="form-inline" method="post" action="{% url 'annuler_paiement' paiement.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-annuler">Annuler</button>
+                                </form>
+                            {% endif %}
                         </td>
                     </tr>
                 {% empty %}

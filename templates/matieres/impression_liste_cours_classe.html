@@ -1,0 +1,354 @@
+{% load static %}<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des cours — {{ classe.libelle }}</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 12mm;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 210mm;
+        }
+
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            color: #0f172a;
+            font-size: 10.5px;
+            background: #ffffff;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .entete {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #0f766e;
+            margin-bottom: 14px;
+        }
+
+        .entete h1 {
+            font-size: 16px;
+            color: #115e59;
+        }
+
+        .entete p {
+            font-size: 9.5px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .titre-document {
+            font-size: 13px;
+            font-weight: 700;
+            color: #115e59;
+            text-align: right;
+        }
+
+        .meta {
+            font-size: 9.5px;
+            color: #64748b;
+            text-align: right;
+            margin-top: 2px;
+        }
+
+        .bandeau {
+            display: flex;
+            border: 1px solid #dbe3ef;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 14px;
+        }
+
+        .bandeau-cellule {
+            flex: 1 1 120px;
+            padding: 7px 11px;
+            border-right: 1px solid #e8eef7;
+            background: #f8fafc;
+        }
+
+        .bandeau-cellule:last-child {
+            border-right: none;
+        }
+
+        .bandeau-label {
+            font-size: 8px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: #64748b;
+            font-weight: 700;
+        }
+
+        .bandeau-valeur {
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            background: #0f766e;
+            color: #ffffff;
+            font-size: 8.5px;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+            padding: 6px 5px;
+            text-align: left;
+            border: 1px solid #0f766e;
+        }
+
+        thead th.centre,
+        tbody td.centre {
+            text-align: center;
+        }
+
+        tbody td {
+            border: 1px solid #dbe3ef;
+            padding: 4px 5px;
+            vertical-align: top;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .num {
+            width: 22px;
+            font-weight: 700;
+            color: #64748b;
+            text-align: center;
+        }
+
+        .matiere {
+            font-weight: 600;
+        }
+
+        .code {
+            font-family: "Courier New", monospace;
+            color: #115e59;
+        }
+
+        .vide {
+            color: #94a3b8;
+        }
+
+        .etiquette {
+            display: inline-block;
+            border-radius: 3px;
+            padding: 0 5px;
+            font-size: 8px;
+            font-weight: 700;
+        }
+
+        .etiquette-oui {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .etiquette-attente {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .creneaux {
+            font-size: 9px;
+            color: #475569;
+            line-height: 1.45;
+        }
+
+        .pied {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 18px;
+            padding-top: 9px;
+            border-top: 1px solid #dbe3ef;
+            font-size: 9px;
+            color: #64748b;
+        }
+
+        .barre-outils {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #115e59;
+            color: #ffffff;
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .18);
+            z-index: 10;
+        }
+
+        .barre-outils button {
+            color: #ffffff;
+            background: rgba(255, 255, 255, .14);
+            border: 1px solid rgba(255, 255, 255, .3);
+            border-radius: 5px;
+            padding: 6px 13px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .barre-outils button:hover {
+            background: rgba(255, 255, 255, .26);
+        }
+
+        @media print {
+            .barre-outils {
+                display: none;
+            }
+
+            html,
+            body {
+                width: auto;
+            }
+
+            thead {
+                display: table-header-group;
+            }
+
+            tbody tr {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="barre-outils">
+    <button type="button" onclick="window.close()">Fermer</button>
+    <button type="button" onclick="window.print()">Imprimer</button>
+</div>
+
+<div style="height:44px;"></div>
+
+<div class="entete">
+    <div>
+        <h1>Liste des cours</h1>
+        <p>{{ classe.annee.libelle }}</p>
+    </div>
+    <div>
+        <div class="titre-document">{{ classe.libelle }}</div>
+        <div class="meta">
+            {% if classe.niveau %}{{ classe.niveau.libelle }}{% endif %}
+            {% if classe.section %} — Section {{ classe.section.libelle }}{% endif %}
+            {% if classe.code %} — Code {{ classe.code }}{% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="bandeau">
+    <div class="bandeau-cellule">
+        <div class="bandeau-label">Cours</div>
+        <div class="bandeau-valeur">{{ nb_cours }}</div>
+    </div>
+    <div class="bandeau-cellule">
+        <div class="bandeau-label">Avec enseignant</div>
+        <div class="bandeau-valeur">{{ nb_affectes }}</div>
+    </div>
+    <div class="bandeau-cellule">
+        <div class="bandeau-label">Programmés</div>
+        <div class="bandeau-valeur">{{ nb_programmes }}</div>
+    </div>
+    <div class="bandeau-cellule">
+        <div class="bandeau-label">Volume total</div>
+        <div class="bandeau-valeur">{{ total_volume }} h</div>
+    </div>
+    <div class="bandeau-cellule">
+        <div class="bandeau-label">Hors programme</div>
+        <div class="bandeau-valeur">{{ nb_hors_programme }}</div>
+    </div>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th class="centre num">N°</th>
+            <th>Cours</th>
+            <th>Code</th>
+            <th>Enseignant</th>
+            <th class="centre">h/semaine</th>
+            <th>Jours</th>
+            <th>Créneaux occupés</th>
+            <th class="centre">État</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for ligne in matieres %}
+            <tr>
+                <td class="centre num">{{ forloop.counter }}</td>
+                <td class="matiere">{{ ligne.matiere.libelle }}</td>
+                <td class="code">{{ ligne.matiere.code }}</td>
+                <td>
+                    {% if ligne.enseignant %}
+                        {{ ligne.enseignant }}
+                    {% else %}
+                        <span class="vide">Non affecté</span>
+                    {% endif %}
+                </td>
+                <td class="centre">{{ ligne.volume|default:"-" }}</td>
+                <td>
+                    {% if ligne.jours_distincts %}
+                        {{ ligne.jours_distincts|join:", " }}
+                    {% else %}
+                        <span class="vide">—</span>
+                    {% endif %}
+                </td>
+                <td class="creneaux">
+                    {% for creneau in ligne.creneaux %}
+                        {{ creneau.jour_libelle|slice:":3" }} {{ creneau.heure_debut }}-{{ creneau.heure_fin }}{% if not forloop.last %} · {% endif %}
+                    {% empty %}
+                        <span class="vide">Aucun</span>
+                    {% endfor %}
+                </td>
+                <td class="centre">
+                    {% if ligne.creneaux %}
+                        <span class="etiquette etiquette-oui">Programmé</span>
+                    {% else %}
+                        <span class="etiquette etiquette-attente">À placer</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="8" style="text-align:center; padding:20px; color:#94a3b8;">
+                    Aucun cours pour cette classe.
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="pied">
+    <div>
+        Le titulaire de classe :
+        <div style="margin-top:26px; border-top:1px solid #94a3b8; width:190px;"></div>
+    </div>
+    <div style="text-align:right;">
+        Document éditable<br>
+        École de gestion scolaire
+    </div>
+</div>
+
+</body>
+</html>

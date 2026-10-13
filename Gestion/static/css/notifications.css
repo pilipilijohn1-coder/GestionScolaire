@@ -1,0 +1,275 @@
+/* ============================================================
+   PAGE : LISTE DES NOTIFICATIONS
+   Les styles du popup flottant restent dans base_css.html.
+   ============================================================ */
+
+.notifications-page {
+    width: 100%;
+    max-width: 900px;
+
+    margin: 0 auto;
+    padding: 30px 20px;
+}
+
+
+/* ============================================================
+   EN-TÊTE
+   ============================================================ */
+
+.notifications-page .page-header {
+    margin-bottom: 25px;
+}
+
+.notifications-page .page-header h1 {
+    margin: 0 0 6px;
+
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.notifications-page .page-header p {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 14px;
+}
+
+
+/* ============================================================
+   LISTE
+   ============================================================ */
+
+.notifications-list {
+    display: flex;
+    flex-direction: column;
+
+    gap: 14px;
+}
+
+
+/* ============================================================
+   CARTE
+   ============================================================ */
+
+.notification-card {
+    padding: 18px 20px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-left: 4px solid #cbd5e1;
+    border-radius: 10px;
+
+    box-shadow:
+        0 2px 8px
+        rgba(0, 0, 0, 0.04);
+}
+
+.notification-card--unread {
+    border-left-color: #2563eb;
+
+    background: #f8fafc;
+}
+
+.notification-card--lue {
+    border-left-color: #cbd5e1;
+
+    background: #ffffff;
+}
+
+.notification-card[role="button"] {
+    cursor: pointer;
+
+    transition:
+        box-shadow 0.2s ease,
+        transform 0.15s ease,
+        opacity 0.2s ease;
+}
+
+.notification-card[role="button"]:hover,
+.notification-card[role="button"]:focus-visible {
+    box-shadow:
+        0 6px 18px
+        rgba(37, 99, 235, 0.14);
+
+    transform: translateY(-1px);
+
+    outline: none;
+}
+
+.notification-card--retrait {
+    opacity: 0;
+
+    transform: translateX(24px);
+}
+
+
+/* ============================================================
+   EN-TÊTE DE LA CARTE
+   ============================================================ */
+
+.notification-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 10px;
+}
+
+.notification-card .notification-type {
+    padding: 4px 9px;
+
+    border-radius: 20px;
+
+    background: #e5e7eb;
+    color: #374151;
+
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+
+    white-space: nowrap;
+}
+
+.notification-card .notification-type.success { background: #dcfce7; color: #166534; }
+.notification-card .notification-type.error   { background: #fee2e2; color: #991b1b; }
+.notification-card .notification-type.warning { background: #fef3c7; color: #92400e; }
+.notification-card .notification-type.info    { background: #dbeafe; color: #1e40af; }
+
+.notification-card .notification-date {
+    color: #9ca3af;
+
+    font-size: 12px;
+
+    white-space: nowrap;
+}
+
+.notification-card .notification-open-hint {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 7px;
+
+    color: #2563eb;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+
+/* ============================================================
+   CONTENU DE LA CARTE
+   ============================================================ */
+
+.notification-card__content h3 {
+    margin: 0 0 6px;
+
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.notification-card__content p {
+    margin: 0;
+
+    color: #4b5563;
+
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+
+/* ============================================================
+   ACTIONS DE LA CARTE
+   ============================================================ */
+
+.notification-card__actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-top: 14px;
+    padding-top: 12px;
+
+    border-top: 1px solid #f1f5f9;
+}
+
+.notification-creator {
+    color: #9ca3af;
+
+    font-size: 12px;
+}
+
+.btn-outline {
+    background: #ffffff;
+    color: #2563eb;
+
+    border: 1px solid #2563eb;
+}
+
+.btn-outline:hover {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+
+/* ============================================================
+   ÉTAT VIDE
+   ============================================================ */
+
+.notifications-empty {
+    padding: 60px 20px;
+
+    text-align: center;
+
+    background: #ffffff;
+
+    border: 1px dashed #d1d5db;
+    border-radius: 10px;
+}
+
+.notifications-empty i {
+    margin-bottom: 12px;
+
+    color: #cbd5e1;
+
+    font-size: 40px;
+}
+
+.notifications-empty p {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 14px;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media screen and (max-width: 600px) {
+
+    .notifications-page {
+        padding: 20px 14px;
+    }
+
+    .notification-card__header,
+    .notification-card__actions {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .notification-card__actions .btn {
+        width: 100%;
+    }
+
+}

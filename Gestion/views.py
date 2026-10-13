@@ -1,11 +1,17 @@
-from datetime import date, datetime, timedelta
+﻿import json
+import re
+import unicodedata
 
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+
+from django.db import IntegrityError
 from django.http import JsonResponse
 from django.urls import reverse
 
 from Gestion.permissions.base import utilisateur_a_permission
 
-from .models import Affectation, AffectationMatiere, AnneeScolaire, ConfigurationHoraire, CreneauHoraire, Horaire, Matiere, Niveau, RepartitionHoraire, Section, Titularisation, Eleve, Inscription, ResultatPeriode, Periode, Semestre, Evaluation, Examen
+from .models import Affectation, AffectationMatiere, AnneeScolaire, BilletInscription, Caisse, ConfigurationHoraire, CreneauHoraire, EntreeCaisse, Horaire, Matiere, Niveau, PonderationMatiere, RepartitionHoraire, ResponsabiliteScolaire, Section, Titularisation, Eleve, Inscription, ResultatPeriode, Periode, Semestre, Evaluation, Examen
 from django.core.exceptions import ValidationError
 from .forms import AffectationForm, AffectationMatiereForm, AnneeScolaireForm, ClasseForm, ConfigurationHoraireForm, EnseignantForm, HoraireForm, MatiereForm, NiveauForm, RepartitionHoraireForm, TitularisationForm
 from django.contrib import messages
@@ -497,6 +503,14 @@ def dashboard_admin(request):
         "demandes_autorisation": demandes_autorisation,
         "anomalies_critiques": anomalies_critiques,
     }
+
+    # Le modele admin affiche aussi les compteurs d'inscriptions, de
+    # paiements valides et le montant en caisse. La vue ne les fournissait
+    # pas et le |default:"0" du template masquait le vide : les cartes
+    # affichaient zero en permanence. Le contexte ecole les apporte.
+    compteurs = _contexte_compteurs_ecole(request)
+    if compteurs is not None:
+        context.update(compteurs)
 
 
     # --------------------------------------------------------
@@ -3413,59 +3427,225 @@ def liste_matieres(request):
         contexte
     )
 
+def _duree_creneau_en_heures(creneau):
+    """Duree d'un creneau, exprimee en heures decimales.
+
+    Le volume d'un cours se compte en heures hebdomadaires alors que la
+    grille horaire travaille en creneaux : la conversion est necessaire
+    pour savoir combien d'heures restent a programmer.
+    """
+    minutes = (
+        datetime.combine(date.today(), creneau.heure_fin)
+        - datetime.combine(date.today(), creneau.heure_debut)
+    ).total_seconds() / 60
+
+    return round(minutes / 60, 2)
+
+
+def _heures_programmees(affectation_matiere):
+    """Heures deja placees au planning pour une affectation de matiere."""
+    total = Decimal("0")
+
+    repartitions = (
+        RepartitionHoraire.objects
+        .filter(
+            affectation__affectation_matiere=affectation_matiere,
+            actif=True,
+        )
+        .select_related("creneau")
+    )
+
+    for repartition in repartitions:
+        total += Decimal(
+            str(_duree_creneau_en_heures(repartition.creneau))
+        )
+
+    return total
+
+
+def _contexte_programmation_cours(request, utilisateur):
+    """Donnees necessaires au template de programmation des cours.
+
+    Le template attend quatre variables : l'annee active, les classes
+    candidates, la classe eventuellement preselectionnee via ?classe_id=
+    et les cours deja affectes a cette classe.
+    """
+    annee_active = AnneeScolaire.objects.filter(
+        statut=AnneeScolaire.ACTIVE
+    ).first()
+
+    classes = (
+        Classe.objects
+        .select_related("annee", "niveau", "section")
+        .filter(actif=True)
+    )
+
+    if annee_active:
+        classes = classes.filter(annee=annee_active)
+
+    classes = classes.order_by("niveau__ordre", "code")
+
+    classe_preselectionnee = None
+    classe_id = request.GET.get("classe_id") or request.GET.get("classe")
+
+    if classe_id:
+        classe_preselectionnee = classes.filter(id=classe_id).first()
+
+    if classe_preselectionnee and not annee_active:
+        annee_active = classe_preselectionnee.annee
+
+    # Le popup de cours et le compteur de sa liste doivent annoncer le
+    # meme total : ne lister que les cours saisis a la main ferait
+    # croire a une classe sans programme officiel.
+    cours_classe = (
+        _lignes_cours_classe(classe_preselectionnee)
+        if classe_preselectionnee
+        else []
+    )
+
+    return {
+        "utilisateur": utilisateur,
+        "annee_active": annee_active,
+        "classes_pour_affectation": classes,
+        "classe_preselectionnee": classe_preselectionnee,
+        "matiere_a_programmer": cours_classe,
+        "nb_cours_programme": len(cours_classe),
+    }
+
+
+def _programmations_depuis_post(request):
+    """Relit le JSON envoye par le formulaire de programmation."""
+    bruts = request.POST.get("programmations", "[]")
+
+    try:
+        donnees = json.loads(bruts)
+    except (TypeError, ValueError):
+        return []
+
+    if not isinstance(donnees, list):
+        return []
+
+    return [item for item in donnees if isinstance(item, dict)]
+
+
+@permission_requise("matiere.creer")
+def programmation_cours(request):
+    """Programmation des cours d'une classe dans la grille horaire.
+
+    GET  : affiche la page avec les classes de l'annee active.
+    POST : enregistre les creneaux coches par l'utilisateur sous forme
+           de repartitions horaires, apres controle des regles metier
+           (creneau libre pour la classe, enseignant libre, annee
+           compatible).
+    """
+    utilisateur = _utilisateur_courant(request)
+    if not utilisateur:
+        return redirect("connexion")
+
+    contexte = _contexte_programmation_cours(request, utilisateur)
+
+    if request.method != "POST":
+        return render(
+            request,
+            "annee/creer_matiere.html",
+            contexte,
+        )
+
+    # =========================================================
+    # ENREGISTREMENT
+    # =========================================================
+
+    programmees = 0
+    erreurs = []
+
+    for item in _programmations_depuis_post(request):
+
+        affectation_id = item.get("affectation_id")
+        affectation = Affectation.objects.filter(
+            id=affectation_id,
+            actif=True,
+        ).select_related(
+            "enseignant",
+            "affectation_matiere",
+            "affectation_matiere__classe",
+        ).first()
+
+        if not affectation:
+            erreurs.append(
+                "Un cours selectionne ne correspond plus a "
+                "une affectation active."
+            )
+            continue
+
+        for creneau_item in item.get("creneaux") or []:
+            if not isinstance(creneau_item, dict):
+                continue
+
+            repartition = RepartitionHoraire(
+                affectation=affectation,
+                jour=creneau_item.get("jour", ""),
+                creneau_id=creneau_item.get("creneau_id"),
+            )
+
+            try:
+                repartition.full_clean()
+                repartition.save()
+                programmees += 1
+            except ValidationError as erreur:
+                erreurs.append(
+                    "; ".join(
+                        " ".join(str(v) for v in valeur)
+                        for valeur in erreur.message_dict.values()
+                    )
+                )
+            except (IntegrityError, ValueError, TypeError):
+                erreurs.append(
+                    "Un cours a ete enregistre deux fois dans le "
+                    "meme creneau."
+                )
+
+    if programmees and not erreurs:
+        message_vers_notification(
+            request,
+            "SUCCESS",
+            f"{programmees} creneau(x) ont ete programme(s) avec succes.",
+            f"{programmees} creneau(x) ont ete programme(s) avec succes.",
+        )
+    elif programmees:
+        message_vers_notification(
+            request,
+            "WARNING",
+            f"{programmees} creneau(x) enregistre(s), mais "
+            f"{len(erreurs)} ont ete refuses.",
+            f"{programmees} creneau(x) enregistre(s), mais "
+            f"{len(erreurs)} ont ete refuses.",
+        )
+    elif erreurs:
+        message_vers_notification(
+            request,
+            "ERROR",
+            erreurs[0][:200],
+            erreurs[0][:200],
+        )
+
+    return redirect("programmation_cours")
+
+
 #@permission_requise("matiere.creer")
 @permission_requise("matiere.creer")
 def creer_matiere(request):
 
     # =====================================================
-    # TRAITEMENT DU FORMULAIRE
+    # PROGRAMMATION DES COURS
+    #
+    # Cette route Pointait historiquement sur une page de creation
+    # de matiere alors que son template est entierement une page de
+    # programmation par classe. Elle est desormais un simple alias
+    # de la vue dediee, pour que les anciens liens continuent de
+    # fonctionner.
     # =====================================================
 
-    if request.method == "POST":
-
-        form = MatiereForm(
-            request.POST
-        )
-
-        if form.is_valid():
-
-            matiere = form.save()
-
-            message_vers_notification(request, 'SUCCESS', f"La matière « {matiere.libelle} » "
-                "a été créée avec succès.", f"La matière « {matiere.libelle} » "
-                "a été créée avec succès.")
-
-            return redirect(
-                "liste_matieres"
-            )
-
-        else:
-
-            message_vers_notification(request, 'ERROR', "Veuillez corriger les erreurs "
-                "du formulaire.", "Veuillez corriger les erreurs "
-                "du formulaire.")
-
-
-    # =====================================================
-    # AFFICHAGE INITIAL
-    # =====================================================
-
-    else:
-
-        form = MatiereForm()
-
-
-    # =====================================================
-    # AFFICHAGE DE LA PAGE
-    # =====================================================
-
-    return render(
-        request,
-        "annee/creer_matiere.html",
-        {
-            "form": form,
-        }
-    )
+    return programmation_cours(request)
 
 #@permission_requise("matiere.voir")
 @permission_requise("matiere.consulter")
@@ -3742,6 +3922,28 @@ def liste_affectations_matieres(request):
         contexte
     )
 
+def _initial_affectation_matiere(request):
+    """Classe et annee pre-selectionnees a partir de ?classe_id=<id>.
+
+    La page de gestion des matieres par classe ouvre la creation
+    d'affectation en passant l'identifiant de la classe dans l'URL. Sans ce
+    traitement, la classe saisie sur la carte etait perdue et l'utilisateur
+    devait la reselectionner a la main.
+    """
+    classe_id = request.GET.get("classe_id") or request.GET.get("classe")
+    if not classe_id:
+        return {}
+
+    classe = Classe.objects.filter(id=classe_id, actif=True).first()
+    if not classe:
+        return {}
+
+    return {
+        "classe": classe.id,
+        "annee": classe.annee_id,
+    }
+
+
 #@permission_requise("affectation_matiere.creer")
 @permission_requise("affectation.creer")
 def creer_affectation_matiere(request):
@@ -3772,7 +3974,9 @@ def creer_affectation_matiere(request):
         message_vers_notification(request, 'ERROR', "Veuillez corriger les erreurs du formulaire.", "Veuillez corriger les erreurs du formulaire.")
 
     else:
-        form = AffectationMatiereForm()
+        form = AffectationMatiereForm(
+            initial=_initial_affectation_matiere(request)
+        )
 
     return render(
         request,
@@ -4000,6 +4204,100 @@ def liste_enseignants(request):
             "enseignants": enseignants,
         }
     )
+
+
+def impression_liste_enseignants(request):
+    """Liste des enseignants, mise en page A4 paysage.
+
+    Le volume horaire est additionne par matiere : un enseignant porte
+    plusieurs classes pour une meme matiere, et le total doit alors
+    compter les heures reellement vues, pas le nombre d'affectations.
+    """
+    utilisateur = _utilisateur_courant(request)
+    if not utilisateur:
+        return redirect("connexion")
+
+    enseignants = list(
+        Enseignant.objects
+        .select_related("utilisateur")
+        .prefetch_related(
+            "affectations__affectation_matiere__classe",
+            "affectations__affectation_matiere__matiere",
+        )
+        .order_by("utilisateur__nom", "utilisateur__prenom")
+    )
+
+    total_heures = 0
+
+    for enseignant in enseignants:
+        affectations = [
+            affectation
+            for affectation in enseignant.affectations.all()
+            if affectation.actif
+            and affectation.affectation_matiere_id
+        ]
+
+        enseignant.nb_affectations = len(affectations)
+
+        # Le template ne sait pas dedupliquer : les classes sont
+        # preparees ici, triees et sans repetition.
+        classes = []
+        for affectation in affectations:
+            classe = affectation.affectation_matiere.classe
+            if classe not in classes:
+                classes.append(classe)
+        enseignant.classes = sorted(
+            classes, key=lambda classe: classe.libelle
+        )
+
+        enseignant.total_heures = sum(
+            affectation.affectation_matiere.heures_par_semaine
+            for affectation in affectations
+        )
+        total_heures += enseignant.total_heures
+
+        enseignant.date_entree = (
+            min(
+                affectation.date_creation
+                for affectation in affectations
+            )
+            if affectations
+            else None
+        )
+
+    annee = (
+        AnneeScolaire.objects
+        .filter(statut=AnneeScolaire.ACTIVE)
+        .first()
+    )
+
+    return render(
+        request,
+        "enseignant/impression_liste_enseignants.html",
+        {
+            "utilisateur": utilisateur,
+            "enseignants": enseignants,
+            "annee": annee,
+            "nb_actifs": sum(
+                1
+                for enseignant in enseignants
+                if enseignant.actif and enseignant.utilisateur.actif
+            ),
+            "nb_inactifs": len(enseignants) - sum(
+                1
+                for enseignant in enseignants
+                if enseignant.actif and enseignant.utilisateur.actif
+            ),
+            "nb_affectes": sum(
+                1
+                for enseignant in enseignants
+                if enseignant.nb_affectations
+            ),
+            "total_heures": total_heures,
+            "maintenant": timezone.now(),
+        }
+    )
+
 
 def creer_enseignant(request):
 
@@ -5661,6 +5959,603 @@ def activer_desactiver_affectation(
         context,
     )
 
+def _cle_matiere(libelle):
+    """Cle de comparaison insensible aux accents, a la casse et aux espaces.
+
+    Les matieres saisies a la main et celles du programme officiel ne
+    portent pas toujours la meme orthographe : "FRANçAIS" et "Français",
+    "HISTOIRE" et "Histoire" ou "Algebre" et "Algèbre" designent le meme
+    cours. Cette cle permet de rapprocher les deux saisies sans renommer
+    ni supprimer aucune matiere.
+    """
+    decompose = unicodedata.normalize("NFD", libelle or "")
+
+    sans_accents = "".join(
+        caractere
+        for caractere in decompose
+        if unicodedata.category(caractere) != "Mn"
+    )
+
+    return " ".join(sans_accents.casefold().split())
+
+
+def _cours_officiels_de(classe):
+    """Ponderations officielles d'une classe, sans doublon de matiere.
+
+    Une matiere peut figurer deux fois dans PonderationMatiere : une
+    ligne sans section, identique a la section ELEC, et une ligne propre
+    a chaque section. On privilegie la ligne de la section de la classe,
+    sinon la ligne sans section.
+    """
+    if not classe or not classe.niveau_id:
+        return []
+
+    par_matiere = {}
+
+    for ponderation in (
+        PonderationMatiere.objects
+        .filter(niveau=classe.niveau, actif=True)
+        .select_related("matiere", "section")
+        .order_by("matiere__libelle")
+    ):
+        if ponderation.section_id and ponderation.section_id != classe.section_id:
+            continue
+
+        deja = par_matiere.get(ponderation.matiere_id)
+
+        if deja is None:
+            par_matiere[ponderation.matiere_id] = ponderation
+        elif ponderation.section_id and not deja.section_id:
+            par_matiere[ponderation.matiere_id] = ponderation
+
+    return sorted(
+        par_matiere.values(),
+        key=lambda ponderation: ponderation.matiere.libelle,
+    )
+
+
+def _lignes_cours_classe(classe):
+    """Assemble le programme officiel et l'etat pedagogique de chaque cours.
+
+    Chaque ligne melange ce qui vient de la configuration matiere (le
+    cours doit exister) et ce qui a ete saisi (classe, enseignant,
+    creneaux). Un cours officiel non encore affecte reste visible avec un
+    formulaire d'affectation vide.
+
+    Les deux sources sont fusionnees : une matiere saisie manuellement est
+    d'abord recherchee par identifiant, puis par libelle normalise, afin
+    qu'un meme cours n'apparaisse pas deux fois. Les matieres saisies
+    sans equivalent officiel sont conservees et signalees hors programme :
+    elles restent affectables et peuvent recevoir des creneaux.
+    """
+    affectations_matieres = list(
+        AffectationMatiere.objects
+        .filter(classe=classe, actif=True)
+        .select_related("matiere")
+        .order_by("matiere__libelle")
+    )
+
+    affectations = {}
+    for affectation in (
+        Affectation.objects
+        .filter(
+            affectation_matiere__classe=classe,
+            actif=True,
+        )
+        .select_related("enseignant", "enseignant__utilisateur")
+    ):
+        affectations.setdefault(
+            affectation.affectation_matiere_id,
+            affectation,
+        )
+
+    repartitions = {}
+    for repartition in (
+        RepartitionHoraire.objects
+        .filter(
+            affectation__affectation_matiere__classe=classe,
+            actif=True,
+        )
+        .select_related("creneau")
+        .order_by("jour", "creneau__ordre")
+    ):
+        repartitions.setdefault(
+            repartition.affectation_id,
+            [],
+        ).append(repartition)
+
+    # Index des saisies manuelles, par identifiant puis par cle normalisee.
+    par_id = {}
+    par_cle = {}
+
+    for affectation_matiere in affectations_matieres:
+        par_id[affectation_matiere.matiere_id] = affectation_matiere
+        par_cle.setdefault(
+            _cle_matiere(affectation_matiere.matiere.libelle),
+            affectation_matiere,
+        )
+
+    consommes = set()
+    lignes = []
+
+    for ponderation in _cours_officiels_de(classe):
+        matiere = ponderation.matiere
+
+        affectation_matiere = par_id.get(matiere.id)
+
+        if affectation_matiere is None:
+            affectation_matiere = par_cle.get(_cle_matiere(matiere.libelle))
+
+        if affectation_matiere is not None:
+            consommes.add(affectation_matiere.id)
+
+        lignes.append({
+            "ponderation": ponderation,
+            "matiere": matiere,
+            "affectation_matiere": affectation_matiere,
+            "affectation": (
+                affectations.get(affectation_matiere.id)
+                if affectation_matiere
+                else None
+            ),
+            "hors_programme": False,
+            "repartitions": [],
+            "heures_restantes": Decimal("0"),
+            "est_affecte": False,
+        })
+
+    for affectation_matiere in affectations_matieres:
+        if affectation_matiere.id in consommes:
+            continue
+
+        lignes.append({
+            "ponderation": None,
+            "matiere": affectation_matiere.matiere,
+            "affectation_matiere": affectation_matiere,
+            "affectation": affectations.get(affectation_matiere.id),
+            "hors_programme": True,
+            "repartitions": [],
+            "heures_restantes": Decimal("0"),
+            "est_affecte": False,
+        })
+
+    for ligne in lignes:
+        affectation_matiere = ligne["affectation_matiere"]
+        affectation = (
+            affectations.get(affectation_matiere.id)
+            if affectation_matiere
+            else None
+        )
+        programmees = repartitions.get(affectation.id, []) if affectation else []
+
+        ligne["affectation"] = affectation
+        ligne["repartitions"] = programmees
+        ligne["est_affecte"] = affectation is not None
+
+        if affectation_matiere:
+            volume = Decimal(str(affectation_matiere.heures_par_semaine))
+        else:
+            volume = Decimal("0")
+
+        placees = sum(
+            (
+                Decimal(str(_duree_creneau_en_heures(r.creneau)))
+                for r in programmees
+            ),
+            Decimal("0"),
+        )
+
+        restantes = volume - placees
+
+        ligne["heures_restantes"] = (
+            restantes if restantes > 0 else Decimal("0")
+        )
+
+    return sorted(
+        lignes,
+        key=lambda ligne: (
+            ligne["hors_programme"],
+            _cle_matiere(ligne["matiere"].libelle),
+        ),
+    )
+
+
+@permission_requise("affectation.creer")
+def affectation_pedagogique(request):
+    """Liaison entre les cours officiels d'une classe et les enseignants.
+
+    La liste des cours provient de PonderationMatiere, donc de la
+    configuration matiere : la page presente le programme complet du
+    niveau, y compris les matieres encore sans enseignant. Chaque ligne
+    permet d'affecter un enseignant, de fixer le volume hebdomadaire,
+    puis de placer le cours dans les creneaux de la grille.
+    """
+    utilisateur = _utilisateur_courant(request)
+    if not utilisateur:
+        return redirect("connexion")
+
+    annee_active = AnneeScolaire.objects.filter(
+        statut=AnneeScolaire.ACTIVE
+    ).first()
+
+    annees = AnneeScolaire.objects.all().order_by("-libelle")
+
+    annee_id = request.GET.get("annee_id") or request.POST.get("annee_id")
+    classe_id = request.GET.get("classe_id") or request.POST.get("classe_id")
+
+    annee_selectionnee = None
+    if annee_id:
+        annee_selectionnee = AnneeScolaire.objects.filter(id=annee_id).first()
+    if not annee_selectionnee:
+        annee_selectionnee = annee_active
+
+    classes = (
+        Classe.objects
+        .filter(annee=annee_selectionnee, actif=True)
+        .select_related("niveau", "section")
+        .order_by("niveau__ordre", "code")
+        if annee_selectionnee
+        else Classe.objects.none()
+    )
+
+    classe = classes.filter(id=classe_id).first() if classe_id else None
+
+    creneaux = (
+        CreneauHoraire.objects
+        .filter(
+            configuration__annee=annee_selectionnee,
+            type_creneau=CreneauHoraire.TYPE_COURS,
+            actif=True,
+        )
+        .order_by("ordre")
+        if annee_selectionnee
+        else CreneauHoraire.objects.none()
+    )
+
+    enseignants = (
+        Enseignant.objects
+        .filter(actif=True, utilisateur__actif=True)
+        .select_related("utilisateur")
+        .order_by("utilisateur__nom")
+    )
+
+    # =========================================================
+    # TRAITEMENT DES ACTIONS
+    # =========================================================
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+
+        if action == "assigner_enseignant":
+            return _assigner_enseignant(request)
+
+        if action == "ajouter_creneau":
+            return _placer_creneau(request)
+
+        if action == "retirer_creneau":
+            return _retirer_creneau(request)
+
+    lignes_cours = _lignes_cours_classe(classe) if classe else []
+
+    volume_total = (
+        _volume_total_classe(classe) if classe else Decimal("0")
+    )
+
+    # Cours qui depassent le plafond hebdomadaire, a titre
+    # d'information : la saisie existante est signalee plutot que
+    # silencieusement corrigee.
+    cours_hors_plafond = (
+        [
+            ligne
+            for ligne in lignes_cours
+            if ligne["affectation_matiere"]
+            and (
+                Decimal(
+                    str(
+                        ligne[
+                            "affectation_matiere"
+                        ].heures_par_semaine
+                    )
+                )
+                > AffectationMatiere.HEURES_MAX_PAR_SEMAINE
+                or len(ligne["repartitions"])
+                > AffectationMatiere.CRENEAUX_MAX
+            )
+        ]
+        if classe
+        else []
+    )
+
+    return render(
+        request,
+        "enseignant/affectation_pedagogique.html",
+        {
+            "utilisateur": utilisateur,
+            "annees": annees,
+            "annee_selectionnee": annee_selectionnee,
+            "classes": classes,
+            "classe": classe,
+            "creneaux": creneaux,
+            "enseignants": enseignants,
+            "jours": RepartitionHoraire.JOUR_CHOICES,
+            "cours": lignes_cours,
+            "volume_total": volume_total,
+            "plafond_cours": AffectationMatiere.HEURES_MAX_PAR_SEMAINE,
+            "plafond_creneaux": AffectationMatiere.CRENEAUX_MAX,
+            "cours_hors_plafond": cours_hors_plafond,
+            "nb_affectes": sum(
+                1 for ligne in lignes_cours if ligne["est_affecte"]
+            ),
+        },
+    )
+
+
+def _url_affectation_pedagogique(annee_id, classe_id):
+    return (
+        f"{reverse('affectation_pedagogique')}"
+        f"?annee_id={annee_id}&classe_id={classe_id}"
+    )
+
+
+def _volume_total_classe(classe, exclude_id=None):
+    """Volume hebdomadaire deja saisi pour une classe."""
+    lignes = AffectationMatiere.objects.filter(classe=classe, actif=True)
+
+    if exclude_id:
+        lignes = lignes.exclude(id=exclude_id)
+
+    return sum(
+        (
+            Decimal(str(ligne.heures_par_semaine))
+            for ligne in lignes
+        ),
+        Decimal("0"),
+    )
+
+
+def _affectation_matiere_de(classe, matiere, creer=False):
+    """Affectation de matiere d'une classe pour une matiere donnee.
+
+    Retourne un couple (ligne, cree). La matiere peut venir du programme
+    officiel alors qu'une saisie manuelle equivalente porte un autre
+    identifiant : "Algebre" et "Algèbre" designent le meme cours. La
+    recherche se fait donc par identifiant, puis par libelle normalise,
+    afin de ne jamais creer un doublon pour un cours deja saisi.
+    """
+    existantes = AffectationMatiere.objects.filter(
+        classe=classe,
+        actif=True,
+    ).select_related("matiere")
+
+    for existante in existantes:
+        if existante.matiere_id == matiere.id:
+            return existante, False
+
+    cle = _cle_matiere(matiere.libelle)
+
+    for existante in existantes:
+        if _cle_matiere(existante.matiere.libelle) == cle:
+            return existante, False
+
+    if not creer:
+        return None, False
+
+    return AffectationMatiere.objects.create(
+        classe=classe,
+        matiere=matiere,
+        heures_par_semaine=Decimal("1"),
+        actif=True,
+    ), True
+
+
+def _assigner_enseignant(request):
+    """Cree le lien matiere/classe puis le lien enseignant, au besoin."""
+    annee_id = request.POST.get("annee_id")
+    classe_id = request.POST.get("classe_id")
+
+    classe = Classe.objects.filter(id=classe_id, actif=True).first()
+    matiere = Matiere.objects.filter(id=request.POST.get("matiere_id")).first()
+    enseignant = (
+        Enseignant.objects
+        .filter(id=request.POST.get("enseignant_id"), actif=True)
+        .select_related("utilisateur")
+        .first()
+    )
+
+    if not classe or not matiere or not enseignant:
+        message_vers_notification(
+            request, "ERROR",
+            "Classe, matière ou enseignant introuvable.",
+            "Classe, matière ou enseignant introuvable.",
+        )
+        return redirect(_url_affectation_pedagogique(annee_id, classe_id))
+
+    volume = request.POST.get("heures_par_semaine")
+
+    try:
+        volume = int(volume)
+        if volume < 1:
+            raise ValueError
+    except (TypeError, ValueError):
+        message_vers_notification(
+            request, "ERROR",
+            "Le volume horaire hebdomadaire doit être un nombre supérieur à zéro.",
+            "Le volume horaire hebdomadaire doit être un nombre supérieur à zéro.",
+        )
+        return redirect(_url_affectation_pedagogique(annee_id, classe_id))
+
+    # Un cours ne peut pas depasser le plafond hebdomadaire : au-dela
+    # c'est une erreur de saisie, et la grille devient illisible.
+    if volume > AffectationMatiere.HEURES_MAX_PAR_SEMAINE:
+        message_vers_notification(
+            request, "ERROR",
+            f"« {matiere.libelle} » ne peut pas recevoir "
+            f"{volume} h par semaine : le maximum est de "
+            f"{AffectationMatiere.HEURES_MAX_PAR_SEMAINE} h par "
+            f"cours et par semaine.",
+            f"« {matiere.libelle} » ne peut pas recevoir "
+            f"{volume} h par semaine : le maximum est de "
+            f"{AffectationMatiere.HEURES_MAX_PAR_SEMAINE} h par "
+            f"cours et par semaine.",
+        )
+        return redirect(_url_affectation_pedagogique(annee_id, classe_id))
+
+    try:
+        with transaction.atomic():
+            # La matiere du formulaire peut porter l'identifiant officiel
+            # alors qu'une saisie manuelle equivalente existe deja sous un
+            # autre identifiant. On la recherche avant de creer, sinon la
+            # classe se retrouve avec deux lignes pour le meme cours.
+            affectation_matiere, cree = _affectation_matiere_de(
+                classe,
+                matiere,
+                creer=True,
+            )
+
+            if not cree and (
+                affectation_matiere.heures_par_semaine != volume
+            ):
+                affectation_matiere.heures_par_semaine = volume
+                affectation_matiere.save(
+                    update_fields=["heures_par_semaine"]
+                )
+
+            if cree:
+                message_vers_notification(
+                    request, "SUCCESS",
+                    f"La matière « {matiere.libelle} » a été ajoutée "
+                    f"à la classe « {classe.libelle} ».",
+                    f"La matière « {matiere.libelle} » a été ajoutée "
+                    f"à la classe « {classe.libelle} ».",
+                )
+
+            affectation, cree_affectation = Affectation.objects.get_or_create(
+                enseignant=enseignant,
+                affectation_matiere=affectation_matiere,
+                defaults={"actif": True},
+            )
+
+            if cree_affectation:
+                message_vers_notification(
+                    request, "SUCCESS",
+                    f"{enseignant} assure désormais « {matiere.libelle} » "
+                    f"en {classe.libelle}.",
+                    f"{enseignant} assure désormais « {matiere.libelle} » "
+                    f"en {classe.libelle}.",
+                )
+
+            # Un changement d'enseignant passe par la desactivation de
+            # l'ancienne affectation plutot que par sa suppression.
+            for autre in Affectation.objects.filter(
+                affectation_matiere=affectation_matiere,
+                actif=True,
+            ).exclude(id=affectation.id):
+                autre.actif = False
+                autre.save(update_fields=["actif"])
+
+    except ValidationError as erreur:
+        message_vers_notification(
+            request, "ERROR",
+            " ; ".join(
+                " ".join(str(valeur) for valeur in valeurs)
+                for valeurs in erreur.message_dict.values()
+            )[:200],
+            "Affectation refusée par les règles de l'établissement.",
+        )
+    except IntegrityError:
+        message_vers_notification(
+            request, "ERROR",
+            "Cet enseignant est déjà affecté à cette matière dans cette classe.",
+            "Cet enseignant est déjà affecté à cette matière dans cette classe.",
+        )
+
+    return redirect(_url_affectation_pedagogique(annee_id, classe_id))
+
+
+def _placer_creneau(request):
+    """Place un cours affecte dans un creneau de la grille."""
+    annee_id = request.POST.get("annee_id")
+    classe_id = request.POST.get("classe_id")
+
+    affectation = Affectation.objects.filter(
+        id=request.POST.get("affectation_id"),
+        actif=True,
+        affectation_matiere__classe_id=classe_id,
+    ).first()
+
+    jour = request.POST.get("jour")
+    creneau_id = request.POST.get("creneau_id")
+
+    if not affectation or not jour or not creneau_id:
+        message_vers_notification(
+            request, "ERROR",
+            "Cours, jour ou créneau manquant.",
+            "Cours, jour ou créneau manquant.",
+        )
+        return redirect(_url_affectation_pedagogique(annee_id, classe_id))
+
+    repartition = RepartitionHoraire(
+        affectation=affectation,
+        jour=jour,
+        creneau_id=creneau_id,
+    )
+
+    try:
+        repartition.full_clean()
+        repartition.save()
+        message_vers_notification(
+            request, "SUCCESS",
+            "Le cours a été placé dans la grille horaire.",
+            "Le cours a été placé dans la grille horaire.",
+        )
+    except ValidationError as erreur:
+        message_vers_notification(
+            request, "ERROR",
+            " ; ".join(
+                " ".join(str(valeur) for valeur in valeurs)
+                for valeurs in erreur.message_dict.values()
+            )[:200],
+            "Créneau refusé pour ce cours.",
+        )
+    except (IntegrityError, ValueError, TypeError):
+        message_vers_notification(
+            request, "ERROR",
+            "Ce cours est déjà placé dans ce créneau.",
+            "Ce cours est déjà placé dans ce créneau.",
+        )
+
+    return redirect(_url_affectation_pedagogique(annee_id, classe_id))
+
+
+def _retirer_creneau(request):
+    annee_id = request.POST.get("annee_id")
+    classe_id = request.POST.get("classe_id")
+
+    repartition = RepartitionHoraire.objects.filter(
+        id=request.POST.get("repartition_id"),
+        actif=True,
+        affectation__affectation_matiere__classe_id=classe_id,
+    ).first()
+
+    if not repartition:
+        message_vers_notification(
+            request, "ERROR",
+            "Créneau introuvable.",
+            "Créneau introuvable.",
+        )
+        return redirect(_url_affectation_pedagogique(annee_id, classe_id))
+
+    repartition.delete()
+
+    message_vers_notification(
+        request, "SUCCESS",
+        "Le cours a été retiré de la grille horaire.",
+        "Le cours a été retiré de la grille horaire.",
+    )
+
+    return redirect(_url_affectation_pedagogique(annee_id, classe_id))
+
+
 def interface_enseignants(request):
 
     total_enseignants = (
@@ -6682,10 +7577,51 @@ def repartition_horaire(request):
     # ---------------------------------------------------------
     # Cours déjà placés dans la grille de la classe sélectionnée
     # Indexés par (jour, creneau_id) pour un accès direct au rendu.
+    #
+    # Deux tables décrivent une occupation de grille :
+    #   - RepartitionHoraire, produite par la programmation des cours
+    #     et lue par la pop-up d'horaire ;
+    #   - Horaire, produite par le bouton « + » de cette page.
+    #
+    # Elles sont lues toutes les deux, la programmation primant, afin
+    # que la grille reflète ce qui est réellement saisi quelle que
+    # soit l'origine du cours.
     # ---------------------------------------------------------
+    JOURS_NUMERO = {
+        RepartitionHoraire.LUNDI: 1,
+        RepartitionHoraire.MARDI: 2,
+        RepartitionHoraire.MERCREDI: 3,
+        RepartitionHoraire.JEUDI: 4,
+        RepartitionHoraire.VENDREDI: 5,
+        RepartitionHoraire.SAMEDI: 6,
+    }
+
     horaires = {}
 
     if annee_selectionnee and classe_selectionnee:
+
+        for repartition in (
+            RepartitionHoraire.objects
+            .filter(
+                affectation__affectation_matiere__classe=classe_selectionnee,
+                actif=True,
+                creneau__configuration__annee=annee_selectionnee,
+            )
+            .select_related(
+                "creneau",
+                "affectation",
+                "affectation__enseignant",
+                "affectation__affectation_matiere",
+                "affectation__affectation_matiere__matiere",
+            )
+        ):
+            jour = JOURS_NUMERO.get(repartition.jour)
+            if not jour:
+                continue
+
+            repartition.table_source = "repartition"
+            horaires.setdefault((jour, repartition.creneau_id), repartition)
+
         for horaire in (
             Horaire.objects
             .filter(
@@ -6701,7 +7637,8 @@ def repartition_horaire(request):
                 "affectation__affectation_matiere__matiere",
             )
         ):
-            horaires[(horaire.jour_semaine, horaire.creneau_id)] = horaire
+            horaire.table_source = "horaire"
+            horaires.setdefault((horaire.jour_semaine, horaire.creneau_id), horaire)
 
     return render(
         request,
@@ -6873,38 +7810,59 @@ def affecter_cours(request, annee_id, classe_id, creneau_id, jour):
         }
     )
 
-
 def supprimer_horaire(request, horaire_id):
-    """Retire un cours place dans la grille jour x créneau."""
+    """Retire un cours place dans la grille jour x créneau.
+
+    La grille affiche des cours issus de deux tables. `?source=` designe
+    celle du cours a supprimer ; par defaut l'ancienne table Horaire,
+    qui reste la cible du bouton « + » de cette page.
+    """
     utilisateur = _utilisateur_courant(request)
     if not utilisateur:
         return redirect("connexion")
 
-    horaire = get_object_or_404(
-        Horaire.objects.select_related("annee", "classe", "creneau"),
-        id=horaire_id,
+    source = (
+        request.POST.get("source")
+        or request.GET.get("source")
+        or "horaire"
     )
 
-    annee_id = horaire.annee_id
-    classe_id = horaire.classe_id
+    if request.method != "POST":
+        message_vers_notification(
+            request,
+            "ERROR",
+            "Cette opération n'est pas autorisée.",
+            "Cette opération n'est pas autorisée.",
+        )
+        return redirect("repartition_horaire")
 
-    if request.method == "POST":
-        horaire.delete()
-        message_vers_notification(
-            request, "SUCCESS",
-            "Le cours a été retiré de l'emploi du temps.",
-            "Le cours a été retiré de l'emploi du temps.",
+    if source == "repartition":
+        occupation = get_object_or_404(
+            RepartitionHoraire.objects.select_related(
+                "affectation__affectation_matiere__classe",
+            ),
+            id=horaire_id,
         )
+        classe = occupation.affectation.affectation_matiere.classe
     else:
-        message_vers_notification(
-            request, "ERROR",
-            "Cette opération n'est pas autorisée.",
-            "Cette opération n'est pas autorisée.",
+        occupation = get_object_or_404(
+            Horaire.objects.select_related("annee", "classe", "creneau"),
+            id=horaire_id,
         )
+        classe = occupation.classe
+
+    occupation.delete()
+
+    message_vers_notification(
+        request,
+        "SUCCESS",
+        "Le cours a été retiré de l'emploi du temps.",
+        "Le cours a été retiré de l'emploi du temps.",
+    )
 
     return redirect(
         f"{reverse('repartition_horaire')}"
-        f"?annee_id={annee_id}&classe_id={classe_id}"
+        f"?annee_id={classe.annee_id}&classe_id={classe.id}"
     )
    
 @transaction.atomic
@@ -7732,6 +8690,119 @@ def _utilisateur_courant(request):
     return Utilisateur.objects.filter(id=utilisateur_id, actif=True).first()
 
 
+def _contexte_compteurs_ecole(request):
+    """Compteurs d'ecole partages par les tableaux de bord.
+
+    Les modeles « secretaire » et « admin » affichent les memes
+    indicateurs (eleves, inscriptions, paiements valides, montant en
+    caisse) mais leurs vues ne leur passaient aucun de ces Elements :
+    les compteurs sortaient vides, et le modele admin masquait le
+    defaut derriere un |default:"0". Regroupes ici, les deux
+    tableaux de bord lisent la meme source.
+
+    « Nouvelles inscriptions » compte les inscriptions des trente
+    derniers jours : c'est une notion de recence, pas le cumul
+    annuel, sans quoi le compteur vaudrait toujours le total.
+    """
+    from decimal import Decimal
+
+    from .models import Paiement, Presence, SortieCaisse
+
+    utilisateur = _utilisateur_courant(request)
+    if not utilisateur:
+        return None
+
+    annee_active = AnneeScolaire.objects.filter(
+        statut=AnneeScolaire.ACTIVE
+    ).first()
+
+    aujourdhui = timezone.localdate()
+    il_y_a_30_jours = aujourdhui - timedelta(days=30)
+
+    classes = Classe.objects.filter(actif=True)
+    if annee_active:
+        classes = classes.filter(annee=annee_active)
+
+    paiements_valides = Paiement.objects.filter(
+        statut=Paiement.VALIDE
+    )
+
+    inscriptions_actives = Inscription.objects.filter(
+        statut=Inscription.ACTIVE
+    ).count()
+
+    inscriptions_reinscription = Inscription.objects.filter(
+        type_inscription=Inscription.REINSCRIPTION
+    ).count()
+
+    # Le solde de caisse oppose les entrees aux sorties validees : une
+    # sortie non validee n'a pas encore decrete la caisse.
+    entrees = (
+        EntreeCaisse.objects
+        .aggregate(total=Sum("montant"))["total"]
+        or Decimal("0")
+    )
+    sorties = (
+        SortieCaisse.objects
+        .filter(statut=SortieCaisse.VALIDEE)
+        .aggregate(total=Sum("montant"))["total"]
+        or Decimal("0")
+    )
+
+    return {
+        "utilisateur": utilisateur,
+        "annee_active": annee_active,
+
+        "nombre_eleves": Eleve.objects.filter(actif=True).count(),
+        "nombre_inscriptions": inscriptions_actives,
+        "nombre_classes": classes.count(),
+        "nombre_enseignants": Enseignant.objects.filter(
+            actif=True
+        ).count(),
+        "nombre_utilisateurs": Utilisateur.objects.filter(
+            actif=True
+        ).count(),
+
+        "eleves_nouveaux": Inscription.objects.filter(
+            date_inscription__gte=il_y_a_30_jours
+        ).count(),
+
+        "absences_aujourd": Presence.objects.filter(
+            date_presence=aujourdhui,
+            statut=Presence.ABSENT,
+        ).count(),
+
+        "paiements_valides": paiements_valides.count(),
+        "montant_paiements_valides": (
+            paiements_valides.aggregate(total=Sum("montant"))["total"]
+            or Decimal("0")
+        ),
+
+        # Le tableau de bord admin distingue « inscriptions actives »
+        # de « nouvelles » : les deux compteurs sont donc fournis
+        # sous leurs deux noms plutot que de laisser un 0 defaut.
+        "nombre_inscriptions_actives": inscriptions_actives,
+        "paiements_en_attente": Paiement.objects.filter(
+            statut=Paiement.ENREGISTRE
+        ).count(),
+
+        # Taux de reinscription : part des inscriptions declarees comme
+        # reinscription. Une annee sans donnee affiche 0 plutot qu'une
+        # division par zero.
+        "taux_reinscription": (
+            (
+                Decimal(inscriptions_reinscription) * 100
+                / Decimal(inscriptions_actives)
+            ).quantize(Decimal("0.1"))
+            if inscriptions_actives
+            else Decimal("0.0")
+        ),
+
+        "montant_caisse": entrees - sorties,
+        "caisse_ouverte": _caisse_ouverte(),
+    }
+
+
 def _contexte_tableau_de_bord_financier(request):
     """Contexte commun aux tableaux de bord comptabilite et caisse.
 
@@ -7824,6 +8895,17 @@ def _contexte_tableau_de_bord_financier(request):
         "total_sorties": total_sorties,
         "paiements_par_jour": paiements_par_jour,
         "paiements_par_mois": paiements_par_mois,
+
+        # Sans caisse ouverte, aucune entree ne peut etre portee : le
+        # tableau de bord doit le dire plutot que d'afficher un solde
+        # a zero sans explication.
+        "caisse_ouverte": _caisse_ouverte(),
+        "peut_ouvrir_caisse": utilisateur_a_permission(
+            utilisateur, "caisse.ouvrir"
+        ),
+        "peut_fermer_caisse": utilisateur_a_permission(
+            utilisateur, "caisse.fermer"
+        ),
     }
 
 
@@ -7843,7 +8925,20 @@ def dashboard_caisse(request):
     return render(request, "dashboard/caisse.html", contexte)
 
 def dashboard_secretaire(request):
-    return render(request, "dashboard/secretaire.html")
+    """Tableau de bord du secretariat.
+
+    La vue rendait « dashboard/secretaire.html » sans aucun contexte,
+    alors que le modele attend onze variables : compteurs d'eleves,
+    d'inscriptions, de classes, d'enseignants, d'utilisateurs, nouvelles
+    inscriptions, absences du jour, paiements valides et montant en
+    caisse. Tout s'affichait a zero ou vide, y compris le montant des
+    paiements valides.
+    """
+    contexte = _contexte_compteurs_ecole(request)
+    if contexte is None:
+        return redirect("connexion")
+
+    return render(request, "dashboard/secretaire.html", contexte)
 
 def dashboard_enseignant(request):
     utilisateur_id = request.session.get("utilisateur_id")
@@ -7864,6 +8959,7 @@ def dashboard_enseignant(request):
     nombre_affectations = 0
     nombre_classes = 0
     nombre_evaluations = 0
+    prochain_creneau = None
     
     if enseignant:
         nombre_affectations = Affectation.objects.filter(enseignant=enseignant, actif=True).count()
@@ -7872,6 +8968,45 @@ def dashboard_enseignant(request):
         # Pour les évaluations, on compte les évaluations des affectations de l'enseignant
         from .models import Evaluation
         nombre_evaluations = Evaluation.objects.filter(affectation__enseignant=enseignant).count()
+        
+        # Prochain créneau à venir
+        from datetime import datetime
+        import locale
+        try:
+            locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
+        except:
+            pass
+        
+        jours_semaine = ['LUNDI', 'MARDI', 'MERCREDI', 'JEUDI', 'VENDREDI', 'SAMEDI']
+        maintenant = datetime.now()
+        jour_actuel = jours_semaine[maintenant.weekday()] if maintenant.weekday() < 6 else None
+        heure_actuelle = maintenant.time()
+        
+        # Récupérer les créneaux de l'enseignant
+        repartitions = RepartitionHoraire.objects.filter(
+            affectation__enseignant=enseignant,
+            actif=True
+        ).select_related('creneau', 'affectation__affectation_matiere__classe', 'affectation__affectation_matiere__matiere')
+        
+        if jour_actuel:
+            # Créneaux d'aujourd'hui qui n'ont pas encore commencé
+            reps_aujourdhui = repartitions.filter(jour=jour_actuel, creneau__heure_debut__gt=heure_actuelle).order_by('creneau__heure_debut')
+            if reps_aujourdhui.exists():
+                prochain_creneau = reps_aujourdhui.first()
+            else:
+                # Chercher le prochain jour avec des cours
+                for i in range(1, 7):
+                    prochain_jour_idx = (maintenant.weekday() + i) % 6
+                    prochain_jour = jours_semaine[prochain_jour_idx]
+                    reps_prochain = repartitions.filter(jour=prochain_jour).order_by('creneau__heure_debut')
+                    if reps_prochain.exists():
+                        prochain_creneau = reps_prochain.first()
+                        break
+        else:
+            # C'est dimanche, chercher à partir de lundi
+            reps_lundi = repartitions.filter(jour='LUNDI').order_by('creneau__heure_debut')
+            if reps_lundi.exists():
+                prochain_creneau = reps_lundi.first()
     
     context = {
         "utilisateur": utilisateur,
@@ -7879,6 +9014,7 @@ def dashboard_enseignant(request):
         "nombre_affectations": nombre_affectations,
         "nombre_classes": nombre_classes,
         "nombre_evaluations": nombre_evaluations,
+        "prochain_creneau": prochain_creneau,
     }
     
     return render(request, "dashboard/enseignant.html", context)
@@ -8074,6 +9210,49 @@ def mon_profil(request):
 
     if request.method == "POST":
 
+        action = request.POST.get("action", "password")
+
+        if action == "photo":
+            photo = request.FILES.get("photo_profil")
+            if not photo:
+                message_vers_notification(
+                    request,
+                    "ERROR",
+                    "Aucun fichier.",
+                    "Veuillez sélectionner une photo."
+                )
+                return redirect("mon_profil")
+
+            if photo.size > 5 * 1024 * 1024:
+                message_vers_notification(
+                    request,
+                    "ERROR",
+                    "Fichier trop volumineux.",
+                    "La photo ne doit pas dépasser 5 Mo."
+                )
+                return redirect("mon_profil")
+
+            allowed_types = ["image/jpeg", "image/png", "image/webp"]
+            if photo.content_type not in allowed_types:
+                message_vers_notification(
+                    request,
+                    "ERROR",
+                    "Format non supporté.",
+                    "Formats acceptés : JPG, PNG, WebP."
+                )
+                return redirect("mon_profil")
+
+            utilisateur.photo_profil = photo
+            utilisateur.save(update_fields=["photo_profil"])
+
+            message_vers_notification(
+                request,
+                "SUCCESS",
+                "Photo modifiée.",
+                "Votre photo de profil a été mise à jour."
+            )
+            return redirect("mon_profil")
+
         ancien_mot_de_passe = request.POST.get(
             "ancien_mot_de_passe",
             ""
@@ -8194,7 +9373,10 @@ def mon_profil(request):
 
 def liste_notifications(request):
     """
-    Affiche la liste complète des notifications.
+    Affiche les notifications actives (non lues) de l'utilisateur.
+
+    Une notification cliquée est marquée comme lue : elle quitte
+    cette liste et devient consultable dans l'historique.
     """
 
     utilisateur_id = request.session.get("utilisateur_id")
@@ -8222,11 +9404,10 @@ def liste_notifications(request):
         )
         return redirect("dashboard_admin")
 
-    destinataires = (
+    notifications = (
         notifications_pour_utilisateur(utilisateur)
-        .select_related(
-            "notification",
-            "notification__type_notification",
+        .filter(
+            lu=False,
         )
     )
 
@@ -8235,8 +9416,11 @@ def liste_notifications(request):
             request,
             "notifications/liste.html",
             {
-                "destinataires": destinataires,
+                "notifications": notifications,
                 "nb_non_lues": nb_notifications_non_lues(utilisateur),
+                "nb_lues": notifications_pour_utilisateur(
+                    utilisateur
+                ).filter(lu=True).count(),
             }
         )
     except Exception:
@@ -8247,6 +9431,183 @@ def liste_notifications(request):
             "Une erreur est survenue lors de l'affichage des notifications."
         )
         return redirect("dashboard_admin")
+
+
+def historique_notifications(request):
+    """
+    Historique des notifications reçues : toutes les notifications
+    déjà lues par l'utilisateur, de la plus récente à la plus ancienne.
+    """
+
+    utilisateur_id = request.session.get("utilisateur_id")
+
+    if not utilisateur_id:
+        return redirect("connexion")
+
+    try:
+        utilisateur = Utilisateur.objects.get(
+            id=utilisateur_id,
+            actif=True,
+        )
+    except Utilisateur.DoesNotExist:
+        return redirect("connexion")
+
+    if not utilisateur_a_permission(
+        utilisateur,
+        "notification.consulter",
+    ):
+        message_vers_notification(
+            request,
+            "ERROR",
+            "Accès refusé.",
+            "Vous n'avez pas l'autorisation de consulter l'historique des notifications."
+        )
+        return redirect("liste_notifications")
+
+    notifications = (
+        notifications_pour_utilisateur(utilisateur)
+        .filter(
+            lu=True,
+        )
+    )
+
+    try:
+        return render(
+            request,
+            "notifications/historique.html",
+            {
+                "notifications": notifications,
+                "nb_non_lues": nb_notifications_non_lues(utilisateur),
+                "nb_lues": notifications.count(),
+            }
+        )
+    except Exception:
+        message_vers_notification(
+            request,
+            "ERROR",
+            "Erreur.",
+            "Une erreur est survenue lors de l'affichage de l'historique des notifications."
+        )
+        return redirect("liste_notifications")
+
+
+def ouvrir_notification(request, destinataire_id):
+    """
+    Detail complet d'une notification + marquage comme lue.
+
+    Appelee en AJAX au clic sur une notification : la notification
+    disparait de la liste active et bascule dans l'historique.
+    """
+
+    if request.method != "POST":
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Methode non autorisee.",
+            },
+            status=405,
+        )
+
+    utilisateur_id = request.session.get("utilisateur_id")
+
+    if not utilisateur_id:
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Session expiree.",
+            },
+            status=401,
+        )
+
+    try:
+        utilisateur = Utilisateur.objects.get(
+            id=utilisateur_id,
+            actif=True,
+        )
+    except Utilisateur.DoesNotExist:
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Session expiree.",
+            },
+            status=401,
+        )
+
+    if not utilisateur_a_permission(
+        utilisateur,
+        "notification.consulter",
+    ):
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Acces refuse.",
+            },
+            status=403,
+        )
+
+    try:
+        destinataire = (
+            DestinataireNotification.objects
+            .select_related(
+                "notification",
+                "notification__type_notification",
+                "notification__utilisateur_createur",
+            )
+            .get(
+                id=destinataire_id,
+                utilisateur=utilisateur,
+            )
+        )
+    except DestinataireNotification.DoesNotExist:
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Notification introuvable.",
+            },
+            status=404,
+        )
+
+    try:
+        marquer_comme_lue(destinataire.id)
+    except ValidationError:
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Impossible de marquer la notification comme lue.",
+            },
+            status=404,
+        )
+
+    notification = destinataire.notification
+    type_notification = notification.type_notification
+    createur = notification.utilisateur_createur
+
+    return JsonResponse(
+        {
+            "success": True,
+            "notification": {
+                "id": destinataire.id,
+                "objet": notification.objet,
+                "contenu": notification.contenu,
+                "type_code": (
+                    type_notification.code.lower()
+                    if type_notification
+                    else "info"
+                ),
+                "type_libelle": (
+                    type_notification.libelle
+                    if type_notification
+                    else "Information"
+                ),
+                "date_creation": notification.date_creation.strftime(
+                    "%d/%m/%Y à %H:%M"
+                ),
+                "createur": str(createur) if createur else "",
+                "lu": True,
+            },
+            "nb_non_lues": nb_notifications_non_lues(utilisateur),
+        }
+    )
 
 
 def marquer_notification_lue(request, destinataire_id):
@@ -8368,9 +9729,112 @@ def mes_affectations(request):
         return redirect("connexion")
     try:
         utilisateur = Utilisateur.objects.get(id=utilisateur_id, actif=True)
-    except Utilisateur.DoesNotExist:
+        enseignant = Enseignant.objects.get(utilisateur=utilisateur, actif=True)
+    except (Utilisateur.DoesNotExist, Enseignant.DoesNotExist):
         return redirect("connexion")
-    return render(request, "dashboard/enseignant.html", {"utilisateur": utilisateur})
+
+    affectations_qs = (
+        Affectation.objects
+        .select_related(
+            "affectation_matiere",
+            "affectation_matiere__classe",
+            "affectation_matiere__classe__niveau",
+            "affectation_matiere__classe__section",
+            "affectation_matiere__matiere",
+        )
+        .filter(enseignant=enseignant, actif=True)
+        .order_by(
+            "affectation_matiere__classe__niveau__ordre",
+            "affectation_matiere__classe__code",
+            "affectation_matiere__matiere__libelle",
+        )
+    )
+
+    # Prepare JSON for grid view (list view)
+    affectations_json = []
+    for a in affectations_qs:
+        affectations_json.append({
+            "id": a.id,
+            "classe_id": a.affectation_matiere.classe.id,
+            "classe_libelle": a.affectation_matiere.classe.libelle,
+            "classe_niveau": str(a.affectation_matiere.classe.niveau) if a.affectation_matiere.classe.niveau else "",
+            "classe_section": str(a.affectation_matiere.classe.section) if a.affectation_matiere.classe.section else "",
+            "matiere_libelle": a.affectation_matiere.matiere.libelle,
+            "heures_par_semaine": a.affectation_matiere.heures_par_semaine,
+            "annee": str(a.affectation_matiere.classe.annee),
+        })
+
+    # Prepare schedule data for "Affectation hebdomadaire" grid
+    repartitions = (
+        RepartitionHoraire.objects
+        .select_related(
+            "creneau",
+            "affectation",
+            "affectation__affectation_matiere",
+            "affectation__affectation_matiere__matiere",
+            "affectation__affectation_matiere__classe",
+        )
+        .filter(
+            affectation__enseignant=enseignant,
+            actif=True,
+        )
+        .order_by("jour", "creneau__ordre")
+    )
+
+    # Build schedule grid data
+    jours_ordre = ["LUNDI", "MARDI", "MERCREDI", "JEUDI", "VENDREDI", "SAMEDI"]
+    jours_labels = {"LUNDI": "Lundi", "MARDI": "Mardi", "MERCREDI": "Mercredi", "JEUDI": "Jeudi", "VENDREDI": "Vendredi", "SAMEDI": "Samedi"}
+    
+    schedule_by_classe = {}
+    all_creneaux = set()
+    
+    for r in repartitions:
+        classe = r.affectation.affectation_matiere.classe
+        classe_id = classe.id
+        
+        if classe_id not in schedule_by_classe:
+            schedule_by_classe[classe_id] = {
+                "classe_libelle": classe.libelle,
+                "classe_niveau": str(classe.niveau) if classe.niveau else "",
+                "classe_section": str(classe.section) if classe.section else "",
+                "jours": {j: [] for j in jours_ordre}
+            }
+        
+        creneau_key = r.creneau.ordre
+        all_creneaux.add(creneau_key)
+        
+        schedule_by_classe[classe_id]["jours"][r.jour].append({
+            "ordre": r.creneau.ordre,
+            "heure_debut": r.creneau.heure_debut.strftime("%H:%M"),
+            "heure_fin": r.creneau.heure_fin.strftime("%H:%M"),
+            "matiere": r.affectation.affectation_matiere.matiere.libelle,
+        })
+
+    # Sort creneaux
+    sorted_creneaux = sorted(all_creneaux)
+
+    import json
+    affectations_json_str = json.dumps(affectations_json, ensure_ascii=False)
+    
+    # Prepare schedule JSON for the modal
+    schedule_json = {
+        "jours": [jours_labels[j] for j in jours_ordre],
+        "jours_codes": jours_ordre,
+        "creneaux": sorted_creneaux,
+        "classes": {}
+    }
+    for classe_id, data in schedule_by_classe.items():
+        schedule_json["classes"][str(classe_id)] = data
+
+    schedule_json_str = json.dumps(schedule_json, ensure_ascii=False)
+
+    return render(request, "enseignant/mes_affectations.html", {
+        "utilisateur": utilisateur,
+        "enseignant": enseignant,
+        "affectations": affectations_qs,
+        "affectations_json": affectations_json_str,
+        "schedule_json": schedule_json_str,
+    })
 
 
 def mes_evaluations(request):
@@ -8407,15 +9871,47 @@ def mes_eleves(request):
 
 
 def detail_eleve(request, eleve_id):
-    utilisateur_id = request.session.get("utilisateur_id")
-    if not utilisateur_id:
+    """Fiche d'un eleve : identite, responsables et inscriptions.
+
+    La vue rendait la liste des eleves en ignorant l'eleve demande, si
+    bien qu'un clic sur un eleve n'affichait aucune information le
+    concernant. Elle rend desormais eleves/detail_eleve.html.
+    """
+    utilisateur = _utilisateur_courant(request)
+    if not utilisateur:
         return redirect("connexion")
-    try:
-        utilisateur = Utilisateur.objects.get(id=utilisateur_id, actif=True)
-    except Utilisateur.DoesNotExist:
-        return redirect("connexion")
+
     eleve = get_object_or_404(Eleve, id=eleve_id)
-    return render(request, "eleves/liste.html", {"eleves": Eleve.objects.all()})
+
+    inscriptions = (
+        Inscription.objects
+        .filter(eleve=eleve)
+        .select_related("classe", "annee")
+        .order_by("-annee__date_debut", "classe__code")
+    )
+
+    responsabilites = (
+        ResponsabiliteScolaire.objects
+        .filter(eleve=eleve)
+        .select_related("responsable")
+        .order_by("-principal", "id")
+    )
+
+    inscription_courante = inscriptions.filter(
+        annee__statut=AnneeScolaire.ACTIVE
+    ).first() or inscriptions.first()
+
+    return render(
+        request,
+        "eleves/detail_eleve.html",
+        {
+            "utilisateur": utilisateur,
+            "eleve": eleve,
+            "inscriptions": inscriptions,
+            "responsabilites": responsabilites,
+            "inscription": inscription_courante,
+        },
+    )
 
 
 def _formulaire_eleve(
@@ -8505,26 +10001,116 @@ def modifier_eleve(request, eleve_id):
     )
 
 
-def carte_eleve(request, eleve_id):
-    utilisateur_id = request.session.get("utilisateur_id")
-    if not utilisateur_id:
-        return redirect("connexion")
+def _qr_code_etiquette(valeur, taille=220):
+    """QR code au format data-uri, prêt pour une balise <img>.
+
+    Renvoie None si la generation echoue : la carte reste imprimable,
+    seule l'image est omise.
+    """
+    if not valeur:
+        return None
+
     try:
-        utilisateur = Utilisateur.objects.get(id=utilisateur_id, actif=True)
-    except Utilisateur.DoesNotExist:
+        import qrcode
+        import io
+        import base64
+
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_M,
+            box_size=6,
+            border=2,
+        )
+        qr.add_data(str(valeur))
+        qr.make(fit=True)
+
+        image = qr.make_image(fill_color="black", back_color="white")
+
+        tampon = io.BytesIO()
+        image.save(tampon, format="PNG")
+
+        return (
+            "data:image/png;base64,"
+            + base64.b64encode(tampon.getvalue()).decode("ascii")
+        )
+    except Exception:
+        return None
+
+
+def carte_eleve(request, eleve_id):
+    """Carte de service eleve, prete a imprimer.
+
+    La vue rendait la liste des eleves au lieu de la carte : le lien
+    « Carte eleve » de la fiche ouvrait le tableau de bord.
+    """
+    utilisateur = _utilisateur_courant(request)
+    if not utilisateur:
         return redirect("connexion")
-    return render(request, "eleves/liste.html", {"eleves": Eleve.objects.all()})
+
+    eleve = get_object_or_404(Eleve, id=eleve_id)
+
+    annee_active = AnneeScolaire.objects.filter(
+        statut=AnneeScolaire.ACTIVE
+    ).first()
+
+    inscriptions = (
+        Inscription.objects
+        .filter(eleve=eleve)
+        .select_related("classe", "annee")
+        .order_by("-annee__date_debut", "classe__code")
+    )
+
+    inscription_active = (
+        inscriptions.filter(annee=annee_active).first()
+        if annee_active
+        else None
+    ) or inscriptions.first()
+
+    return render(
+        request,
+        "eleves/carte_eleve.html",
+        {
+            "utilisateur": utilisateur,
+            "eleve": eleve,
+            "inscription_active": inscription_active,
+            "qr_code": _qr_code_etiquette(
+                eleve.matricule or f"ELEVE-{eleve.id}"
+            ),
+        },
+    )
 
 
 def carte_service_enseignant(request, enseignant_id):
-    utilisateur_id = request.session.get("utilisateur_id")
-    if not utilisateur_id:
+    """Carte de service enseignant, prete a imprimer.
+
+    La vue rendait le tableau de bord de l'enseignant au lieu de la
+    carte : le bouton d'impression affichait la page d'accueil.
+    """
+    utilisateur = _utilisateur_courant(request)
+    if not utilisateur:
         return redirect("connexion")
-    try:
-        utilisateur = Utilisateur.objects.get(id=utilisateur_id, actif=True)
-    except Utilisateur.DoesNotExist:
-        return redirect("connexion")
-    return render(request, "dashboard/enseignant.html", {"utilisateur": utilisateur})
+
+    enseignant = get_object_or_404(
+        Enseignant.objects.select_related("utilisateur"),
+        id=enseignant_id,
+    )
+
+    personne = enseignant.utilisateur
+
+    return render(
+        request,
+        "enseignant/carte_service_enseignant.html",
+        {
+            "utilisateur": utilisateur,
+            "enseignant": enseignant,
+            "nom_complet": (
+                f"{personne.nom} {personne.postnom or ''} {personne.prenom}"
+            ).strip(),
+            "qr_code": _qr_code_etiquette(
+                enseignant.matricule or f"ENS-{enseignant.id}"
+            ),
+        },
+    )
 
 
 def _contexte_bulletin(bulletin):
@@ -8600,7 +10186,74 @@ def bulletin_eleve(request, eleve_id):
     return render(request, "eleves/bulletin_eleve.html", contexte)
 
 
+def _contexte_eleves_classe(classe):
+    """Donnees communes aux vues d'une liste d'eleves de classe.
+
+    La liste des eleves est servie sous trois formes : page complete,
+    fragment de popup et page A4 imprimee. Les trois ont besoin du
+    meme contexte ; lecalcul en est factorise ici pour eviter que les
+    versions divergent, comme c'etait le cas avec la popup qui heritait
+    du gabarit general.
+    """
+    inscriptions = list(
+        Inscription.objects
+        .filter(classe=classe, statut=Inscription.ACTIVE)
+        .select_related("eleve", "annee", "classe")
+        .prefetch_related(
+            "eleve__responsabilites__responsable"
+        )
+        .order_by("eleve__nom", "eleve__prenom")
+    )
+
+    # Le responsable principal est porte par l'eleve, pas par
+    # l'inscription : une requete qui Cherche inscription.responsable
+    # echoue, et le template affiche silencieusement une cellule vide.
+    for inscription in inscriptions:
+        principal = next(
+            (
+                responsabilite
+                for responsabilite in inscription.eleve.responsabilites.all()
+                if responsabilite.principal
+            ),
+            None,
+        )
+
+        if principal is None:
+            principal = inscription.eleve.responsabilites.all().first()
+
+        inscription.responsable_principal = principal
+
+    nb_filles = sum(
+        1
+        for inscription in inscriptions
+        if inscription.eleve.sexe == "F"
+    )
+
+    return {
+        "classe": classe,
+        "inscriptions": inscriptions,
+        "annee": classe.annee,
+        "nb_eleves": len(inscriptions),
+        "nb_filles": nb_filles,
+        "nb_garcons": len(inscriptions) - nb_filles,
+        "maintenant": timezone.now(),
+    }
+
+
 def eleves_par_classe(request, classe_id):
+    """Liste des eleves inscrits dans une classe.
+
+    Trois rendus selon le parametre `format` :
+
+    - absent        -> page complete (eleves/eleves_par_classe.html)
+    - format=modal  -> fragment seul, a injecter dans la popup
+                       (eleves/eleves_par_classe_modal.html)
+    - format=impression -> page A4 (eleves/impression_liste_classe.html)
+
+    Le fragment de popup ne doit surtout pas heriter du gabarit general :
+    injecter un document complet dans la boite de dialogue cassait la
+    mise en page.
+    """
     utilisateur = _utilisateur_courant(request)
     if not utilisateur:
         return redirect("connexion")
@@ -8610,23 +10263,61 @@ def eleves_par_classe(request, classe_id):
         id=classe_id,
     )
 
-    inscriptions = (
-        Inscription.objects
-        .filter(classe=classe, statut=Inscription.ACTIVE)
-        .select_related("eleve", "annee")
-        .order_by("eleve__nom", "eleve__prenom")
-    )
+    contexte = _contexte_eleves_classe(classe)
+    contexte["utilisateur"] = utilisateur
 
-    return render(request, "eleves/eleves_par_classe.html", {
-        "utilisateur": utilisateur,
-        "classe": classe,
-        "inscriptions": inscriptions,
-    })
+    format_rendu = request.GET.get("format")
+
+    if format_rendu == "modal":
+        return render(
+            request,
+            "eleves/eleves_par_classe_modal.html",
+            contexte,
+        )
+
+    if format_rendu == "impression":
+        return render(
+            request,
+            "eleves/impression_liste_classe.html",
+            contexte,
+        )
+
+    return render(
+        request,
+        "eleves/eleves_par_classe.html",
+        contexte,
+    )
 
 
 def eleves_par_classe_pdf(request, classe_id):
-    # L'export PDF n'est pas implemente : on renvoie vers la liste HTML
-    return redirect("eleves_par_classe", classe_id=classe_id)
+    """Liste des eleves d'une classe mise en page pour l'impression.
+
+    L'export PDF n'etait pas implemente : l'ancien lien redirigeait vers
+    la page HTML, sans mise en page A4. On renvoie desormais la page
+    d'impression, que l'utilisateur imprime depuis son navigateur.
+    """
+    return impression_liste_eleves(request, classe_id)
+
+
+def impression_liste_eleves(request, classe_id):
+    """Liste des eleves d'une classe, mise en page A4 paysage."""
+    utilisateur = _utilisateur_courant(request)
+    if not utilisateur:
+        return redirect("connexion")
+
+    classe = get_object_or_404(
+        Classe.objects.select_related("annee", "niveau", "section"),
+        id=classe_id,
+    )
+
+    contexte = _contexte_eleves_classe(classe)
+    contexte["utilisateur"] = utilisateur
+
+    return render(
+        request,
+        "eleves/impression_liste_classe.html",
+        contexte,
+    )
 
 
 def creer_eleve(request):
@@ -8759,10 +10450,27 @@ def gestion_matieres_classes(request):
 
         classes_data = []
         for classe in classes:
-            matieres_count = AffectationMatiere.objects.filter(classe=classe).count()
+            lignes = _lignes_cours_classe(classe)
+            affectations = AffectationMatiere.objects.filter(
+                classe=classe,
+                actif=True,
+            )
+
             classes_data.append({
                 "classe": classe,
-                "nombre_affectations": matieres_count,
+                # Le programme officiel compte aussi : sans cela la carte
+                # n'annonce que les cours saisis a la main.
+                "nombre_affectations": len(lignes),
+                "nombre_officiels": sum(
+                    1 for ligne in lignes if not ligne["hors_programme"]
+                ),
+                "nombre_hors_programme": sum(
+                    1 for ligne in lignes if ligne["hors_programme"]
+                ),
+                "nombre_avec_enseignant": Affectation.objects.filter(
+                    affectation_matiere__in=affectations,
+                    actif=True,
+                ).count(),
                 "est_niveau_bulletin": getattr(classe.niveau, "est_niveau_bulletin", False) if classe.niveau else False,
             })
 
@@ -8817,6 +10525,12 @@ def ajax_horaire_classe(request, classe_id):
                 matiere_libelle = r.affectation.affectation_matiere.matiere.libelle
             except Exception:
                 matiere_libelle = "Non définie"
+            try:
+                enseignant_libelle = str(
+                    r.affectation.enseignant
+                ).strip()
+            except Exception:
+                enseignant_libelle = ""
             heure_debut = "{}:{}".format(r.creneau.heure_debut.hour, str(r.creneau.heure_debut.minute).zfill(2))
             heure_fin = "{}:{}".format(r.creneau.heure_fin.hour, str(r.creneau.heure_fin.minute).zfill(2))
             emploi[jour].append({
@@ -8824,32 +10538,60 @@ def ajax_horaire_classe(request, classe_id):
                 "heure_debut": heure_debut,
                 "heure_fin": heure_fin,
                 "matiere": matiere_libelle,
+                "enseignant": enseignant_libelle,
+                "repartition_id": r.id,
             })
 
-        all_creneaux = []
-        if emploi:
-            for jour_code in jours:
-                for cours in emploi.get(jour_code, []):
-                    if cours["ordre"] not in [c["ordre"] for c in all_creneaux]:
-                        all_creneaux.append({"ordre": cours["ordre"], "heure_debut": cours["heure_debut"], "heure_fin": cours["heure_fin"]})
-            all_creneaux.sort(key=lambda x: x["ordre"])
+        # ---------------------------------------------------------
+        # LIGNES DE LA GRILLE
+        #
+        # Les lignes viennent toujours de la configuration horaire.
+        # Les deduire des seuls creneaux occupats ne montrait qu'une
+        # partie de la semaine : des qu'un seul cours etait place, les
+        # autres lignes disparaisaient au lieu de rester vides.
+        # ---------------------------------------------------------
 
-        if not all_creneaux:
-            creneaux_config = (
+        all_creneaux = [
+            {
+                "ordre": creneau.ordre,
+                "type": creneau.type_creneau,
+                "heure_debut": "{}:{}".format(
+                    creneau.heure_debut.hour,
+                    str(creneau.heure_debut.minute).zfill(2),
+                ),
+                "heure_fin": "{}:{}".format(
+                    creneau.heure_fin.hour,
+                    str(creneau.heure_fin.minute).zfill(2),
+                ),
+            }
+            for creneau in (
                 CreneauHoraire.objects
                 .filter(
                     configuration__annee=classe.annee,
-                    type_creneau=CreneauHoraire.TYPE_COURS,
                     actif=True,
                 )
                 .order_by("ordre")
             )
-            for c in creneaux_config:
-                all_creneaux.append({
-                    "ordre": c.ordre,
-                    "heure_debut": "{}:{}".format(c.heure_debut.hour, str(c.heure_debut.minute).zfill(2)),
-                    "heure_fin": "{}:{}".format(c.heure_fin.hour, str(c.heure_fin.minute).zfill(2)),
-                })
+        ]
+
+        ordres_configures = [
+            creneau["ordre"] for creneau in all_creneaux
+        ]
+
+        # Un creneau place peut provenir d'une configuration
+        # differente : on l'ajoute pour ne pas perdre le cours.
+        for jour_code in jours:
+            for cours in emploi.get(jour_code, []):
+                if cours["ordre"] not in ordres_configures:
+                    ordres_configures.append(cours["ordre"])
+                    all_creneaux.append({
+                        "ordre": cours["ordre"],
+                        "type": CreneauHoraire.TYPE_COURS,
+                        "heure_debut": cours["heure_debut"],
+                        "heure_fin": cours["heure_fin"],
+                    })
+
+        all_creneaux.sort(key=lambda creneau: creneau["ordre"])
 
         result = {
             "jours": [jour_labels[j] for j in jours],
@@ -8867,6 +10609,114 @@ def ajax_horaire_classe(request, classe_id):
         import traceback
         traceback.print_exc()
         return JsonResponse({"success": False, "error": "Erreur lors du chargement"}, status=500)
+
+
+def impression_horaire_classe(request, classe_id):
+    """Grille horaire d'une classe, mise en page pour l'impression.
+
+    La grille reprend tous les creneaux configures, occupes ou non : une
+    semaine a moitie programmee doit rester lisible et complete.
+    """
+    utilisateur = _utilisateur_courant(request)
+    if not utilisateur:
+        return redirect("connexion")
+
+    classe = get_object_or_404(
+        Classe.objects.select_related("annee", "niveau", "section"),
+        id=classe_id,
+    )
+
+    jours_libelles = dict(
+        RepartitionHoraire.JOUR_CHOICES
+    )
+
+    # Les pauses font partie de la journee : sans elles, la grille
+    # presente 07:30-10:00 puis 10:20, ce qui masque le repos.
+    creneaux = list(
+        CreneauHoraire.objects
+        .filter(
+            configuration__annee=classe.annee,
+            actif=True,
+        )
+        .order_by("ordre")
+    )
+
+    repartitions = (
+        RepartitionHoraire.objects
+        .filter(
+            affectation__affectation_matiere__classe=classe,
+            actif=True,
+        )
+        .select_related(
+            "creneau",
+            "affectation",
+            "affectation__enseignant",
+            "affectation__affectation_matiere",
+            "affectation__affectation_matiere__matiere",
+        )
+        .order_by("jour", "creneau__ordre")
+    )
+
+    occupation = {}
+    for repartition in repartitions:
+        occupation[
+            (repartition.jour, repartition.creneau_id)
+        ] = repartition
+
+    # La grille est preconstruite : un template ne peut pas appeler
+    # une fonction a deux arguments, or la recherche d'un cours
+    # demande le jour et le creneau.
+    grille = []
+
+    for creneau in creneaux:
+        if creneau.type_creneau == CreneauHoraire.TYPE_PAUSE:
+            # Une pause occupe toute la ligne : elle ne peut pas
+            # recevoir de matiere.
+            grille.append({
+                "creneau": creneau,
+                "est_pause": True,
+                "cellules": [],
+            })
+            continue
+
+        cellules = []
+
+        for code, libelle in jours_libelles.items():
+            cellules.append({
+                "code": code,
+                "libelle": libelle,
+                "cours": occupation.get((code, creneau.id)),
+            })
+
+        grille.append({
+            "creneau": creneau,
+            "est_pause": False,
+            "cellules": cellules,
+        })
+
+    nb_jours = len(jours_libelles)
+
+    return render(
+        request,
+        "matieres/impression_horaire_classe.html",
+        {
+            "utilisateur": utilisateur,
+            "classe": classe,
+            "creneaux": creneaux,
+            "grille": grille,
+            "jours_libelles": jours_libelles,
+            "nb_jours": nb_jours,
+            "nb_creneaux": repartitions.count(),
+            "volume_total": sum(
+                Decimal(str(ligne.heures_par_semaine or 0))
+                for ligne in AffectationMatiere.objects.filter(
+                    classe=classe,
+                    actif=True,
+                )
+            ),
+            "imprime_le": timezone.now(),
+        },
+    )
 
 
 def liste_matieres_classe(request, classe_id):
@@ -8953,23 +10803,139 @@ def liste_matieres_classe(request, classe_id):
         for ponderation in par_matiere.values()
     ]
 
+    # ---------------------------------------------------------
+    # 3. Cours saisis a la main sans equivalent officiel
+    # ---------------------------------------------------------
+    # La liste part du programme, mais un cours saisi manuellement ne
+    # doit pas disparaitre de l'ecran : il reste affichable et
+    # affectable, simplement signale comme hors programme.
+    #
+    # Le rapprochement reutilise _lignes_cours_classe afin que cette
+    # page et la page de programmation affichent exactement la meme
+    # liste. Une comparaison par ensemble de noms ecraserait un cours
+    # saisi des lors qu'un cours officiel porte un nom neighbours :
+    # "HISTOIRE" et "Algèbre" seraient alors purement et simplement
+    # absents de l'ecran.
+    detail_par_matiere = {}
+
+    for ligne in _lignes_cours_classe(classe):
+        detail_par_matiere[ligne["matiere"].id] = ligne
+
+        if ligne["ponderation"] is None:
+            lignes.append({
+                "matiere": ligne["matiere"],
+                "ponderation": None,
+                "affectation": ligne["affectation_matiere"],
+            })
+
+    lignes.sort(
+        key=lambda ligne: _cle_matiere(
+            ligne["matiere"].libelle
+        )
+    )
+
+    # ---------------------------------------------------------
+    # 4. Enseignant, volume et creneaux occupes
+    # ---------------------------------------------------------
+    # La liste doit permettre de repondre a la question « ce cours est-il
+    # vraiment programme ? » : il faut l'enseignant, le volume
+    # hebdomadaire et les creneaux occupes, pas seulement un volume.
+    libelles_jour = dict(
+        RepartitionHoraire.JOUR_CHOICES
+    )
+
+    for ligne in lignes:
+        detail = detail_par_matiere.get(
+            ligne["matiere"].id
+        )
+
+        if detail is None:
+            continue
+
+        affectation = detail["affectation"]
+
+        ligne["enseignant"] = (
+            affectation.enseignant if affectation else None
+        )
+        ligne["volume"] = (
+            detail["affectation_matiere"].heures_par_semaine
+            if detail["affectation_matiere"]
+            else 0
+        )
+        ligne["heures_restantes"] = detail["heures_restantes"]
+        ligne["creneaux"] = [
+            {
+                "jour": repartition.jour,
+                "jour_libelle": libelles_jour.get(
+                    repartition.jour,
+                    repartition.jour,
+                ),
+                "ordre": repartition.creneau.ordre,
+                "heure_debut": "{:02d}:{:02d}".format(
+                    repartition.creneau.heure_debut.hour,
+                    repartition.creneau.heure_debut.minute,
+                ),
+                "heure_fin": "{:02d}:{:02d}".format(
+                    repartition.creneau.heure_fin.hour,
+                    repartition.creneau.heure_fin.minute,
+                ),
+            }
+            for repartition in detail["repartitions"]
+        ]
+        ligne["jours_distincts"] = sorted(
+            {
+                repartition["jour_libelle"]
+                for repartition in ligne["creneaux"]
+            }
+        )
+
     contexte = {
         "utilisateur": utilisateur,
         "classe": classe,
         "classe_id": classe_id,
         "matieres": lignes,
-        # La liste provient toujours des ponderations officielles.
+        # La liste estissue des ponderations officielles, completee
+        # par les cours saisis manuellement hors programme.
         "source_matiere": "ponderation",
         "nb_cours": len(lignes),
+        "nb_officiels": len(lignes) - sum(
+            1 for ligne in lignes if ligne["ponderation"] is None
+        ),
+        "nb_hors_programme": sum(
+            1 for ligne in lignes if ligne["ponderation"] is None
+        ),
         "nb_affectes": sum(
             1 for ligne in lignes if ligne["affectation"] is not None
         ),
+        "nb_programmes": sum(
+            1 for ligne in lignes if ligne.get("creneaux")
+        ),
+        "total_volume": sum(
+            ligne.get("volume") or 0 for ligne in lignes
+        ),
     }
 
-    if request.GET.get("format") == "modal":
-        return render(request, "matieres/liste_matieres_classe_modal.html", contexte)
+    format_rendu = request.GET.get("format")
 
-    return render(request, "matieres/liste_matieres_classe.html", contexte)
+    if format_rendu == "modal":
+        return render(
+            request,
+            "matieres/liste_matieres_classe_modal.html",
+            contexte,
+        )
+
+    if format_rendu == "impression":
+        return render(
+            request,
+            "matieres/impression_liste_cours_classe.html",
+            contexte,
+        )
+
+    return render(
+        request,
+        "matieres/liste_matieres_classe.html",
+        contexte,
+    )
 
 
 def gestion_affectations_enseignants(request):
@@ -9059,11 +11025,560 @@ def ajax_matieres_affectees_par_classe(request):
 
 
 def ajax_matieres_programmation(request):
-    return JsonResponse({"matieres": []})
+    """Cours d'une classe, avec leurs heures restantes.
+
+    Le template se sert de `heures_restantes` pour n'afficher que les
+    cours dont le volume hebdomadaire n'est pas encore atteint, et de
+    `peut_programmer` pour interdire la selection d'un cours sans
+    enseignant, une repartition horaire exigeant une affectation.
+
+    La liste reunionne le programme officiel et les cours saisis a la
+    main. Un cours officiel n'a ni volume ni enseignant tant qu'il n'a
+    pas ete affecte : il est malgre tout renvoye, sinon il resterait
+    invisible et impossible a rattrapper depuis cette page.
+    """
+    utilisateur = _utilisateur_courant(request)
+    if not utilisateur:
+        return JsonResponse({"error": "Non authentifie"}, status=401)
+
+    classe_id = request.GET.get("classe_id")
+    if not classe_id:
+        return JsonResponse({"error": "classe_id manquant"}, status=400)
+
+    classe = Classe.objects.filter(id=classe_id, actif=True).first()
+    if not classe:
+        return JsonResponse({"error": "Classe introuvable"}, status=404)
+
+    matieres = []
+
+    for ligne in _lignes_cours_classe(classe):
+        matiere = ligne["matiere"]
+
+        if not matiere.actif:
+            continue
+
+        affectation_matiere = ligne["affectation_matiere"]
+        affectation = ligne["affectation"]
+        ponderation = ligne["ponderation"]
+
+        volume = (
+            Decimal(str(affectation_matiere.heures_par_semaine))
+            if affectation_matiere
+            else Decimal("0")
+        )
+        programmees = sum(
+            (
+                Decimal(str(_duree_creneau_en_heures(r.creneau)))
+                for r in ligne["repartitions"]
+            ),
+            Decimal("0"),
+        )
+        restantes = volume - programmees
+
+        enseignant = ""
+        if affectation and affectation.enseignant:
+            enseignant = str(affectation.enseignant).strip()
+
+        creneaux_places = [
+            {
+                "repartition_id": repartition.id,
+                "jour": repartition.jour,
+                "creneau_id": repartition.creneau_id,
+                "ordre": repartition.creneau.ordre,
+                "heure_debut": repartition.creneau.heure_debut.strftime("%H:%M"),
+                "heure_fin": repartition.creneau.heure_fin.strftime("%H:%M"),
+            }
+            for repartition in ligne["repartitions"]
+        ]
+
+        matieres.append({
+            "id": affectation_matiere.id if affectation_matiere else None,
+            "affectation_id": affectation.id if affectation else None,
+            "matiere_id": matiere.id,
+            "nom": matiere.libelle,
+            "code": matiere.code,
+            "enseignant": enseignant,
+            "heures_par_semaine": float(volume),
+            "heures_programmees": float(programmees),
+            "heures_restantes": float(restantes if restantes > 0 else 0),
+            "peut_programmer": bool(affectation and restantes > 0),
+            # Un cours reste selectionnable meme sans enseignant : c'est
+            # justement depuis ce panneau qu'on lui en affecte un.
+            "cliquable": True,
+            "source": "ponderation" if ponderation else "affectation",
+            "hors_programme": bool(ligne["hors_programme"]),
+            "ponderation_id": ponderation.id if ponderation else None,
+            "travaux_journaliers_max": (
+                ponderation.travaux_journaliers_max if ponderation else None
+            ),
+            "examen_max": ponderation.examen_max if ponderation else None,
+            "creneaux_places": creneaux_places,
+        })
+
+    configuration = ConfigurationHoraire.objects.filter(
+        annee=classe.annee
+    ).first()
+
+    creneaux = (
+        CreneauHoraire.objects
+        .filter(
+            configuration=configuration,
+            type_creneau=CreneauHoraire.TYPE_COURS,
+            actif=True,
+        )
+        .order_by("ordre")
+        if configuration
+        else CreneauHoraire.objects.none()
+    )
+
+    enseignants = (
+        Enseignant.objects
+        .filter(actif=True, utilisateur__actif=True)
+        .select_related("utilisateur")
+        .order_by("utilisateur__nom", "utilisateur__prenom")
+    )
+
+    return JsonResponse({
+        "classe": classe.libelle,
+        "classe_id": classe.id,
+        "matieres": matieres,
+        "nb_officiels": sum(
+            1 for m in matieres if m["source"] == "ponderation"
+        ),
+        "nb_hors_programme": sum(
+            1 for m in matieres if m["hors_programme"]
+        ),
+        "enseignants": [
+            {
+                "id": enseignant.id,
+                "nom": str(enseignant).strip(),
+            }
+            for enseignant in enseignants
+        ],
+        "creneaux": [
+            {
+                "id": creneau.id,
+                "ordre": creneau.ordre,
+                "heure_debut": creneau.heure_debut.strftime("%H:%M"),
+                "heure_fin": creneau.heure_fin.strftime("%H:%M"),
+            }
+            for creneau in creneaux
+        ],
+        "jours": [
+            {"code": code, "libelle": libelle}
+            for code, libelle in RepartitionHoraire.JOUR_CHOICES
+        ],
+    })
+
+
+def ajax_modifier_cours(request):
+    """Enregistre les modifications d'un cours depuis le popup de programmation.
+
+    Le cours etant selectionnable des la liste, cette vue doit couvrir les
+    trois reglages possibles : la ponderation officielle, le volume
+    hebdomadaire et l'affectation de l'enseignant, puis la pose ou le
+    retrait d'un creneau. Toutes les actions renvoient la meme forme de
+    reponse pour que le panneau se recharge sans Refresh.
+    """
+    utilisateur = _utilisateur_courant(request)
+    if not utilisateur:
+        return JsonResponse({"error": "Non authentifie"}, status=401)
+
+    if request.method != "POST":
+        return JsonResponse({"error": "Methode non autorisee"}, status=405)
+
+    classe = Classe.objects.filter(
+        id=request.POST.get("classe_id"),
+        actif=True,
+    ).first()
+    matiere = Matiere.objects.filter(
+        id=request.POST.get("matiere_id"),
+        actif=True,
+    ).first()
+
+    if not classe or not matiere:
+        return JsonResponse(
+            {"error": "Classe ou matière introuvable."},
+            status=404,
+        )
+
+    action = request.POST.get("action")
+
+    # ---------------------------------------------------------
+    # PONDERATION ET VOLUME
+    # ---------------------------------------------------------
+    if action == "enregistrer":
+
+        # =====================================================
+        # PONDÉRATION : VALIDEES AVANT TOUT ACCÈS EN BASE
+        #
+        # Les valeurs sont lues et controlees meme si aucune ligne
+        # de ponderation n'existe encore. Valider apres coup la
+        # laissait passer une saisie negative en silence : la ligne
+        # n'existant pas, la boucle n'avait rien a controler.
+        # =====================================================
+
+        saisies = {}
+
+        for champ in ("travaux_journaliers_max", "examen_max"):
+
+            valeur = request.POST.get(champ)
+
+            if valeur is None or valeur == "":
+                continue
+
+            try:
+                valeur = int(valeur)
+            except (TypeError, ValueError):
+                return JsonResponse(
+                    {"error": f"Le champ « {champ} » doit être un nombre entier."},
+                    status=400,
+                )
+
+            if valeur < 0:
+                return JsonResponse(
+                    {"error": "Les valeurs de pondération ne peuvent pas être négatives."},
+                    status=400,
+                )
+
+            saisies[champ] = valeur
+
+        ponderation = PonderationMatiere.objects.filter(
+            niveau=classe.niveau,
+            matiere=matiere,
+            actif=True,
+        ).first()
+
+        if ponderation is None:
+            ponderation = PonderationMatiere.objects.filter(
+                niveau=classe.niveau,
+                matiere=matiere,
+                actif=True,
+                section=classe.section,
+            ).first()
+
+        if ponderation is None and saisies:
+            section = classe.section
+
+            if request.POST.get("meme_section") != "1":
+                section = None
+
+            ponderation, cree = PonderationMatiere.objects.get_or_create(
+                niveau=classe.niveau,
+                section=section,
+                matiere=matiere,
+                defaults={
+                    "travaux_journaliers_max": 0,
+                    "examen_max": 0,
+                    "actif": True,
+                },
+            )
+
+        if ponderation is not None and saisies:
+            modifie = False
+
+            for champ, valeur in saisies.items():
+                if getattr(ponderation, champ) != valeur:
+                    setattr(ponderation, champ, valeur)
+                    modifie = True
+
+            if modifie:
+                ponderation.save()
+
+        volume = request.POST.get("heures_par_semaine")
+
+        if volume not in (None, ""):
+            try:
+                volume = int(volume)
+            except (TypeError, ValueError):
+                return JsonResponse(
+                    {"error": "Le volume horaire doit être un nombre entier."},
+                    status=400,
+                )
+
+            if volume < 1:
+                return JsonResponse(
+                    {"error": "Le volume horaire doit être supérieur à zéro."},
+                    status=400,
+                )
+
+            if volume > AffectationMatiere.HEURES_MAX_PAR_SEMAINE:
+                return JsonResponse(
+                    {
+                        "error": (
+                            f"{volume} h par semaine est impossible : "
+                            f"le maximum est de "
+                            f"{AffectationMatiere.HEURES_MAX_PAR_SEMAINE} h "
+                            f"par cours et par semaine."
+                        )
+                    },
+                    status=400,
+                )
+
+            affectation_matiere, _ = _affectation_matiere_de(
+                classe,
+                matiere,
+                creer=True,
+            )
+
+            if affectation_matiere.heures_par_semaine != volume:
+                affectation_matiere.heures_par_semaine = volume
+                affectation_matiere.save(
+                    update_fields=["heures_par_semaine"]
+                )
+
+        return JsonResponse({"succes": True, "message": "Cours enregistré."})
+
+    # ---------------------------------------------------------
+    # ENSEIGNANT
+    # ---------------------------------------------------------
+    if action == "affecter_enseignant":
+
+        volume = request.POST.get("heures_par_semaine") or 1
+
+        try:
+            volume = int(volume)
+        except (TypeError, ValueError):
+            return JsonResponse(
+                {"error": "Le volume horaire doit être un nombre entier."},
+                status=400,
+            )
+
+        if volume < 1:
+            return JsonResponse(
+                {"error": "Le volume horaire doit être supérieur à zéro."},
+                status=400,
+            )
+
+        if volume > AffectationMatiere.HEURES_MAX_PAR_SEMAINE:
+            return JsonResponse(
+                {
+                    "error": (
+                        f"{volume} h par semaine est impossible : "
+                        f"le maximum est de "
+                        f"{AffectationMatiere.HEURES_MAX_PAR_SEMAINE} h "
+                        f"par cours et par semaine."
+                    )
+                },
+                status=400,
+            )
+
+        affectation_matiere, cree = _affectation_matiere_de(
+            classe,
+            matiere,
+            creer=True,
+        )
+
+        if not cree and affectation_matiere.heures_par_semaine != volume:
+            affectation_matiere.heures_par_semaine = volume
+            affectation_matiere.save(
+                update_fields=["heures_par_semaine"]
+            )
+
+        if request.POST.get("enseignant_id"):
+            enseignant = (
+                Enseignant.objects
+                .filter(
+                    id=request.POST.get("enseignant_id"),
+                    actif=True,
+                    utilisateur__actif=True,
+                )
+                .select_related("utilisateur")
+                .first()
+            )
+
+            if not enseignant:
+                return JsonResponse(
+                    {"error": "Enseignant introuvable ou inactif."},
+                    status=404,
+                )
+
+            affectation_existante = Affectation.objects.filter(
+                affectation_matiere=affectation_matiere,
+                actif=True,
+            ).first()
+
+            if affectation_existante:
+                affectation_existante.enseignant = enseignant
+                affectation_existante.save(
+                    update_fields=["enseignant"]
+                )
+            else:
+                Affectation.objects.create(
+                    enseignant=enseignant,
+                    affectation_matiere=affectation_matiere,
+                    actif=True,
+                )
+
+        elif request.POST.get("retirer_enseignant") == "1":
+            Affectation.objects.filter(
+                affectation_matiere=affectation_matiere,
+                actif=True,
+            ).update(actif=False)
+
+        return JsonResponse({
+            "succes": True,
+            "message": "Affectation de l'enseignant enregistrée.",
+        })
+
+    # ---------------------------------------------------------
+    # CRENEAUX
+    # ---------------------------------------------------------
+    if action == "placer_creneau":
+
+        affectation = Affectation.objects.filter(
+            affectation_matiere__classe=classe,
+            affectation_matiere__matiere=matiere,
+            actif=True,
+        ).first()
+
+        if not affectation:
+            return JsonResponse(
+                {
+                    "error": (
+                        "Affectez d'abord un enseignant : un créneau "
+                        "horaire est toujours lié à un enseignant."
+                    )
+                },
+                status=400,
+            )
+
+        repartition = RepartitionHoraire(
+            affectation=affectation,
+            jour=request.POST.get("jour", ""),
+            creneau_id=request.POST.get("creneau_id"),
+        )
+
+        try:
+            repartition.full_clean()
+            repartition.save()
+        except ValidationError as erreur:
+            return JsonResponse(
+                {
+                    "error": " ".join(
+                        " ".join(str(v) for v in valeur)
+                        for valeur in erreur.message_dict.values()
+                    )
+                },
+                status=400,
+            )
+        except (IntegrityError, ValueError, TypeError):
+            return JsonResponse(
+                {"error": "Ce cours est déjà placé dans ce créneau."},
+                status=400,
+            )
+
+        return JsonResponse({"succes": True, "message": "Créneau placé."})
+
+    if action == "retirer_creneau":
+
+        supprime, _ = RepartitionHoraire.objects.filter(
+            id=request.POST.get("repartition_id"),
+            affectation__affectation_matiere__classe=classe,
+            actif=True,
+        ).delete()
+
+        if not supprime:
+            return JsonResponse(
+                {"error": "Créneau introuvable."},
+                status=404,
+            )
+
+        return JsonResponse({"succes": True, "message": "Créneau retiré."})
+
+    return JsonResponse({"error": "Action inconnue."}, status=400)
 
 
 def ajax_creneaux_programmation(request):
-    return JsonResponse({"creneaux": []})
+    """Creneaux de cours encore libres pour une classe et un jour.
+
+    Un creneau deja occupe par un autre cours de la meme classe est
+    signale mais reste renvoye : le template permet de le distinguer
+    des creneaux deja selectionnes dans le formulaire en cours de
+    remplissage.
+    """
+    utilisateur = _utilisateur_courant(request)
+    if not utilisateur:
+        return JsonResponse({"error": "Non authentifie"}, status=401)
+
+    classe_id = request.GET.get("classe_id")
+    annee_id = request.GET.get("annee_id")
+    jour = request.GET.get("jour")
+
+    if not classe_id or not annee_id or not jour:
+        return JsonResponse(
+            {"error": "classe_id, annee_id et jour sont obligatoires"},
+            status=400,
+        )
+
+    classe = Classe.objects.filter(id=classe_id, actif=True).first()
+    if not classe:
+        return JsonResponse({"error": "Classe introuvable"}, status=404)
+
+    if classe.annee_id != int(annee_id):
+        return JsonResponse(
+            {"error": "La classe n'appartient pas a cette annee scolaire"},
+            status=400,
+        )
+
+    if jour not in dict(RepartitionHoraire.JOUR_CHOICES):
+        return JsonResponse({"error": "Jour invalide"}, status=400)
+
+    creneaux = (
+        CreneauHoraire.objects
+        .filter(
+            configuration__annee_id=annee_id,
+            type_creneau=CreneauHoraire.TYPE_COURS,
+            actif=True,
+        )
+        .order_by("ordre")
+    )
+
+    occupes = set(
+        RepartitionHoraire.objects
+        .filter(
+            affectation__affectation_matiere__classe=classe,
+            jour=jour,
+            actif=True,
+        )
+        .values_list("creneau_id", flat=True)
+    )
+
+    # Un creneau occupe par le cours que l'on edite n'est pas un
+    # conflit : le distinguer evite de le faire disparaitre de la
+    # liste alors qu'il appartient a ce meme cours.
+    affectation_id = request.GET.get("affectation_id")
+
+    propres = set()
+
+    if affectation_id:
+        propres = set(
+            RepartitionHoraire.objects
+            .filter(
+                affectation_id=affectation_id,
+                affectation__affectation_matiere__classe=classe,
+                jour=jour,
+                actif=True,
+            )
+            .values_list("creneau_id", flat=True)
+        )
+
+    return JsonResponse({
+        "classe": classe.libelle,
+        "jour": jour,
+        "creneaux": [
+            {
+                "id": creneau.id,
+                "ordre": creneau.ordre,
+                "libelle": creneau.__str__(),
+                # Occupé par un autre cours : le créneau ne peut plus
+                # être proposé, quel que soit le formulaire en cours.
+                "deja_utilise": creneau.id in occupes,
+                "propre": creneau.id in propres,
+            }
+            for creneau in creneaux
+        ],
+    })
 
 
 def calendrier_scolaire(request):
@@ -9096,7 +11611,7 @@ def liste_inscriptions(request):
 
     inscriptions = (
         Inscription.objects
-        .select_related("eleve", "classe", "annee")
+        .select_related("eleve", "classe", "annee", "billet")
         .order_by("-annee__libelle", "classe__code", "eleve__nom")
     )
 
@@ -9126,22 +11641,696 @@ def accueil_eleves_inscriptions(request):
     return liste_inscriptions(request)
 
 
+def billet_inscription(request, inscription_id):
+    """Billet d'inscription d'un eleve, mis en page pour l'impression.
+
+    Le billet est cree a la premiere consultation puis reutilise : un
+    numero d'edition doit rester stable, sinon deux exemplaires
+    circulent sous deux identifiants differents. Une inscription
+    annulee ou terminee garde son billet, celui-ci portant alors son
+    statut, pour que l'archive reste lisible.
+    """
+    utilisateur = _utilisateur_courant(request)
+    if not utilisateur:
+        return redirect("connexion")
+
+    inscription = get_object_or_404(
+        Inscription.objects.select_related(
+            "eleve",
+            "annee",
+            "classe",
+            "classe__niveau",
+            "classe__section",
+        ),
+        id=inscription_id,
+    )
+
+    billet, cree = BilletInscription.generer(
+        inscription,
+        utilisateur=utilisateur,
+    )
+
+    # Le responsable signe le billet : c'est le principal qui est
+    # attendu, les autres figurent en second. Le responsable est porte
+    # par l'eleve, pas par l'inscription.
+    responsabilites = list(
+        ResponsabiliteScolaire.objects
+        .filter(eleve=inscription.eleve)
+        .select_related("responsable")
+    )
+
+    principal = next(
+        (
+            responsabilite
+            for responsabilite in responsabilites
+            if responsabilite.principal
+        ),
+        None,
+    )
+
+    if principal is None:
+        principal = next(
+            (
+                responsabilite
+                for responsabilite in responsabilites
+                if responsabilite.type_responsabilite
+                in (
+                    ResponsabiliteScolaire.PERE,
+                    ResponsabiliteScolaire.MERE,
+                )
+            ),
+            responsabilites[0] if responsabilites else None,
+        )
+
+    secondaires = [
+        responsabilite
+        for responsabilite in responsabilites
+        if responsabilite is not principal
+    ]
+
+    # Les frais de l'annee sont rappeles a titre indicatif : le billet
+    # atteste l'inscription, il n'est pas un releve de paiement.
+    frais = (
+        inscription.annee.frais_scolaires
+        .filter(actif=True)
+        .order_by("montant_total", "libelle")
+        .first()
+    )
+
+    return render(
+        request,
+        "inscription/billet_inscription.html",
+        {
+            "utilisateur": utilisateur,
+            "inscription": inscription,
+            "billet": billet,
+            "cree": cree,
+            "responsable_principal": principal,
+            "responsables_secondaires": secondaires,
+            "frais": frais,
+            "maintenant": timezone.now(),
+        },
+    )
+
+
 def accueil_finances(request):
     return render(request, "comptabilite/liste_paiements.html")
 
 
+def _caisse_ouverte():
+    """ Premiere caisse ouverte, ou None.
+
+    Une seule caisse a la fois est ouvertable : deux caisses ouvertes
+    rendraient le solde dependant de laquelle on regarde.
+    """
+    return (
+        Caisse.objects
+        .filter(statut=Caisse.OUVERTE)
+        .order_by("-id")
+        .first()
+    )
+
+
+def _ouvrir_caisse_si_necessaire():
+    """Caisse ouverte, ou nouvelle caisse ouverte si aucune ne l'est.
+
+    Une seule caisse a la fois est ouverte : deux caisses ouvertes
+    rendraient le solde dependant de laquelle on regarde.
+    """
+    caisse = _caisse_ouverte()
+
+    if caisse is not None:
+        return caisse
+
+    maintenant = timezone.localtime()
+
+    return Caisse.objects.create(
+        libelle=f"Caisse du {maintenant:%d/%m/%Y %H:%M}",
+        heure_ouverture=maintenant.time().replace(microsecond=0),
+        # Caisse.clean exige une fermeture posterieure a l'ouverture.
+        heure_fermeture=time(23, 59),
+        statut=Caisse.OUVERTE,
+    )
+
+
+def _porter_en_caisse(paiement, utilisateur):
+    """Cree l'entree de caisse correspondant a un paiement valide.
+
+    L'entree est toujours creee : si aucune caisse n'est ouverte, une
+    caisse l'est automatiquement. Ne pas le faire laissait l'argent
+    recu hors caisse sans rien pour le signaler au-dela d'un avertissement
+    — un solde de caisse faux, et aucun moyen de le reparer puisque
+    la validation ne se rejoue plus une fois le statut VALIDE.
+
+    Refuser la validation faute de caisse ouverte etait l'autre option :
+    elle obligerait a ouvrir une caisse avant d'enregistrer le moindre
+    versement. Un montant recu ne peut pas dependre d'une manipulation
+    prealable.
+
+    L'entree n'est pas validee ici : c'est a l'appelant de faire
+    echouer la validation si l'entree est refusee.
+    """
+    caisse = _ouvrir_caisse_si_necessaire()
+
+    return EntreeCaisse.objects.create(
+        caisse=caisse,
+        paiement=paiement,
+        montant=paiement.montant,
+        enregistre_par=utilisateur,
+    )
+
+
+@permission_requise("paiement.valider")
+def valider_paiement(request, paiement_id):
+    """ Validation d'un paiement, avec sa portee en caisse.
+
+    Seul un paiement enregistre peut etre valide : valider deux fois le
+    meme paiement creerait deux entrees de caisse pour un seul versement.
+    L'ecriture de caisse suit la validation dans la meme transaction, et
+    non comme une seconde operation a reussir : un paiement valide sans
+    son entree de caisse rendrait le tableau de bord incoherent.
+    """
+    from .models import Paiement
+
+    utilisateur = _utilisateur_courant(request)
+    if not utilisateur:
+        return redirect("connexion")
+
+    paiement = get_object_or_404(
+        Paiement.objects.select_related(
+            "inscription",
+            "inscription__eleve",
+            "tranche",
+            "tranche__frais",
+            "enregistre_par",
+        ),
+        id=paiement_id,
+    )
+
+    if request.method != "POST":
+        return redirect("liste_paiements")
+
+    if paiement.statut != Paiement.ENREGISTRE:
+        message_vers_notification(
+            request,
+            "WARNING",
+            "Ce paiement n'est pas en attente de validation.",
+            "Ce paiement n'est pas en attente de validation.",
+        )
+        return redirect("liste_paiements")
+
+    # =========================================================
+    # VALIDATION ET ÉCRITURE DE CAISSE
+    # =========================================================
+
+    entree = None
+    refus = None
+
+    with transaction.atomic():
+        paiement.statut = Paiement.VALIDE
+        paiement.valide_par = utilisateur
+
+        # Le statut, son enregistrement et l'ecriture de caisse sont une
+        # seule operation : un paiement valide sans son entree, ou une
+        # entree d'un paiement non valide, fausseraient tous deux le
+        # solde. full_clean seul ne suffirait pas, il ne persiste rien.
+        try:
+            paiement.full_clean()
+
+            paiement.save(
+                update_fields=["statut", "valide_par"]
+            )
+
+            entree = _porter_en_caisse(paiement, utilisateur)
+
+            if entree is not None:
+                entree.full_clean()
+
+        except ValidationError as erreur:
+            transaction.set_rollback(True)
+            refus = " ".join(erreur.messages)
+
+    # Le bloc est sorti : une transaction annulee refuse toute requete.
+    # Le paiement doit donc etre relu apres, jamais dedans.
+    if refus is not None:
+        message_vers_notification(
+            request,
+            "ERROR",
+            refus,
+            refus,
+        )
+        return redirect("liste_paiements")
+
+    paiement.refresh_from_db()
+
+    if entree is None:
+        message_vers_notification(
+            request,
+            "WARNING",
+            f"Paiement de {paiement.montant} validé pour "
+            f"{paiement.inscription.eleve}, mais aucune caisse n'est "
+            f"ouverte : l'entrée n'a pas été portée en caisse.",
+            f"Paiement de {paiement.montant} validé pour "
+            f"{paiement.inscription.eleve}, mais aucune caisse n'est "
+            f"ouverte : l'entrée n'a pas été portée en caisse.",
+        )
+    else:
+        message_vers_notification(
+            request,
+            "SUCCESS",
+            f"Paiement de {paiement.montant} validé pour "
+            f"{paiement.inscription.eleve} et porté sur "
+            f"« {entree.caisse.libelle} ».",
+            f"Paiement de {paiement.montant} validé pour "
+            f"{paiement.inscription.eleve} et porté sur "
+            f"« {entree.caisse.libelle} ».",
+        )
+
+    return redirect("liste_paiements")
+
+
+@permission_requise("paiement.annuler")
+def annuler_paiement(request, paiement_id):
+    """ Annulation d'un paiement, avec retrait de l'entree de caisse.
+
+    L'annulation est le seul chemin qui rende son statut ENREGISTRE a un
+    paiement. Elle ne porte que sur un paiement isole : solder une
+    tranche puis annuler ce paiement laisserait la tranche ouverte sans
+    que l'eleve soiturosi prevenu.
+    """
+    from .models import Paiement
+
+    utilisateur = _utilisateur_courant(request)
+    if not utilisateur:
+        return redirect("connexion")
+
+    paiement = get_object_or_404(
+        Paiement.objects.select_related(
+            "inscription",
+            "inscription__eleve",
+            "tranche",
+        ),
+        id=paiement_id,
+    )
+
+    if request.method != "POST":
+        return redirect("liste_paiements")
+
+    if paiement.statut == Paiement.ANNULE:
+        message_vers_notification(
+            request,
+            "WARNING",
+            "Ce paiement est déjà annulé.",
+            "Ce paiement est déjà annulé.",
+        )
+        return redirect("liste_paiements")
+
+    message_vers_notification(
+        request,
+        "SUCCESS",
+        f"Paiement de {paiement.montant} annulé pour "
+        f"{paiement.inscription.eleve}.",
+        f"Paiement de {paiement.montant} annulé pour "
+        f"{paiement.inscription.eleve}.",
+    )
+
+    with transaction.atomic():
+        # L'entree de caisse ne peut pas rester : elle ferait
+        # apparaitre un versement annule dans le solde.
+        EntreeCaisse.objects.filter(
+            paiement=paiement,
+        ).delete()
+
+        paiement.statut = Paiement.ANNULE
+        paiement.valide_par = None
+        paiement.save(update_fields=["statut", "valide_par"])
+
+    return redirect("liste_paiements")
+
+
+# ============================================================
+# CAISSE
+#
+# Les permissions caisse.ouvrir / caisse.fermer existent depuis le
+# seed, mais aucune vue ne les utilisait : une caisse ne pouvait
+# naitre que par insertion manuelle en base. Sans caisse ouverte,
+# _porter_en_caisse renvoyait None et tout paiement valide restait
+# hors caisse, silencieusement.
+# ============================================================
+
+@permission_requise("caisse.ouvrir")
+def ouvrir_caisse(request):
+    """Ouvre une caisse, ou en cree une si l'etablissement n'en a pas.
+
+    Une seule caisse ouverte a la fois : deux caisses ouvertes
+    rendraient le solde dependant de laquelle on regarde.
+    """
+    utilisateur = _utilisateur_courant(request)
+    if not utilisateur:
+        return redirect("connexion")
+
+    if request.method != "POST":
+        return redirect("dashboard_caisse")
+
+    if _caisse_ouverte() is not None:
+        message_vers_notification(
+            request,
+            "WARNING",
+            "Une caisse est déjà ouverte.",
+            "Une caisse est déjà ouverte.",
+        )
+        return redirect("dashboard_caisse")
+
+    caisse = _ouvrir_caisse_si_necessaire()
+
+    message_vers_notification(
+        request,
+        "SUCCESS",
+        f"Caisse « {caisse.libelle} » ouverte.",
+        f"Caisse « {caisse.libelle} » ouverte.",
+    )
+
+    return redirect("dashboard_caisse")
+
+
+@permission_requise("caisse.fermer")
+def fermer_caisse(request):
+    """Ferme la caisse ouverte.
+
+    Les paiements deja valides restent valides : la caisse ne porte
+    que l'ecriture de tresorerie, elle n'est pas la source de verite
+    du statut d'un versement.
+    """
+    utilisateur = _utilisateur_courant(request)
+    if not utilisateur:
+        return redirect("connexion")
+
+    if request.method != "POST":
+        return redirect("dashboard_caisse")
+
+    caisse = _caisse_ouverte()
+
+    if caisse is None:
+        message_vers_notification(
+            request,
+            "WARNING",
+            "Aucune caisse n'est ouverte.",
+            "Aucune caisse n'est ouverte.",
+        )
+        return redirect("dashboard_caisse")
+
+    caisse.statut = Caisse.FERMEE
+    caisse.save(update_fields=["statut"])
+
+    message_vers_notification(
+        request,
+        "SUCCESS",
+        f"Caisse « {caisse.libelle} » fermée.",
+        f"Caisse « {caisse.libelle} » fermée.",
+    )
+
+    return redirect("dashboard_caisse")
+
+
+@permission_requise("caisse.enregistrer_entree")
+def porter_en_caisse(request, paiement_id):
+    """Port un paiement deja valide dans la caisse ouverte.
+
+    Couvre le cas que valider_paiement ne peut pas repare tout seul :
+    un paiement valide alors qu'aucune caisse n'etait ouverte. Son
+    statut ne repasse jamais par ENREGISTRE, donc la validation ne
+    peut plus etre rejouee — sans cette vue, l'argent restait hors
+    caisse sans aucun moyen de le reintegrer.
+    """
+    from .models import Paiement
+
+    utilisateur = _utilisateur_courant(request)
+    if not utilisateur:
+        return redirect("connexion")
+
+    paiement = get_object_or_404(
+        Paiement.objects.select_related(
+            "inscription", "inscription__eleve",
+        ),
+        id=paiement_id,
+    )
+
+    if request.method != "POST":
+        return redirect("detail_paiement", paiement_id=paiement.id)
+
+    if paiement.statut != Paiement.VALIDE:
+        message_vers_notification(
+            request,
+            "WARNING",
+            "Seul un paiement validé peut être porté en caisse.",
+            "Seul un paiement validé peut être porté en caisse.",
+        )
+        return redirect("detail_paiement", paiement_id=paiement.id)
+
+    if EntreeCaisse.objects.filter(paiement=paiement).exists():
+        message_vers_notification(
+            request,
+            "WARNING",
+            "Ce paiement est déjà porté en caisse.",
+            "Ce paiement est déjà porté en caisse.",
+        )
+        return redirect("detail_paiement", paiement_id=paiement.id)
+
+    caisse = _caisse_ouverte()
+
+    if caisse is None:
+        # Meme comportement que la validation : un montant recu ne
+        # doit pas rester hors caisse faute d'une manipulation
+        # prealable. La caisse s'ouvre donc ici aussi.
+        caisse = _ouvrir_caisse_si_necessaire()
+
+    entree = _porter_en_caisse(paiement, utilisateur)
+
+    message_vers_notification(
+        request,
+        "SUCCESS",
+        f"Paiement de {paiement.montant} porté sur « {caisse.libelle} ».",
+        f"Paiement de {paiement.montant} porté sur « {caisse.libelle} ».",
+    )
+
+    return redirect("detail_paiement", paiement_id=paiement.id)
+
+
+@permission_requise("recu.consulter")
+def imprimer_recu(request, paiement_id):
+    """Imprime le recu d'un paiement, au format A4 divise en huit.
+
+    Le numero de recu est cree a la volee s'il manque encore : les
+    paiements valides avant l'existence de cet ecran n'ont pas de
+    recu, et le refuser laisserait ces versements sans justificatif.
+    Le numero est derive de l'identifiant du paiement, donc unique
+    et stable entre deux impressions.
+    """
+    from .models import Paiement, Recu
+
+    utilisateur = _utilisateur_courant(request)
+    if not utilisateur:
+        return redirect("connexion")
+
+    paiement = get_object_or_404(
+        Paiement.objects.select_related(
+            "inscription",
+            "inscription__eleve",
+            "inscription__classe",
+            "inscription__annee",
+            "tranche",
+            "tranche__frais",
+            "enregistre_par",
+            "valide_par",
+        ),
+        id=paiement_id,
+    )
+
+    if paiement.statut not in (Paiement.VALIDE, Paiement.ENREGISTRE):
+        message_vers_notification(
+            request,
+            "WARNING",
+            "Un paiement annulé ne donne pas lieu à un reçu.",
+            "Un paiement annulé ne donne pas lieu à un reçu.",
+        )
+        return redirect("detail_paiement", paiement_id=paiement.id)
+
+    recu, _ = Recu.objects.get_or_create(
+        paiement=paiement,
+        defaults={
+            "numero_recu": (
+                f"R{paiement.date_paiement:%Y}{paiement.id:06d}"
+            ),
+            "statut": Recu.VALIDE,
+        },
+    )
+
+    return render(
+        request,
+        "comptabilite/recu_impression.html",
+        {
+            "utilisateur": utilisateur,
+            "paiement": paiement,
+            "recu": recu,
+        },
+    )
+
+
+@permission_requise("paiement.consulter")
 def liste_paiements(request):
-    return render(request, "comptabilite/liste_paiements.html")
+    """ Paiements enregistres, avec les actions de l'etat suivant.
+
+    La liste est le seul endroit ou un paiement peut etre valide : sans
+    elle, l'etat ENREGISTRE definitif que rien ne pouvait faire
+    passer a VALIDE.
+    """
+    from .models import Paiement
+
+    utilisateur = _utilisateur_courant(request)
+    if not utilisateur:
+        return redirect("connexion")
+
+    annee_active = AnneeScolaire.objects.filter(
+        statut=AnneeScolaire.ACTIVE
+    ).first()
+
+    paiements = (
+        Paiement.objects
+        .select_related(
+            "inscription",
+            "inscription__eleve",
+            "inscription__classe",
+            "tranche",
+            "tranche__frais",
+            "enregistre_par",
+            "valide_par",
+        )
+        .order_by("-date_paiement", "-id")
+    )
+
+    # Un filtre par etat : la file des paiements a valider est ce que le
+    # comptable ouvre en premier, et elle est invisible sans filtre.
+    filtre = request.GET.get("statut", "")
+
+    if filtre in dict(Paiement.STATUT_CHOICES):
+        paiements = paiements.filter(statut=filtre)
+
+    if request.GET.get("classe"):
+        paiements = paiements.filter(
+            inscription__classe_id=request.GET["classe"]
+        )
+
+    return render(
+        request,
+        "comptabilite/liste_paiements.html",
+        {
+            "utilisateur": utilisateur,
+            "annee_active": annee_active,
+            "paiements": paiements,
+            "filtre": filtre,
+            "nb_enregistres": Paiement.objects.filter(
+                statut=Paiement.ENREGISTRE
+            ).count(),
+            "nb_valides": Paiement.objects.filter(
+                statut=Paiement.VALIDE
+            ).count(),
+            "total_valide": (
+                Paiement.objects
+                .filter(statut=Paiement.VALIDE)
+                .aggregate(total=Sum("montant"))["total"]
+                or Decimal("0")
+            ),
+            "peut_valider": utilisateur_a_permission(
+                utilisateur, "paiement.valider"
+            ),
+            "peut_annuler": utilisateur_a_permission(
+                utilisateur, "paiement.annuler"
+            ),
+        }
+    )
 
 
+@permission_requise("paiement.consulter")
 def detail_paiement(request, paiement_id):
-    return render(request, "comptabilite/detail_paiement.html")
+    """ Detail d'un paiement et de sa position sur sa tranche. """
+    from .models import Paiement, Recu
+
+    utilisateur = _utilisateur_courant(request)
+    if not utilisateur:
+        return redirect("connexion")
+
+    paiement = get_object_or_404(
+        Paiement.objects.select_related(
+            "inscription",
+            "inscription__eleve",
+            "inscription__classe",
+            "inscription__annee",
+            "tranche",
+            "tranche__frais",
+            "enregistre_par",
+            "valide_par",
+        ),
+        id=paiement_id,
+    )
+
+    return render(
+        request,
+        "comptabilite/detail_paiement.html",
+        {
+            "utilisateur": utilisateur,
+            "paiement": paiement,
+            "reste_tranche": _reste_tranche(paiement.tranche),
+            "entree": EntreeCaisse.objects.filter(
+                paiement=paiement
+            ).select_related("caisse").first(),
+            "recu": Recu.objects.filter(paiement=paiement).first(),
+            # La caisse ouverte permet au detail d proposer le report
+            # d'un paiement valide qui n'a pas d'entree : sans elle,
+            # l'agent ne voit pas ou l'argent doit aller.
+            "caisse": _caisse_ouverte(),
+            "peut_valider": utilisateur_a_permission(
+                utilisateur, "paiement.valider"
+            ),
+            "peut_annuler": utilisateur_a_permission(
+                utilisateur, "paiement.annuler"
+            ),
+        }
+    )
 
 
+@permission_requise("recu.consulter")
 def liste_recus(request):
-    return render(request, "comptabilite/liste_recus.html")
+    """Recus emis, du plus recent au plus ancien.
+
+    La vue rendait le template sans aucun contexte : la liste restait
+    vide quelle que soit la base, et le lien « Voir » menait au
+    paiement pour aucun element.
+    """
+    from .models import Recu
+
+    utilisateur = _utilisateur_courant(request)
+    if not utilisateur:
+        return redirect("connexion")
+
+    return render(
+        request,
+        "comptabilite/liste_recus.html",
+        {
+            "utilisateur": utilisateur,
+            "recus": (
+                Recu.objects
+                .select_related(
+                    "paiement",
+                    "paiement__inscription",
+                    "paiement__inscription__eleve",
+                )
+                .order_by("-date_generation")
+            ),
+        },
+    )
 
 
+@permission_requise("caisse.consulter")
 def detail_caisse(request, caisse_id):
     return render(request, "comptabilite/detail_caisse.html")
 
@@ -9225,12 +12414,432 @@ def eleves_classe_paiements(request, classe_id):
     })
 
 
+def _id_ou_none(valeur):
+    """Identifiant entier, ou None si le champ est absent ou invalide.
+
+    Django leve une ValueError sur filter(id="") comme sur
+    filter(id="abc") : le champ du formulaire n'est pas un
+    identifiant, et une saisie non numerique doit se traduire par
+    None — que la requete ne trouve rien — et non par une erreur 500.
+    """
+    if valeur is None:
+        return None
+
+    texte = str(valeur).strip()
+
+    if not texte:
+        return None
+
+    if not re.fullmatch(r"[0-9]+", texte):
+        return None
+
+    return texte
+
+
+def _tranches_avec_reste(frais_ids):
+    """Tranches d'une inscription, avec leur reste a payer.
+
+    L'ordre retenu est celui des echeances, pas celui du numero : les
+    frais d'une annee sont saisis tranche par tranche, et le numero
+    suit la creation, pas l'echeance.
+    """
+    from decimal import Decimal
+
+    from django.db.models.functions import Coalesce
+
+    from .models import Paiement, Tranche
+
+    if not frais_ids:
+        return []
+
+    return list(
+        Tranche.objects
+        .filter(frais_id__in=frais_ids)
+        .annotate(
+            paye=Coalesce(
+                Sum(
+                    "paiements__montant",
+                    filter=Q(paiements__statut=Paiement.VALIDE),
+                ),
+                Decimal("0.00"),
+            )
+        )
+        .order_by("date_echeance", "numero", "id")
+    )
+
+
+def _tranche_a_solder(frais_ids):
+    """Premiere tranche non soldee, seule encaissable.
+
+    Les tranches se payent dans l'ordre des echeances : solder la
+    troisieme en laissant la premiere impayee autoriserait un eleve a
+    ne jamais payer la premiere. La fonction renvoie la premiere tranche
+    dont le reste est positif, ou None si tout est solde.
+    """
+    for tranche in _tranches_avec_reste(frais_ids):
+        reste = tranche.montant - (tranche.paye or Decimal("0.00"))
+
+        if reste > 0:
+            return tranche, reste
+
+    return None, Decimal("0.00")
+
+
+def _tranche_bloquante(tranche, frais_ids):
+    """Tranche anterieure encore due, si la choisie n'est pas la bonne.
+
+    Une tranche anterieure existe des qu'une echeance precede celle
+    choisie. C'est cette tranche-la qui doit etre soldee en premier.
+    """
+    if tranche is None:
+        return None
+
+    for autre in _tranches_avec_reste(frais_ids):
+        if autre.id == tranche.id:
+            return None
+
+        if (
+            autre.date_echeance < tranche.date_echeance
+            or (
+                autre.date_echeance == tranche.date_echeance
+                and autre.id < tranche.id
+            )
+        ):
+            reste = autre.montant - (autre.paye or Decimal("0.00"))
+
+            if reste > 0:
+                return autre
+
+    return None
+
+
+def _valider_montant_paiement(valeur_saisie):
+    """Convertit un montant saisi en Decimal positif.
+
+    Le controle passe par Decimal et non par un simple float : un
+    montant de 0.10 ne doit pas devenir 0.099999... en base.
+
+    Le motif est volontairement le meme que celui du formulaire, cote
+    navigateur : "12." et "12," sont des saisies inachevees que Python
+    accepte volontiers (il y lit 12), et un montant trop vagy doit etre
+    refuse des le navigateur pour ne pas.train l'utilisateur dans un
+    aller-retour au serveur. Une valeur nulle, negative ou non
+    numerique arrivera toujours par une autre voie — requete directe,
+    script, autre poste : ce controle reste le dernier rempart.
+    """
+    from decimal import Decimal
+
+    if valeur_saisie is None:
+        raise ValidationError("Le montant est obligatoire.")
+
+    texte = str(valeur_saisie).strip()
+
+    if not texte:
+        raise ValidationError("Le montant est obligatoire.")
+
+    # [0-9] explicite : \d accepte aussi les chiffres d'autres
+    # alphabets, que Decimal peut refuser dans une base de donnees
+    # qui n'en attend pas.
+    if not re.fullmatch(r"[0-9]+([.,][0-9]{1,2})?", texte):
+        raise ValidationError(
+            "Le montant doit être un nombre positif, avec au plus "
+            "deux décimales (exemple : 125.50)."
+        )
+
+    # Virgule decimale utilisee en francais.
+    if "," in texte:
+        texte = texte.replace(",", ".")
+
+    montant = Decimal(texte)
+
+    if montant <= 0:
+        raise ValidationError(
+            "Le montant doit être supérieur à zéro : un paiement "
+            "à 0 ou négatif n'est pas un paiement."
+        )
+
+    return montant
+
+
+@permission_requise("paiement.enregistrer")
 def encaisser_paiement(request):
-    return render(request, "comptabilite/encaisser_paiement.html")
+    """Encaissement d'un paiement.
+
+    Deux usages partagent la meme vue : la page dediee
+    (comptabilite/encaisser_paiement.html) et le fragment injecte dans
+    la fenetre de paiement de la page « Paiements eleves ». Les deux
+    renvoie un fragment HTML si le template le demande, ce qui permet a
+    la fenetre de rester ouverte sur le resultat sans rechargement.
+    """
+    from .models import Paiement, Tranche
+
+    utilisateur = _utilisateur_courant(request)
+    if not utilisateur:
+        return redirect("connexion")
+
+    contexte = {
+        "utilisateur": utilisateur,
+        "erreur": None,
+        "erreurs": {},
+        # Valeurs renvoyees pour ne pas perdre la saisie en cas
+        # d'erreur de validation.
+        "saisie": {},
+    }
+
+    if request.method == "POST":
+
+        inscription_id = _id_ou_none(request.POST.get("inscription_id"))
+        tranche_id = _id_ou_none(request.POST.get("tranche_id"))
+        montant_saisi = request.POST.get("montant")
+
+        contexte["saisie"] = {
+            "inscription_id": inscription_id or "",
+            "tranche_id": tranche_id or "",
+            "montant": montant_saisi or "",
+        }
+
+        # =====================================================
+        # CONTRÔLE DES SAISIES
+        # =====================================================
+
+        inscription = Inscription.objects.filter(
+            id=inscription_id,
+            statut=Inscription.ACTIVE,
+        ).select_related("eleve", "annee", "classe").first()
+
+        if inscription is None:
+            contexte["erreurs"]["inscription_id"] = (
+                "Sélectionnez une inscription active."
+            )
+        else:
+            # Le fragment doit reafficher l'identite de l'eleve apres
+            # une erreur : sans cela le formulaire se recharge vide et
+            # la saisie est perdue.
+            contexte["inscription"] = inscription
+
+        frais_ids = (
+            _frais_scolaires_de(inscription)
+            if inscription is not None
+            else []
+        )
+
+        tranche = Tranche.objects.filter(
+            id=tranche_id,
+        ).first() if tranche_id else None
+
+        if tranche is None:
+            contexte["erreurs"]["tranche_id"] = (
+                "Sélectionnez une tranche."
+            )
+        elif tranche.frais_id not in frais_ids:
+            # Une tranche d'une autre annee scolaire ne peut pas
+            # solder cette inscription, meme si elle existe.
+            contexte["erreurs"]["tranche_id"] = (
+                "Cette tranche ne correspond pas aux frais "
+                "scolaires de l'année de l'inscription."
+            )
+        else:
+            # Les tranches se payent dans l'ordre des echeances.
+            # Sans ce controle, un formulaire trafique — ou une ancienne
+            # page encore en cache — autoriserait a solder la troisieme
+            # tranche en laissant la premiere impayee.
+            bloquee = _tranche_bloquante(tranche, frais_ids)
+
+            if bloquee is not None:
+                contexte["erreurs"]["tranche_id"] = (
+                    f"La tranche {bloquee.numero}, échue le "
+                    f"{bloquee.date_echeance:%d/%m/%Y}, n'est pas "
+                    f"entièrement soldée. Elle doit être réglée avant "
+                    f"la tranche {tranche.numero}."
+                )
+
+        try:
+            montant = _valider_montant_paiement(montant_saisi)
+        except ValidationError as erreur:
+            contexte["erreurs"]["montant"] = erreur.messages[0]
+            montant = None
+
+        # La page dediee doit reafficher la tranche choisie apres une
+        # erreur : sans cela le select repart vide et l'utilisateur
+        # doit tout reselectionner.
+        if tranche is not None:
+            contexte["tranche"] = tranche
+            contexte["reste_tranche"] = _reste_tranche(tranche)
+
+        # =====================================================
+        # ENREGISTREMENT
+        # =====================================================
+
+        if not contexte["erreurs"] and montant is not None:
+
+            # Le modele impose 0.01 au minimum ; un montant superieur
+            # a la tranche ou depassant deux decimales doit etre
+            # refuse avant d'atteindre la base.
+            reste = _reste_tranche(tranche)
+            erreur_modele = {}
+
+            if reste is not None and montant > reste:
+                erreur_modele["montant"] = (
+                    f"Le montant dépasse le reste à payer sur cette "
+                    f"tranche ({reste})."
+                )
+
+            if erreur_modele:
+                contexte["erreurs"] = erreur_modele
+            else:
+                with transaction.atomic():
+                    paiement = Paiement.objects.create(
+                        inscription=inscription,
+                        tranche=tranche,
+                        montant=montant,
+                        enregistre_par=utilisateur,
+                        statut=Paiement.ENREGISTRE,
+                    )
+
+                    try:
+                        paiement.full_clean()
+                    except ValidationError as erreur:
+                        # Les regles du modele sont le dernier rempart :
+                        # on ne veut pas d'un paiement enregistre a moitie.
+                        transaction.set_rollback(True)
+                        contexte["erreurs"] = {
+                            "montant": " ".join(
+                                erreur.messages
+                            )
+                        }
+                        paiement = None
+
+                if paiement is not None:
+                    message_vers_notification(
+                        request,
+                        "SUCCESS",
+                        f"Paiement de {montant} enregistré pour "
+                        f"{inscription.eleve}.",
+                        f"Paiement de {montant} enregistré pour "
+                        f"{inscription.eleve}.",
+                    )
+
+                    contexte["paiement"] = paiement
+
+                    # =========================================
+                    # RÉPONSE JSON POUR LA FENÊTRE
+                    # =========================================
+
+                    if request.headers.get(
+                        "X-Requested-With"
+                    ) == "XMLHttpRequest":
+                        return JsonResponse({
+                            "succes": True,
+                            "paiement_id": paiement.id,
+                            "montant": str(montant),
+                            "message": (
+                                f"Paiement de {montant} enregistré."
+                            ),
+                        })
+
+                    return redirect("liste_paiements")
+
+    # =====================================================
+    # AFFICHAGE
+    # =====================================================
+
+    # La fenetre de paiement envoie son POST en AJAX et attend du JSON.
+    # Sans cette sortie, une erreur de validation rendait la page
+    # HTML complete : le parseur JSON du navigateur echouait et
+    # l'utilisateur lisait « Erreur reseau » au lieu du motif reel
+    # (montant superieur au reste, tranche bloquee, etc.).
+    if (
+        request.method == "POST"
+        and request.headers.get("X-Requested-With")
+        == "XMLHttpRequest"
+        and contexte["erreurs"]
+    ):
+        return JsonResponse(
+            {
+                "succes": False,
+                "erreurs": contexte["erreurs"],
+                "error": " ".join(contexte["erreurs"].values()),
+            },
+            status=400,
+        )
+
+    if request.GET.get("format") == "fragment":
+
+        # La fenetre demande le formulaire pour une inscription donnee :
+        # sans cette lecture, le fragment s'affichait avec un formulaire
+        # vide et sans le nom de l'eleve, puisque le POST n'a pas encore
+        # eu lieu.
+        inscription = (
+            Inscription.objects
+            .filter(
+                id=_id_ou_none(request.GET.get("inscription_id")),
+                statut=Inscription.ACTIVE,
+            )
+            .select_related("eleve", "annee", "classe")
+            .first()
+        )
+
+        if inscription is not None:
+            contexte["inscription"] = inscription
+
+            # L'identifiant repart dans la saisie : sans cela le champ
+            # cache rendu par le fragment vautait une chaine vide, et le
+            # POST repartait avec inscription_id vide. Le serveur
+            # rejetait alors le paiement avec « Selectionnez une
+            # inscription active » alors que l'eleve etait justement
+            # affiche a l'ecran. On recopie l'identifiant de
+            # l'inscription relue, et non celui de la requete : c'est
+            # elle qui fait foi.
+            contexte["saisie"]["inscription_id"] = inscription.id
+
+        if request.GET.get("tranche_id"):
+            contexte["saisie"]["tranche_id"] = request.GET[
+                "tranche_id"
+            ]
+
+        return render(
+            request,
+            "comptabilite/formulaire_paiement_modal.html",
+            contexte,
+        )
+
+    return render(
+        request,
+        "comptabilite/encaisser_paiement.html",
+        contexte,
+    )
+
+
+def _reste_tranche(tranche):
+    """Montant restant a solder sur une tranche, paiements valides."""
+    from decimal import Decimal
+
+    from .models import Paiement
+
+    if tranche is None:
+        return None
+
+    paye = (
+        Paiement.objects
+        .filter(tranche=tranche, statut=Paiement.VALIDE)
+        .aggregate(total=Sum("montant"))["total"]
+        or Decimal("0.00")
+    )
+
+    return tranche.montant - paye
 
 
 def ajax_eleves_par_nom(request):
-    """Recherche d'eleves par nom (format select2 : {"results": [...]})."""
+    """Recherche d'eleves par nom, postnom ou prenom.
+
+    Le filtre portrait deux fois sur le nom et jamais sur le postnom :
+    le patronyme, qui est le second nom de famille dans ce pays, n'était
+    donc jamais cherche.
+
+    La reponse ne renvoie que nom et prenom : deux eleves peuvent porter
+    les memes sans etre le meme eleve. Le matricule et la classe
+    distinguent les homonymes, et c'est l'utilisateur qui choisit.
+    """
     from .models import Eleve
 
     utilisateur = _utilisateur_courant(request)
@@ -9241,24 +12850,115 @@ def ajax_eleves_par_nom(request):
     if len(requete) < 2:
         return JsonResponse({"results": []})
 
-    eleves = (
-        Eleve.objects
-        .filter(actif=True)
-        .filter(
-            Q(nom__icontains=requete)
-            | Q(prenom__icontains=requete)
-            | Q(nom__icontains=requete)
-        )
-        .order_by("nom", "prenom")[:20]
+    classe_id = request.GET.get("classe_id")
+    classe = None
+
+    if classe_id:
+        classe = Classe.objects.filter(
+            id=classe_id, actif=True
+        ).first()
+
+    eleves = Eleve.objects.filter(actif=True).filter(
+        Q(nom__icontains=requete)
+        | Q(postnom__icontains=requete)
+        | Q(prenom__icontains=requete)
     )
+
+    # Le filtre par classe porte sur l'inscription en cours, pas sur
+    # l'eleve : un eleve reinscrit dans une autre classe existe deux
+    # fois, et seule la classe choisie ici doit restreindre la liste.
+    inscriptions = Inscription.objects.filter(
+        eleve__in=eleves,
+        statut=Inscription.ACTIVE,
+    )
+
+    if classe is not None:
+        inscriptions = inscriptions.filter(classe=classe)
+
+    inscriptions = inscriptions.select_related(
+        "eleve", "classe", "annee"
+    ).order_by("eleve__nom", "eleve__postnom", "eleve__prenom")
+
+    resultats = []
+    vus = set()
+
+    for inscription in inscriptions[:20]:
+        eleve = inscription.eleve
+
+        if eleve.id in vus:
+            continue
+
+        vus.add(eleve.id)
+
+        nom_complet = " ".join(
+            partie
+            for partie in (eleve.nom, eleve.postnom, eleve.prenom)
+            if partie
+        )
+
+        libelle_classe = (
+            inscription.classe.libelle
+            if inscription.classe_id
+            else "—"
+        )
+
+        resultats.append({
+            "id": eleve.id,
+            "text": nom_complet,
+            "matricule": eleve.matricule,
+            "classe": libelle_classe,
+            "annee_id": inscription.annee_id,
+            "annee": inscription.annee.libelle,
+            "detail": f"{eleve.matricule} — {libelle_classe}",
+        })
+
+    return JsonResponse({"results": resultats})
+
+
+def ajax_classes_par_libelle(request):
+    """Classes actives recherchees par libelle, code ou niveau.
+
+    Sert a preselectionner la classe dans la fenetre de paiement : sans
+    elle, la liste deroule des classes melangees et le secretariat doit
+    deviner laquelle corresponds a la demande.
+    """
+    utilisateur = _utilisateur_courant(request)
+    if not utilisateur:
+        return JsonResponse({"results": []})
+
+    requete = (request.GET.get("q") or "").strip()
+
+    annee_active = AnneeScolaire.objects.filter(
+        statut=AnneeScolaire.ACTIVE
+    ).first()
+
+    classes = Classe.objects.filter(actif=True).select_related(
+        "niveau", "section", "annee"
+    )
+
+    if annee_active:
+        classes = classes.filter(annee=annee_active)
+
+    if len(requete) >= 2:
+        classes = classes.filter(
+            Q(libelle__icontains=requete)
+            | Q(code__icontains=requete)
+            | Q(niveau__libelle__icontains=requete)
+        )
 
     return JsonResponse({
         "results": [
             {
-                "id": eleve.id,
-                "text": f"{eleve.nom} {eleve.prenom}".strip(),
+                "id": classe.id,
+                "text": classe.libelle,
+                "detail": (
+                    f"{classe.code} — "
+                    f"{classe.niveau.libelle if classe.niveau_id else '—'}"
+                ),
             }
-            for eleve in eleves
+            for classe in classes.order_by(
+                "niveau__ordre", "code"
+            )[:20]
         ]
     })
 
@@ -9293,18 +12993,23 @@ def ajax_inscriptions_eleve(request, eleve_id):
 
 
 def ajax_tranches_par_inscription(request, inscription_id):
-    """Tranches de l'inscription qui ne sont pas entierement soldees."""
+    """Tranche a solder pour une inscription.
+
+    Une seule tranche est proposee : la premiere echue et non soldee.
+    Les tranches suivantes apparaissent apres que celle-ci est
+    reglee, dans l'ordre des echeances. Sans cette regle, le menu
+    presentait toutes les tranches et la plus ancienne pouvait etre
+    sautee au profit de la plus recente.
+    """
     from decimal import Decimal
-
-    from django.db.models.functions import Coalesce
-
-    from .models import Paiement, Tranche
 
     utilisateur = _utilisateur_courant(request)
     if not utilisateur:
         return JsonResponse({"results": []})
 
-    inscription = Inscription.objects.filter(id=inscription_id).first()
+    inscription = Inscription.objects.filter(
+        id=_id_ou_none(inscription_id)
+    ).first()
     if not inscription:
         return JsonResponse({"results": []})
 
@@ -9312,31 +13017,29 @@ def ajax_tranches_par_inscription(request, inscription_id):
     if not frais_ids:
         return JsonResponse({"results": []})
 
-    # Montant deja regle par tranche (paiements valides uniquement)
-    tranches = Tranche.objects.filter(
-        frais_id__in=frais_ids
-    ).annotate(
-        paye=Coalesce(
-            Sum(
-                "paiements__montant",
-                filter=Q(paiements__statut=Paiement.VALIDE),
-            ),
-            Decimal("0.00"),
-        )
-    ).order_by("frais__libelle", "numero")
+    tranche, reste = _tranche_a_solder(frais_ids)
 
-    results = []
-    for tranche in tranches:
-        reste = tranche.montant - (tranche.paye or Decimal("0.00"))
-        if reste <= 0:
-            continue
-        results.append({
-            "id": tranche.id,
-            "text": f"Tranche {tranche.numero} — reste {reste} / {tranche.montant}",
-            "montant": str(reste),
+    if tranche is None:
+        return JsonResponse({
+            "results": [],
+            "message": (
+                "Toutes les tranches sont soldées."
+            ),
         })
 
-    return JsonResponse({"results": results})
+    return JsonResponse({
+        "results": [
+            {
+                "id": tranche.id,
+                "text": (
+                    f"Tranche {tranche.numero} — "
+                    f"échéance {tranche.date_echeance:%d/%m/%Y} — "
+                    f"reste {reste} / {tranche.montant}"
+                ),
+                "montant": str(reste),
+            }
+        ]
+    })
 
 
 def _frais_scolaires_de(inscription):
@@ -9357,7 +13060,13 @@ def _frais_scolaires_de(inscription):
 
 
 def ajax_inscriptions_par_classe(request, classe_id):
-    """Inscriptions actives d'une classe."""
+    """Eleves inscrits d'une classe, pour la fenetre de paiement.
+
+    Renvoie l'inscription et non le seul eleve : le paiement porte sur
+    une inscription (annee + classe), et c'est elle que la fenetre
+    doit transmettre. Deux eleves peuvent par ailleurs porter le meme
+    nom, le matricule les distingue.
+    """
     utilisateur = _utilisateur_courant(request)
     if not utilisateur:
         return JsonResponse({"inscriptions": []})
@@ -9369,8 +13078,8 @@ def ajax_inscriptions_par_classe(request, classe_id):
     inscriptions = (
         Inscription.objects
         .filter(classe=classe, statut=Inscription.ACTIVE)
-        .select_related("eleve")
-        .order_by("eleve__nom", "eleve__prenom")
+        .select_related("eleve", "annee")
+        .order_by("eleve__nom", "eleve__postnom", "eleve__prenom")
     )
 
     return JsonResponse({
@@ -9378,11 +13087,22 @@ def ajax_inscriptions_par_classe(request, classe_id):
         "inscriptions": [
             {
                 "id": inscription.id,
-                "eleve": f"{inscription.eleve.nom} {inscription.eleve.prenom}".strip(),
+                "eleve_id": inscription.eleve_id,
+                "matricule": inscription.eleve.matricule,
+                "eleve": " ".join(
+                    partie
+                    for partie in (
+                        inscription.eleve.nom,
+                        inscription.eleve.postnom,
+                        inscription.eleve.prenom,
+                    )
+                    if partie
+                ),
                 "annee_id": inscription.annee_id,
+                "annee": inscription.annee.libelle,
             }
             for inscription in inscriptions
-        ]
+        ],
     })
 
 

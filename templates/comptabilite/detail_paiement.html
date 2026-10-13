@@ -111,6 +111,60 @@
     .status-warning { background: #fef3c7; color: #92400e; }
     .status-danger { background: #fee2e2; color: #991b1b; }
 
+    .muted {
+        color: var(--cp-text-secondary);
+        font-weight: 500;
+        font-size: 12px;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        text-decoration: none;
+    }
+    .btn-primary {
+        background: var(--cp-primary);
+        color: #ffffff;
+    }
+    .btn-primary:hover {
+        background: var(--cp-primary-dark);
+    }
+    .btn-secondary {
+        background: #f1f5f9;
+        color: var(--cp-text);
+    }
+    .btn-secondary:hover {
+        background: #e2e8f0;
+    }
+
+    .alerte-caisse {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 14px 16px;
+        margin-bottom: 20px;
+        border: 1px solid #fecaca;
+        border-radius: 10px;
+        background: #fef2f2;
+        color: #991b1b;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
     .back-link {
         display: inline-flex;
         align-items: center;
@@ -146,7 +200,35 @@
             <h1>Détail du paiement</h1>
             <p>Informations complètes sur le paiement sélectionné.</p>
         </div>
+        <div class="header-actions">
+            <a href="{% url 'imprimer_recu' paiement.id %}"
+               class="btn btn-primary"
+               target="_blank">
+                <i class="fas fa-print"></i>
+                Imprimer le reçu
+            </a>
+        </div>
     </div>
+
+    {% if paiement.statut == "VALIDE" and not recu %}
+        <div class="alerte-caisse">
+            <i class="fas fa-triangle-exclamation"></i>
+            <div>
+                Ce paiement est validé mais n'a pas encore été porté en
+                caisse. Le solde de caisse ne le compte pas.
+                {% if caisse %}
+                    <form method="post"
+                          action="{% url 'porter_en_caisse' paiement.id %}"
+                          style="margin-top:10px;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-secondary">
+                            Porter en caisse « {{ caisse.libelle }} »
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
 
     <div class="card">
         <div class="card-header">
@@ -160,7 +242,15 @@
             </div>
             <div class="detail-row">
                 <span class="detail-label">Tranche</span>
-                <span class="detail-value">{{ paiement.tranche.libelle }}</span>
+                <span class="detail-value">
+                    N° {{ paiement.tranche.id }}
+                    <span class="muted">(tranche n° {{ paiement.tranche.numero }},
+                    échéance {{ paiement.tranche.date_echeance|date:"d/m/Y" }})</span>
+                </span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Frais scolaires</span>
+                <span class="detail-value">{{ paiement.tranche.frais.libelle }}</span>
             </div>
             <div class="detail-row">
                 <span class="detail-label">Montant</span>

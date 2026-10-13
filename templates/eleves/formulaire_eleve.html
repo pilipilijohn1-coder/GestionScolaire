@@ -70,32 +70,63 @@
     .span-2 { grid-column: span 2; }
     .span-3 { grid-column: span 3; }
 
-    /* ---------- Champs ---------- */
-    .field label {
-        display: block;
-        font-size: 13px;
-        font-weight: 600;
-        color: #374151;
-        margin-bottom: 6px;
+    /* ---------- Champs (Floating Labels - Facebook Style) ---------- */
+    .field {
+        position: relative;
     }
-    .field label .req { color: #dc2626; margin-left: 3px; }
-    .form-control,
-    .form-select {
-        width: 100%;
-        padding: 10px 12px;
+    .form-floating {
+        position: relative;
+    }
+    .form-floating > .form-control,
+    .form-floating > .form-select,
+    .form-floating > .form-control:focus,
+    .form-floating > .form-select:focus {
+        height: calc(2.5rem + 2px);
+        padding: 14px 12px;
+        line-height: 1.5;
+        background: #f9fafb;
         border: 1px solid #d1d5db;
         border-radius: 8px;
         font-size: 14px;
-        background: #fff;
         color: #111827;
         box-sizing: border-box;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
-    .form-control:focus,
-    .form-select:focus {
+    .form-floating > .form-control:focus,
+    .form-floating > .form-select:focus {
         outline: none;
         border-color: #2563eb;
         box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        background: #fff;
     }
+    .form-floating > label {
+        position: absolute;
+        top: 50%;
+        left: 14px;
+        transform: translateY(-50%);
+        color: #6b7280;
+        font-size: 14px;
+        font-weight: 500;
+        pointer-events: none;
+        transition: all 0.2s ease;
+        background: #f9fafb;
+        padding: 0 4px;
+    }
+    .form-floating > .form-control:focus ~ label,
+    .form-floating > .form-control:not(:placeholder-shown) ~ label,
+    .form-floating > .form-control:valid ~ label,
+    .form-floating > .form-select:focus ~ label,
+    .form-floating > .form-select:not([value=""]):valid ~ label,
+    .form-floating > .form-select:valid ~ label {
+        top: -8px;
+        left: 10px;
+        font-size: 11px;
+        color: #2563eb;
+        font-weight: 600;
+        transform: none;
+        background: #fff;
+    }
+    .form-floating > label .req { color: #dc2626; margin-left: 2px; }
     .form-control:disabled,
     .form-select:disabled {
         background: #f3f4f6;
@@ -265,10 +296,10 @@
 
                     <!-- Élève existant -->
                     <div class="field bloc" id="bloc-existant">
-                        <label for="{{ form.eleve_id.id_for_label }}">
-                            Élève <span class="req">*</span>
-                        </label>
-                        {{ form.eleve_id }}
+                        <div class="form-floating">
+                            {{ form.eleve_id }}
+                            <label for="{{ form.eleve_id.id_for_label }}">Élève <span class="req">*</span></label>
+                        </div>
                         {% for erreur in form.eleve_id.errors %}
                             <ul class="errorlist"><li>{{ erreur }}</li></ul>
                         {% endfor %}
@@ -282,94 +313,106 @@
                 <!-- Identité -->
                 <div id="bloc-nouveau">
                     <div class="grid">
+                        {% if mode_edition %}
                         <div class="field">
-                            <label for="{{ form.matricule.id_for_label }}">Matricule</label>
-                            {{ form.matricule }}
+                            <div class="form-floating">
+                                {{ form.matricule }}
+                                <label for="{{ form.matricule.id_for_label }}">Matricule</label>
+                            </div>
                             {% for erreur in form.matricule.errors %}
                                 <ul class="errorlist"><li>{{ erreur }}</li></ul>
                             {% endfor %}
-                            {% if mode_edition %}
-                                <span class="helptext">Identifiant définitif de l'élève.</span>
-                            {% else %}
-                                <span class="helptext">Généré automatiquement si vide.</span>
-                            {% endif %}
+                            <span class="helptext">Identifiant définitif de l'élève.</span>
                         </div>
+                        {% else %}
+                        <input type="hidden" name="matricule" value="{{ form.matricule.value|default:'' }}">
+                        {% endif %}
 
                         <div class="field">
-                            <label for="{{ form.eleve_nom.id_for_label }}">
-                                Nom <span class="req">*</span>
-                            </label>
-                            {{ form.eleve_nom }}
+                            <div class="form-floating">
+                                {{ form.eleve_nom }}
+                                <label for="{{ form.eleve_nom.id_for_label }}">Nom <span class="req">*</span></label>
+                            </div>
                             {% for erreur in form.eleve_nom.errors %}
                                 <ul class="errorlist"><li>{{ erreur }}</li></ul>
                             {% endfor %}
                         </div>
 
                         <div class="field">
-                            <label for="{{ form.eleve_postnom.id_for_label }}">Postnom</label>
-                            {{ form.eleve_postnom }}
+                            <div class="form-floating">
+                                {{ form.eleve_postnom }}
+                                <label for="{{ form.eleve_postnom.id_for_label }}">Postnom</label>
+                            </div>
                             {% for erreur in form.eleve_postnom.errors %}
                                 <ul class="errorlist"><li>{{ erreur }}</li></ul>
                             {% endfor %}
                         </div>
 
                         <div class="field">
-                            <label for="{{ form.eleve_prenom.id_for_label }}">
-                                Prénom <span class="req">*</span>
-                            </label>
-                            {{ form.eleve_prenom }}
+                            <div class="form-floating">
+                                {{ form.eleve_prenom }}
+                                <label for="{{ form.eleve_prenom.id_for_label }}">Prénom <span class="req">*</span></label>
+                            </div>
                             {% for erreur in form.eleve_prenom.errors %}
                                 <ul class="errorlist"><li>{{ erreur }}</li></ul>
                             {% endfor %}
                         </div>
 
                         <div class="field">
-                            <label for="{{ form.eleve_sexe.id_for_label }}">Sexe</label>
-                            {{ form.eleve_sexe }}
+                            <div class="form-floating">
+                                {{ form.eleve_sexe }}
+                                <label for="{{ form.eleve_sexe.id_for_label }}">Sexe</label>
+                            </div>
                             {% for erreur in form.eleve_sexe.errors %}
                                 <ul class="errorlist"><li>{{ erreur }}</li></ul>
                             {% endfor %}
                         </div>
 
                         <div class="field">
-                            <label for="{{ form.eleve_date_naissance.id_for_label }}">
-                                Date de naissance
-                            </label>
-                            {{ form.eleve_date_naissance }}
+                            <div class="form-floating">
+                                {{ form.eleve_date_naissance }}
+                                <label for="{{ form.eleve_date_naissance.id_for_label }}">Date de naissance</label>
+                            </div>
                             {% for erreur in form.eleve_date_naissance.errors %}
                                 <ul class="errorlist"><li>{{ erreur }}</li></ul>
                             {% endfor %}
                         </div>
 
                         <div class="field span-2">
-                            <label for="{{ form.eleve_lieu_naissance.id_for_label }}">
-                                Lieu de naissance
-                            </label>
-                            {{ form.eleve_lieu_naissance }}
+                            <div class="form-floating">
+                                {{ form.eleve_lieu_naissance }}
+                                <label for="{{ form.eleve_lieu_naissance.id_for_label }}">Lieu de naissance</label>
+                            </div>
                             {% for erreur in form.eleve_lieu_naissance.errors %}
                                 <ul class="errorlist"><li>{{ erreur }}</li></ul>
                             {% endfor %}
                         </div>
 
                         <div class="field">
-                            <label for="{{ form.eleve_telephone.id_for_label }}">Téléphone</label>
-                            {{ form.eleve_telephone }}
+                            <div class="form-floating">
+                                {{ form.eleve_telephone }}
+                                <label for="{{ form.eleve_telephone.id_for_label }}">Téléphone</label>
+                            </div>
                             {% for erreur in form.eleve_telephone.errors %}
                                 <ul class="errorlist"><li>{{ erreur }}</li></ul>
                             {% endfor %}
                         </div>
 
                         <div class="field span-2">
-                            <label for="{{ form.eleve_email.id_for_label }}">Email</label>
-                            {{ form.eleve_email }}
+                            <div class="form-floating">
+                                {{ form.eleve_email }}
+                                <label for="{{ form.eleve_email.id_for_label }}">Email</label>
+                            </div>
                             {% for erreur in form.eleve_email.errors %}
                                 <ul class="errorlist"><li>{{ erreur }}</li></ul>
                             {% endfor %}
                         </div>
 
                         <div class="field span-3">
-                            <label for="{{ form.eleve_adresse.id_for_label }}">Adresse</label>
-                            {{ form.eleve_adresse }}
+                            <div class="form-floating">
+                                {{ form.eleve_adresse }}
+                                <label for="{{ form.eleve_adresse.id_for_label }}">Adresse</label>
+                            </div>
                             {% for erreur in form.eleve_adresse.errors %}
                                 <ul class="errorlist"><li>{{ erreur }}</li></ul>
                             {% endfor %}
@@ -400,66 +443,74 @@
 
                 <div class="grid">
                     <div class="field">
-                        <label for="{{ form.resp_type_responsabilite.id_for_label }}">
-                            Lien avec l'élève <span class="req">*</span>
-                        </label>
-                        {{ form.resp_type_responsabilite }}
+                        <div class="form-floating">
+                            {{ form.resp_type_responsabilite }}
+                            <label for="{{ form.resp_type_responsabilite.id_for_label }}">Lien avec l'élève <span class="req">*</span></label>
+                        </div>
                         {% for erreur in form.resp_type_responsabilite.errors %}
                             <ul class="errorlist"><li>{{ erreur }}</li></ul>
                         {% endfor %}
                     </div>
 
                     <div class="field">
-                        <label for="{{ form.resp_nom.id_for_label }}">
-                            Nom <span class="req">*</span>
-                        </label>
-                        {{ form.resp_nom }}
+                        <div class="form-floating">
+                            {{ form.resp_nom }}
+                            <label for="{{ form.resp_nom.id_for_label }}">Nom <span class="req">*</span></label>
+                        </div>
                         {% for erreur in form.resp_nom.errors %}
                             <ul class="errorlist"><li>{{ erreur }}</li></ul>
                         {% endfor %}
                     </div>
 
                     <div class="field">
-                        <label for="{{ form.resp_prenom.id_for_label }}">
-                            Prénom <span class="req">*</span>
-                        </label>
-                        {{ form.resp_prenom }}
+                        <div class="form-floating">
+                            {{ form.resp_prenom }}
+                            <label for="{{ form.resp_prenom.id_for_label }}">Prénom <span class="req">*</span></label>
+                        </div>
                         {% for erreur in form.resp_prenom.errors %}
                             <ul class="errorlist"><li>{{ erreur }}</li></ul>
                         {% endfor %}
                     </div>
 
                     <div class="field">
-                        <label for="{{ form.resp_postnom.id_for_label }}">Postnom</label>
-                        {{ form.resp_postnom }}
+                        <div class="form-floating">
+                            {{ form.resp_postnom }}
+                            <label for="{{ form.resp_postnom.id_for_label }}">Postnom</label>
+                        </div>
                     </div>
 
                     <div class="field">
-                        <label for="{{ form.resp_telephone.id_for_label }}">
-                            Téléphone <span class="req">*</span>
-                        </label>
-                        {{ form.resp_telephone }}
+                        <div class="form-floating">
+                            {{ form.resp_telephone }}
+                            <label for="{{ form.resp_telephone.id_for_label }}">Téléphone <span class="req">*</span></label>
+                        </div>
                         {% for erreur in form.resp_telephone.errors %}
                             <ul class="errorlist"><li>{{ erreur }}</li></ul>
                         {% endfor %}
                     </div>
 
                     <div class="field">
-                        <label for="{{ form.resp_email.id_for_label }}">Email</label>
-                        {{ form.resp_email }}
+                        <div class="form-floating">
+                            {{ form.resp_email }}
+                            <label for="{{ form.resp_email.id_for_label }}">Email</label>
+                        </div>
                         {% for erreur in form.resp_email.errors %}
                             <ul class="errorlist"><li>{{ erreur }}</li></ul>
                         {% endfor %}
                     </div>
 
                     <div class="field">
-                        <label for="{{ form.resp_profession.id_for_label }}">Profession</label>
-                        {{ form.resp_profession }}
+                        <div class="form-floating">
+                            {{ form.resp_profession }}
+                            <label for="{{ form.resp_profession.id_for_label }}">Profession</label>
+                        </div>
                     </div>
 
                     <div class="field span-2">
-                        <label for="{{ form.resp_adresse.id_for_label }}">Adresse</label>
-                        {{ form.resp_adresse }}
+                        <div class="form-floating">
+                            {{ form.resp_adresse }}
+                            <label for="{{ form.resp_adresse.id_for_label }}">Adresse</label>
+                        </div>
                     </div>
 
                     <div class="field span-3">
@@ -495,48 +546,64 @@
 
                 <div class="grid bloc-inline" id="bloc-resp2">
                     <div class="field">
-                        <label for="{{ form.resp2_type_responsabilite.id_for_label }}">Lien</label>
-                        {{ form.resp2_type_responsabilite }}
+                        <div class="form-floating">
+                            {{ form.resp2_type_responsabilite }}
+                            <label for="{{ form.resp2_type_responsabilite.id_for_label }}">Lien</label>
+                        </div>
                         {% for erreur in form.resp2_type_responsabilite.errors %}
                             <ul class="errorlist"><li>{{ erreur }}</li></ul>
                         {% endfor %}
                     </div>
                     <div class="field">
-                        <label for="{{ form.resp2_nom.id_for_label }}">Nom</label>
-                        {{ form.resp2_nom }}
+                        <div class="form-floating">
+                            {{ form.resp2_nom }}
+                            <label for="{{ form.resp2_nom.id_for_label }}">Nom</label>
+                        </div>
                         {% for erreur in form.resp2_nom.errors %}
                             <ul class="errorlist"><li>{{ erreur }}</li></ul>
                         {% endfor %}
                     </div>
                     <div class="field">
-                        <label for="{{ form.resp2_prenom.id_for_label }}">Prénom</label>
-                        {{ form.resp2_prenom }}
+                        <div class="form-floating">
+                            {{ form.resp2_prenom }}
+                            <label for="{{ form.resp2_prenom.id_for_label }}">Prénom</label>
+                        </div>
                         {% for erreur in form.resp2_prenom.errors %}
                             <ul class="errorlist"><li>{{ erreur }}</li></ul>
                         {% endfor %}
                     </div>
                     <div class="field">
-                        <label for="{{ form.resp2_postnom.id_for_label }}">Postnom</label>
-                        {{ form.resp2_postnom }}
+                        <div class="form-floating">
+                            {{ form.resp2_postnom }}
+                            <label for="{{ form.resp2_postnom.id_for_label }}">Postnom</label>
+                        </div>
                     </div>
                     <div class="field">
-                        <label for="{{ form.resp2_telephone.id_for_label }}">Téléphone</label>
-                        {{ form.resp2_telephone }}
+                        <div class="form-floating">
+                            {{ form.resp2_telephone }}
+                            <label for="{{ form.resp2_telephone.id_for_label }}">Téléphone</label>
+                        </div>
                     </div>
                     <div class="field">
-                        <label for="{{ form.resp2_email.id_for_label }}">Email</label>
-                        {{ form.resp2_email }}
+                        <div class="form-floating">
+                            {{ form.resp2_email }}
+                            <label for="{{ form.resp2_email.id_for_label }}">Email</label>
+                        </div>
                         {% for erreur in form.resp2_email.errors %}
                             <ul class="errorlist"><li>{{ erreur }}</li></ul>
                         {% endfor %}
                     </div>
                     <div class="field">
-                        <label for="{{ form.resp2_profession.id_for_label }}">Profession</label>
-                        {{ form.resp2_profession }}
+                        <div class="form-floating">
+                            {{ form.resp2_profession }}
+                            <label for="{{ form.resp2_profession.id_for_label }}">Profession</label>
+                        </div>
                     </div>
                     <div class="field span-2">
-                        <label for="{{ form.resp2_adresse.id_for_label }}">Adresse</label>
-                        {{ form.resp2_adresse }}
+                        <div class="form-floating">
+                            {{ form.resp2_adresse }}
+                            <label for="{{ form.resp2_adresse.id_for_label }}">Adresse</label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -555,30 +622,30 @@
 
                 <div class="grid">
                     <div class="field">
-                        <label for="{{ form.annee.id_for_label }}">
-                            Année scolaire <span class="req">*</span>
-                        </label>
-                        {{ form.annee }}
+                        <div class="form-floating">
+                            {{ form.annee }}
+                            <label for="{{ form.annee.id_for_label }}">Année scolaire <span class="req">*</span></label>
+                        </div>
                         {% for erreur in form.annee.errors %}
                             <ul class="errorlist"><li>{{ erreur }}</li></ul>
                         {% endfor %}
                     </div>
 
                     <div class="field">
-                        <label for="{{ form.classe.id_for_label }}">
-                            Classe <span class="req">*</span>
-                        </label>
-                        {{ form.classe }}
+                        <div class="form-floating">
+                            {{ form.classe }}
+                            <label for="{{ form.classe.id_for_label }}">Classe <span class="req">*</span></label>
+                        </div>
                         {% for erreur in form.classe.errors %}
                             <ul class="errorlist"><li>{{ erreur }}</li></ul>
                         {% endfor %}
                     </div>
 
                     <div class="field">
-                        <label for="{{ form.type_inscription.id_for_label }}">
-                            Type d'inscription
-                        </label>
-                        {{ form.type_inscription }}
+                        <div class="form-floating">
+                            {{ form.type_inscription }}
+                            <label for="{{ form.type_inscription.id_for_label }}">Type d'inscription</label>
+                        </div>
                         {% for erreur in form.type_inscription.errors %}
                             <ul class="errorlist"><li>{{ erreur }}</li></ul>
                         {% endfor %}

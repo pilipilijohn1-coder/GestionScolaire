@@ -1,0 +1,554 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Affectation des cours et créneaux{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --ap-primary: #1d4ed8;
+        --ap-primary-dark: #1e3a8a;
+        --ap-bg: #f1f5f9;
+        --ap-border: #e2e8f0;
+        --ap-text: #0f172a;
+        --ap-muted: #64748b;
+        --ap-ok: #16a34a;
+        --ap-warn: #d97706;
+    }
+
+    .ap-wrap {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .ap-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .ap-header h1 {
+        margin: 0;
+        font-size: 24px;
+        color: var(--ap-text);
+    }
+
+    .ap-header p {
+        margin: 6px 0 0;
+        color: var(--ap-muted);
+        font-size: 14px;
+        max-width: 780px;
+    }
+
+    .ap-filters {
+        display: flex;
+        gap: 12px;
+        align-items: flex-end;
+        flex-wrap: wrap;
+        background: #ffffff;
+        border: 1px solid var(--ap-border);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 20px;
+    }
+
+    .ap-filters label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        color: var(--ap-muted);
+        margin-bottom: 6px;
+    }
+
+    .ap-filters select {
+        min-width: 220px;
+        padding: 9px 11px;
+        border: 1px solid var(--ap-border);
+        border-radius: 8px;
+        background: #ffffff;
+        font-size: 14px;
+        color: var(--ap-text);
+    }
+
+    .ap-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 18px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        background: var(--ap-primary);
+        color: #ffffff;
+        transition: background .15s ease;
+    }
+
+    .ap-btn:hover {
+        background: var(--ap-primary-dark);
+        color: #ffffff;
+    }
+
+    .ap-btn-ghost {
+        background: #ffffff;
+        color: var(--ap-primary);
+        border: 1px solid var(--ap-border);
+    }
+
+    .ap-btn-ghost:hover {
+        background: #eff6ff;
+        color: var(--ap-primary-dark);
+    }
+
+    .ap-summary {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+    }
+
+    .ap-chip {
+        background: #ffffff;
+        border: 1px solid var(--ap-border);
+        border-radius: 999px;
+        padding: 7px 15px;
+        font-size: 13px;
+        color: var(--ap-muted);
+    }
+
+    .ap-chip strong {
+        color: var(--ap-text);
+    }
+
+    .ap-table-wrap {
+        background: #ffffff;
+        border: 1px solid var(--ap-border);
+        border-radius: 12px;
+        overflow-x: auto;
+    }
+
+    table.ap-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    .ap-table th {
+        text-align: left;
+        padding: 13px 15px;
+        background: #f8fafc;
+        border-bottom: 1px solid var(--ap-border);
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        color: var(--ap-muted);
+        white-space: nowrap;
+    }
+
+    .ap-table td {
+        padding: 13px 15px;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: top;
+    }
+
+    .ap-matiere {
+        font-weight: 600;
+        color: var(--ap-text);
+    }
+
+    .ap-code {
+        display: inline-block;
+        margin-top: 3px;
+        font-size: 11px;
+        color: var(--ap-muted);
+        background: #f1f5f9;
+        border-radius: 4px;
+        padding: 2px 6px;
+    }
+
+    .ap-select,
+    .ap-input {
+        padding: 8px 10px;
+        border: 1px solid var(--ap-border);
+        border-radius: 7px;
+        font-size: 13px;
+        background: #ffffff;
+        color: var(--ap-text);
+        max-width: 100%;
+    }
+
+    .ap-input-num {
+        width: 92px;
+    }
+
+    .ap-inline-form {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .ap-badge {
+        display: inline-block;
+        padding: 3px 9px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .03em;
+    }
+
+    .ap-badge-ok {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .ap-badge-warn {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .ap-restantes {
+        color: var(--ap-warn);
+        font-weight: 600;
+    }
+
+    .ap-creneaux {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 8px;
+    }
+
+    .ap-creneau-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #eef2ff;
+        border: 1px solid #c7d2fe;
+        color: #3730a3;
+        border-radius: 6px;
+        padding: 3px 5px 3px 9px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .ap-creneau-tag button {
+        border: none;
+        background: transparent;
+        color: #4338ca;
+        cursor: pointer;
+        padding: 0 3px;
+        font-size: 12px;
+        line-height: 1;
+    }
+
+    .ap-creneau-tag button:hover {
+        color: #b91c1c;
+    }
+
+    .ap-empty {
+        padding: 44px 20px;
+        text-align: center;
+        color: var(--ap-muted);
+        font-size: 14px;
+    }
+
+    .ap-hint {
+        font-size: 12px;
+        color: var(--ap-muted);
+        margin-top: 6px;
+    }
+
+    @media (max-width: 900px) {
+        .ap-filters select {
+            min-width: 0;
+            width: 100%;
+        }
+
+        .ap-filters label {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ap-wrap">
+
+    <div class="ap-header">
+        <div>
+            <h1>Cours et créneaux par enseignant</h1>
+            <p>
+                Les cours affichés proviennent de la configuration matière :
+                c'est le programme officiel du niveau de la classe. Vous
+                affectez chaque cours à un enseignant, fixez son volume
+                hebdomadaire, puis vous le placez dans les créneaux de la
+                grille horaire.
+            </p>
+        </div>
+
+        <a href="{% url 'interface_enseignants' %}" class="ap-btn ap-btn-ghost">
+            <i class="fas fa-arrow-left"></i>
+            Retour
+        </a>
+    </div>
+
+    <form method="get" class="ap-filters">
+        <div>
+            <label for="ap_annee">Année scolaire</label>
+            <select name="annee_id" id="ap_annee">
+                {% for annee in annees %}
+                    <option value="{{ annee.id }}"
+                        {% if annee_selectionnee and annee.id == annee_selectionnee.id %}selected{% endif %}>
+                        {{ annee.libelle }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label for="ap_classe">Classe</label>
+            <select name="classe_id" id="ap_classe">
+                <option value="">Sélectionnez une classe</option>
+                {% for c in classes %}
+                    <option value="{{ c.id }}"
+                        {% if classe and c.id == classe.id %}selected{% endif %}>
+                        {{ c.niveau.libelle }} — {{ c.libelle }}
+                        {% if c.section %}({{ c.section.libelle }}){% endif %}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="ap-btn">
+            <i class="fas fa-filter"></i>
+            Afficher
+        </button>
+    </form>
+
+    {% if not annee_selectionnee %}
+        <div class="ap-empty">
+            <i class="fas fa-calendar-times"></i>
+            <p>Aucune année scolaire disponible.</p>
+        </div>
+
+    {% elif not classe %}
+        <div class="ap-empty">
+            <i class="fas fa-chalkboard"></i>
+            <p>Sélectionnez une classe pour voir les cours de son programme officiel.</p>
+        </div>
+
+    {% else %}
+        <div class="ap-summary">
+            <span class="ap-chip">
+                Cours du programme :
+                <strong>{{ cours|length }}</strong>
+            </span>
+            <span class="ap-chip">
+                Avec enseignant :
+                <strong>{{ nb_affectes }}</strong>
+            </span>
+            <span class="ap-chip">
+                Créneaux de cours disponibles :
+                <strong>{{ creneaux|length }}</strong>
+            </span>
+            <span class="ap-chip">
+                Volume saisi :
+                <strong>{{ volume_total|floatformat:"-2" }}</strong> h
+                (max. {{ plafond_cours }} h par cours)
+            </span>
+        </div>
+
+        {% if cours_hors_plafond %}
+            <div class="ap-empty" style="border-color:#b45309;">
+                <i class="fas fa-triangle-exclamation" style="color:#b45309;"></i>
+                <p>
+                    {{ cours_hors_plafond|length }} cours
+                    {{ cours_hors_plafond|length|pluralize }}
+                    dépass{{ cours_hors_plafond|length|pluralize:"e,ent" }}
+                    le maximum de {{ plafond_cours }} h et
+                    {{ plafond_creneaux }} créneaux par semaine :
+                    {% for ligne in cours_hors_plafond %}
+                        <strong>{{ ligne.matiere.libelle }}</strong>
+                        ({{ ligne.affectation_matiere.heures_par_semaine }} h,
+                        {{ ligne.repartitions|length }} cré{% if ligne.repartitions|length != 1 %}neaux{% else %}neau{% endif %}){% if not forloop.last %}, {% endif %}
+                    {% endfor %}.
+                    Corrigez ces valeurs avant de programme.
+                </p>
+            </div>
+        {% endif %}
+
+        {% if cours %}
+            <div class="ap-table-wrap">
+                <table class="ap-table">
+                    <thead>
+                        <tr>
+                            <th>Cours officiel</th>
+                            <th>Enseignant</th>
+                            <th>Volume h/sem</th>
+                            <th>Créneaux placés</th>
+                            <th>Ajouter un créneau</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for ligne in cours %}
+                            <tr>
+                                <td>
+                                    <div class="ap-matiere">{{ ligne.matiere.libelle }}</div>
+                                    <span class="ap-code">{{ ligne.matiere.code }}</span>
+
+                                    {% if ligne.hors_programme %}
+                                        <div class="ap-hint" style="color:#b91c1c;">
+                                            Hors programme : saisi manuellement, aucun cours officiel ne porte ce nom
+                                        </div>
+                                    {% endif %}
+
+                                    {% if ligne.est_affecte %}
+                                        <div class="ap-hint">
+                                            {{ ligne.heures_restantes|floatformat:"-2" }} h restantes
+                                        </div>
+                                    {% elif ligne.hors_programme %}
+                                        <div class="ap-hint" style="color:#b45309;">
+                                            Sans enseignant
+                                        </div>
+                                    {% else %}
+                                        <div class="ap-hint" style="color:#b45309;">
+                                            Matière officielle non encore affectée à un enseignant
+                                        </div>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if ligne.est_affecte %}
+                                        <span class="ap-badge ap-badge-ok">
+                                            {{ ligne.affectation.enseignant }}
+                                        </span>
+                                    {% else %}
+                                        <span class="ap-badge ap-badge-warn">Non affecté</span>
+                                    {% endif %}
+
+                                    <form method="post" class="ap-inline-form" style="margin-top:8px;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="assigner_enseignant">
+                                        <input type="hidden" name="annee_id" value="{{ annee_selectionnee.id }}">
+                                        <input type="hidden" name="classe_id" value="{{ classe.id }}">
+                                        <input type="hidden" name="matiere_id" value="{{ ligne.matiere.id }}">
+
+                                        <select name="enseignant_id" class="ap-select" required>
+                                            <option value="">Choisir un enseignant</option>
+                                            {% for ens in enseignants %}
+                                                <option value="{{ ens.id }}"
+                                                    {% if ligne.affectation and ens.id == ligne.affectation.enseignant_id %}selected{% endif %}>
+                                                    {{ ens.utilisateur.nom }} {{ ens.utilisateur.prenom }} ({{ ens.matricule }})
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+
+                                        <input type="number" name="heures_par_semaine"
+                                               class="ap-input ap-input-num"
+                                               min="1" max="60" required
+                                               placeholder="h/sem"
+                                               value="{% if ligne.affectation_matiere %}{{ ligne.affectation_matiere.heures_par_semaine }}{% else %}2{% endif %}">
+
+                                        <button type="submit" class="ap-btn">
+                                            <i class="fas fa-link"></i>
+                                            Affecter
+                                        </button>
+                                    </form>
+                                </td>
+
+                                <td>
+                                    {% if ligne.affectation_matiere %}
+                                        <strong>{{ ligne.affectation_matiere.heures_par_semaine }}</strong> h
+                                    {% else %}
+                                        <span class="ap-hint">Non défini</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if ligne.repartitions %}
+                                        <div class="ap-creneaux">
+                                            {% for repartition in ligne.repartitions %}
+                                                <span class="ap-creneau-tag">
+                                                    {{ repartition.jour|capfirst }}
+                                                    — {{ repartition.creneau.heure_debut|time:"H:i" }}
+                                                    <form method="post" style="display:inline;">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="action" value="retirer_creneau">
+                                                        <input type="hidden" name="annee_id" value="{{ annee_selectionnee.id }}">
+                                                        <input type="hidden" name="classe_id" value="{{ classe.id }}">
+                                                        <input type="hidden" name="repartition_id" value="{{ repartition.id }}">
+                                                        <button type="submit" title="Retirer ce créneau">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </form>
+                                                </span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <span class="ap-hint">Aucun créneau placé.</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if ligne.est_affecte and creneaux %}
+                                        <form method="post" class="ap-inline-form">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="ajouter_creneau">
+                                            <input type="hidden" name="annee_id" value="{{ annee_selectionnee.id }}">
+                                            <input type="hidden" name="classe_id" value="{{ classe.id }}">
+                                            <input type="hidden" name="affectation_id" value="{{ ligne.affectation.id }}">
+
+                                            <select name="jour" class="ap-select" required>
+                                                {% for code, libelle in jours %}
+                                                    <option value="{{ code }}">{{ libelle }}</option>
+                                                {% endfor %}
+                                            </select>
+
+                                            <select name="creneau_id" class="ap-select" required>
+                                                <option value="">Créneau</option>
+                                                {% for creneau in creneaux %}
+                                                    <option value="{{ creneau.id }}">{{ creneau }}</option>
+                                                {% endfor %}
+                                            </select>
+
+                                            <button type="submit" class="ap-btn">
+                                                <i class="fas fa-plus"></i>
+                                                Placer
+                                            </button>
+                                        </form>
+                                    {% elif not ligne.est_affecte %}
+                                        <span class="ap-hint">Affectez d'abord un enseignant.</span>
+                                    {% else %}
+                                        <span class="ap-hint">Aucun créneau de cours configuré.</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        {% else %}
+            <div class="ap-empty">
+                <i class="fas fa-inbox"></i>
+                <p>
+                    Cette classe n'a aucune matière dans son programme officiel.
+                    Vérifiez la configuration matière de son niveau.
+                </p>
+            </div>
+        {% endif %}
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -141,10 +141,10 @@ Activer une affectation
 
             <div class="teacher-summary">
 
-                {% if affectation.enseignant.utilisateur.photo %}
+                {% if affectation.enseignant.utilisateur.photo_profil %}
 
                     <img
-                        src="{{ affectation.enseignant.utilisateur.photo.url }}"
+                        src="{{ affectation.enseignant.utilisateur.photo_profil.url }}"
                         alt="Photo de {{ affectation.enseignant }}"
                         class="teacher-photo"
                     >

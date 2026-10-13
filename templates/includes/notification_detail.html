@@ -1,0 +1,251 @@
+{% load static %}
+
+<!-- ============================================================
+     MODALE DE DETAIL D'UNE NOTIFICATION
+     Utilisee par le popup flottant et par la page des
+     notifications actives. Au clic, la notification est
+     marquee comme lue puis bascule dans l'historique.
+     ============================================================ -->
+
+<div
+    id="notification-detail"
+    class="notification-detail"
+    aria-hidden="true"
+    data-detail-url="{% url 'ouvrir_notification' 0 %}"
+>
+    <div class="notification-detail__overlay" data-notification-close></div>
+
+    <div
+        class="notification-detail__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="notificationDetailObjet"
+    >
+
+        <div class="notification-detail__header">
+
+            <span
+                id="notificationDetailType"
+                class="notification-detail__type"
+            ></span>
+
+            <button
+                type="button"
+                class="notification-detail__close"
+                data-notification-close
+                aria-label="Fermer"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+        </div>
+
+        <div class="notification-detail__body">
+
+            <h2
+                id="notificationDetailObjet"
+                class="notification-detail__objet"
+            ></h2>
+
+            <p class="notification-detail__meta">
+
+                <span>
+                    <i class="fa-regular fa-calendar"></i>
+                    <span id="notificationDetailDate"></span>
+                </span>
+
+                <span id="notificationDetailCreateurWrap">
+                    <i class="fa-regular fa-user"></i>
+                    <span id="notificationDetailCreateur"></span>
+                </span>
+
+            </p>
+
+            <div
+                id="notificationDetailContenu"
+                class="notification-detail__contenu"
+            ></div>
+
+        </div>
+
+        <div class="notification-detail__footer">
+
+            <span class="notification-detail__archived">
+                <i class="fa-solid fa-box-archive"></i>
+                Déplacée dans l'historique
+            </span>
+
+            <a
+                href="{% url 'historique_notifications' %}"
+                class="notification-detail__history-link"
+            >
+                Voir l'historique
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+(function () {
+
+    var modal = document.getElementById("notification-detail");
+
+    if (!modal) {
+        return;
+    }
+
+    var champType = document.getElementById("notificationDetailType");
+    var champObjet = document.getElementById("notificationDetailObjet");
+    var champDate = document.getElementById("notificationDetailDate");
+    var champCreateur = document.getElementById("notificationDetailCreateur");
+    var blocCreateur = document.getElementById("notificationDetailCreateurWrap");
+    var champContenu = document.getElementById("notificationDetailContenu");
+
+    var urlDetail = (modal.dataset.detailUrl || "").replace(/\/0\/$/, "/");
+
+    function jetonCsrf() {
+        var champ = document.querySelector("[name=csrfmiddlewaretoken]");
+
+        if (champ) {
+            return champ.value;
+        }
+
+        var match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]*)/);
+
+        return match ? match[1] : "";
+    }
+
+    function majCount(nbNonLues) {
+        var popup = document.getElementById("notification-popup");
+
+        if (!popup || !popup.classList.contains("notification-popup--open")) {
+            return;
+        }
+
+        var count = document.getElementById("notification-popup-count");
+
+        if (!count) {
+            return;
+        }
+
+        if (nbNonLues > 0) {
+            count.textContent = nbNonLues + " active" + (nbNonLues > 1 ? "s" : "");
+            count.hidden = false;
+        } else {
+            count.textContent = "";
+            count.hidden = true;
+        }
+    }
+
+    function majBadge(nbNonLues) {
+        var bouton = document.getElementById("notification-float-btn");
+
+        if (!bouton) {
+            return;
+        }
+
+        var badge = bouton.querySelector(".notification-badge");
+
+        if (nbNonLues > 0) {
+            if (!badge) {
+                badge = document.createElement("span");
+                badge.className = "notification-badge";
+                bouton.appendChild(badge);
+            }
+
+            badge.textContent = nbNonLues;
+
+            return;
+        }
+
+        if (badge) {
+            badge.remove();
+        }
+    }
+
+    // Expose globally for notification_floating.html
+    window.majCount = majCount;
+    window.majBadge = majBadge;
+
+    function fermerDetail() {
+        modal.classList.remove("notification-detail--open");
+        modal.setAttribute("aria-hidden", "true");
+    }
+
+    function afficherDetail(notification) {
+        champType.textContent = (notification.type_libelle || notification.type_code || "Information").toUpperCase();
+        champType.className = "notification-detail__type type-" + (notification.type_code || "info");
+
+        champObjet.textContent = notification.objet || "";
+        champDate.textContent = notification.date_creation || "";
+
+        if (notification.createur) {
+            champCreateur.textContent = notification.createur;
+            blocCreateur.hidden = false;
+        } else {
+            champCreateur.textContent = "";
+            blocCreateur.hidden = true;
+        }
+
+        champContenu.textContent = notification.contenu || "";
+
+        modal.classList.add("notification-detail--open");
+        modal.setAttribute("aria-hidden", "false");
+    }
+
+    // Callback appele apres l'ouverture : permet a la page de
+    // retirer la notification de la liste active.
+    window.ouvrirNotification = function (destinataireId, surOuverture) {
+        fetch(urlDetail + destinataireId + "/", {
+            method: "POST",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": jetonCsrf(),
+                "Content-Type": "application/json"
+            },
+            credentials: "same-origin"
+        })
+        .then(function (response) {
+            return response.json().then(function (data) {
+                if (!response.ok) {
+                    throw new Error(data.message || "Erreur HTTP " + response.status);
+                }
+
+                return data;
+            });
+        })
+        .then(function (data) {
+            if (!data.success) {
+                throw new Error(data.message || "Ouverture impossible.");
+            }
+
+            afficherDetail(data.notification);
+            if (window.majBadge) window.majBadge(data.nb_non_lues);
+
+            if (typeof surOuverture === "function") {
+                surOuverture(data.notification, data.nb_non_lues);
+            }
+        })
+        .catch(function (erreur) {
+            console.error("Erreur:", erreur);
+            window.alert("Impossible d'ouvrir la notification : " + erreur.message);
+        });
+    };
+
+    modal.querySelectorAll("[data-notification-close]").forEach(function (element) {
+        element.addEventListener("click", fermerDetail);
+    });
+
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && modal.classList.contains("notification-detail--open")) {
+            fermerDetail();
+        }
+    });
+
+    window.fermerDetailNotification = fermerDetail;
+
+})();
+</script>

@@ -254,6 +254,42 @@
 
 {% block content %}
 <div class="dashboard-container">
+
+    <style>
+        .caisse-barre,
+        .caisse-alerte {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            padding: 14px 18px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+        .caisse-barre {
+            background: #dcfce7;
+            border: 1px solid #86efac;
+            color: #166534;
+        }
+        .caisse-alerte {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+        .caisse-barre form,
+        .caisse-alerte form {
+            margin: 0;
+        }
+        .caisse-alerte .btn-primary {
+            background: #dc2626;
+            color: #ffffff;
+        }
+        .caisse-alerte .btn-primary:hover {
+            background: #b91c1c;
+        }
+    </style>
     <div class="dashboard-header">
         <div>
             <h1>Tableau de bord</h1>
@@ -268,6 +304,40 @@
         </div>
         <div class="role-badge">Caisse</div>
     </div>
+
+    {% if caisse_ouverte %}
+        <div class="caisse-barre">
+            <span>
+                Caisse ouverte :
+                <strong>{{ caisse_ouverte.libelle }}</strong>
+                (depuis {{ caisse_ouverte.heure_ouverture|time:"H:i" }})
+            </span>
+            {% if peut_fermer_caisse %}
+                <form method="post" action="{% url 'fermer_caisse' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-secondary">
+                        Fermer la caisse
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="caisse-alerte">
+            <div>
+                <strong>Aucune caisse n'est ouverte.</strong>
+                Aucun paiement validé ne peut être porté en caisse
+                tant qu'elle ne l'est pas.
+            </div>
+            {% if peut_ouvrir_caisse %}
+                <form method="post" action="{% url 'ouvrir_caisse' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">
+                        Ouvrir une caisse
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    {% endif %}
 
     <div class="stats-grid">
         <div class="stat-card">

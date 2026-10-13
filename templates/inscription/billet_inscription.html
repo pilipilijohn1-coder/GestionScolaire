@@ -1,0 +1,552 @@
+{% load static %}<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Billet d'inscription {{ billet.numero }}</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 14mm 14mm;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        html,
+        body {
+            /* Gabarit A4 portrait impose : une feuille de billet ne
+               doit pas dependre de la taille de la fenetre. */
+            width: 210mm;
+        }
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            color: #0f172a;
+            font-size: 11px;
+            background: #ffffff;
+            /* Sans cela les fonds disparaissent a l'impression. */
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        /* ---------- Bandeau d'en-tete ---------- */
+
+        .entete {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #0f766e;
+        }
+
+        .etablissement h1 {
+            font-size: 17px;
+            color: #115e59;
+        }
+
+        .etablissement p {
+            font-size: 10px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .titre-document {
+            font-size: 15px;
+            font-weight: 700;
+            color: #115e59;
+        }
+
+        .meta {
+            font-size: 10px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        /* ---------- Numero du billet ---------- */
+
+        .numero-billet {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin: 14px 0 16px;
+            padding: 10px 14px;
+            border: 1px solid #99f6e4;
+            border-left: 4px solid #0f766e;
+            border-radius: 5px;
+            background: #f0fdfa;
+        }
+
+        .numero-billet .label {
+            font-size: 8.5px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: #0f766e;
+            font-weight: 700;
+        }
+
+        .numero-billet .valeur {
+            font-family: "Courier New", monospace;
+            font-size: 16px;
+            font-weight: 700;
+            color: #115e59;
+            letter-spacing: .04em;
+        }
+
+        /* ---------- Mention d'annulation ---------- */
+
+        .mention {
+            margin-bottom: 16px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        .mention-annule {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .mention-abandon {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+
+        /* ---------- Sections ---------- */
+
+        .bloc {
+            margin-bottom: 14px;
+        }
+
+        .bloc-titre {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: #0f766e;
+            padding-bottom: 4px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #ccfbf1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .carte th,
+        .carte td {
+            border: 1px solid #dbe3ef;
+            padding: 5px 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .carte th {
+            width: 34%;
+            background: #f8fafc;
+            font-weight: 600;
+            color: #475569;
+            font-size: 10px;
+        }
+
+        .carte td {
+            font-size: 11px;
+        }
+
+        .fort {
+            font-weight: 700;
+        }
+
+        .mono {
+            font-family: "Courier New", monospace;
+            font-weight: 700;
+            color: #115e59;
+        }
+
+        .vide {
+            color: #94a3b8;
+        }
+
+        .secondaire {
+            font-size: 9.5px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        /* ---------- Pastilles de statut ---------- */
+
+        .pastille {
+            display: inline-block;
+            border-radius: 3px;
+            padding: 0 6px;
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        .pastille-oui {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .pastille-non {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* ---------- Frais ---------- */
+
+        .frais {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 9px 12px;
+            border: 1px dashed #99f6e4;
+            border-radius: 5px;
+            background: #f8fafc;
+        }
+
+        .frais .libelle {
+            font-size: 10.5px;
+            font-weight: 600;
+        }
+
+        .frais .montant {
+            font-size: 14px;
+            font-weight: 700;
+            color: #115e59;
+        }
+
+        .frais-note {
+            font-size: 9px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        /* ---------- Pied ---------- */
+
+        .pied {
+            margin-top: 26px;
+            padding-top: 10px;
+            border-top: 1px solid #dbe3ef;
+        }
+
+        .signatures {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+        }
+
+        .signature {
+            width: 46%;
+            text-align: center;
+            font-size: 9.5px;
+            color: #334155;
+        }
+
+        .signature-ligne {
+            border-top: 1px solid #94a3b8;
+            margin: 30px 14px 6px;
+        }
+
+        .signature-note {
+            font-size: 8.5px;
+            color: #64748b;
+        }
+
+        .mentions-legales {
+            margin-top: 14px;
+            font-size: 8.5px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        /* ---------- Barre d'outils ---------- */
+
+        .barre-outils {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #115e59;
+            color: #ffffff;
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .18);
+            z-index: 10;
+        }
+
+        .barre-outils a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, .14);
+            border: 1px solid rgba(255, 255, 255, .3);
+            border-radius: 5px;
+            padding: 6px 13px;
+        }
+
+        .barre-outils a:hover {
+            background: rgba(255, 255, 255, .26);
+        }
+
+        .barre-outils .titre {
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        @media print {
+            .barre-outils {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="barre-outils">
+    <a href="{% url 'liste_inscriptions' %}">&larr; Retour à la liste</a>
+    <span class="titre">
+        {% if cree %}
+            Billet généré — {{ billet.numero }}
+        {% else %}
+            Billet {{ billet.numero }}
+        {% endif %}
+    </span>
+    <a href="#" onclick="window.print()">Imprimer le billet</a>
+</div>
+
+<div style="height:44px;"></div>
+
+<div class="entete">
+    <div class="etablissement">
+        <h1>{{ etablissement|default:"Établissement" }}</h1>
+        <p>{{ inscription.annee.libelle|default:"Année scolaire non définie" }}</p>
+    </div>
+    <div style="text-align:right;">
+        <div class="titre-document">Billet d'inscription</div>
+        <div class="meta">Édité le {{ maintenant|date:"d/m/Y à H:i" }}</div>
+    </div>
+</div>
+
+<div class="numero-billet">
+    <div>
+        <div class="label">Numéro du billet</div>
+        <div class="valeur">{{ billet.numero }}</div>
+    </div>
+    <div style="text-align:right;">
+        <div class="label">Date d'inscription</div>
+        <div class="valeur">{{ inscription.date_inscription|date:"d/m/Y" }}</div>
+    </div>
+</div>
+
+{% if inscription.statut == "ANNULEE" %}
+    <div class="mention mention-annule">
+        Inscription annulée — ce billet ne vaut pas admission
+    </div>
+{% elif inscription.statut == "ABANDON" %}
+    <div class="mention mention-abandon">
+        Élève abandonné — billet conservé pour archive
+    </div>
+{% endif %}
+
+<div class="bloc">
+    <div class="bloc-titre">Identification de l'élève</div>
+    <table class="carte">
+        <tr>
+            <th>Nom et prénom</th>
+            <td class="fort">
+                {{ inscription.eleve.nom|title }}
+                {% if inscription.eleve.postnom %}{{ inscription.eleve.postnom|title }}{% endif %}
+                {{ inscription.eleve.prenom|title }}
+            </td>
+        </tr>
+        <tr>
+            <th>Matricule</th>
+            <td class="mono">{{ inscription.eleve.matricule }}</td>
+        </tr>
+        <tr>
+            <th>Sexe</th>
+            <td>{{ inscription.eleve.get_sexe_display|default:"—" }}</td>
+        </tr>
+        <tr>
+            <th>Né(e) le</th>
+            <td>
+                {% if inscription.eleve.date_naissance %}
+                    {{ inscription.eleve.date_naissance|date:"d/m/Y" }}
+                {% else %}
+                    <span class="vide">Non renseignée</span>
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th>Lieu de naissance</th>
+            <td>{{ inscription.eleve.lieu_naissance|default:"—" }}</td>
+        </tr>
+        <tr>
+            <th>Adresse</th>
+            <td>{{ inscription.eleve.adresse|default:"—" }}</td>
+        </tr>
+        <tr>
+            <th>Téléphone</th>
+            <td>{{ inscription.eleve.telephone|default:"—" }}</td>
+        </tr>
+    </table>
+</div>
+
+<div class="bloc">
+    <div class="bloc-titre">Détail de l'inscription</div>
+    <table class="carte">
+        <tr>
+            <th>Année scolaire</th>
+            <td class="fort">{{ inscription.annee.libelle }}</td>
+        </tr>
+        <tr>
+            <th>Classe affectée</th>
+            <td class="fort">{{ inscription.classe.libelle }}</td>
+        </tr>
+        <tr>
+            <th>Niveau</th>
+            <td>
+                {{ inscription.classe.niveau.libelle }}
+                {% if inscription.classe.section %}
+                    <div class="secondaire">
+                        Section : {{ inscription.classe.section.libelle }}
+                    </div>
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th>Type d'inscription</th>
+            <td>{{ inscription.get_type_inscription_display }}</td>
+        </tr>
+        <tr>
+            <th>Statut</th>
+            <td>{{ inscription.get_statut_display }}</td>
+        </tr>
+        <tr>
+            <th>Bulletin de l'année précédente</th>
+            <td>
+                {% if inscription.type_inscription == "REINSCRIPTION" %}
+                    {% if inscription.bulletin_precedent_verifie %}
+                        <span class="pastille pastille-oui">VÉRIFIÉ</span>
+                    {% else %}
+                        <span class="pastille pastille-non">NON VÉRIFIÉ</span>
+                    {% endif %}
+                {% else %}
+                    <span class="vide">Sans objet</span>
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div class="bloc">
+    <div class="bloc-titre">Responsable légal</div>
+    {% if responsable_principal %}
+        <table class="carte">
+            <tr>
+                <th>Responsable principal</th>
+                <td class="fort">
+                    {{ responsable_principal.responsable.nom|title }}
+                    {% if responsable_principal.responsable.postnom %}{{ responsable_principal.responsable.postnom|title }}{% endif %}
+                    {{ responsable_principal.responsable.prenom|title }}
+                    <div class="secondaire">
+                        {{ responsable_principal.get_type_responsabilite_display }}
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th>Téléphone</th>
+                <td>{{ responsable_principal.responsable.telephone|default:"—" }}</td>
+            </tr>
+            <tr>
+                <th>Adresse</th>
+                <td>{{ responsable_principal.responsable.adresse|default:"—" }}</td>
+            </tr>
+            {% if responsable_principal.responsable.profession %}
+                <tr>
+                    <th>Profession</th>
+                    <td>{{ responsable_principal.responsable.profession }}</td>
+                </tr>
+            {% endif %}
+        </table>
+    {% else %}
+        <p class="vide">Aucun responsable légal rattaché à cet élève.</p>
+    {% endif %}
+
+    {% if responsables_secondaires %}
+        <table class="carte" style="margin-top:6px;">
+            {% for responsabilite in responsables_secondaires %}
+                <tr>
+                    <th>Autre responsable</th>
+                    <td>
+                        {{ responsabilite.responsable.nom|title }}
+                        {% if responsabilite.responsable.postnom %}{{ responsabilite.responsable.postnom|title }}{% endif %}
+                        {{ responsabilite.responsable.prenom|title }}
+                        <div class="secondaire">
+                            {{ responsabilite.get_type_responsabilite_display }}
+                            {% if responsabilite.responsable.telephone %}
+                                — {{ responsabilite.responsable.telephone }}
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+</div>
+
+{% if frais %}
+    <div class="bloc">
+        <div class="bloc-titre">Frais scolaires de l'année</div>
+        <div class="frais">
+            <span class="libelle">{{ frais.libelle }}</span>
+            <span class="montant">{{ frais.montant_total|floatformat:2 }}</span>
+        </div>
+        <p class="frais-note">
+            Montant rappelé à titre indicatif. Le billet atteste
+            l'inscription et ne constitue pas un reçu de paiement.
+        </p>
+    </div>
+{% endif %}
+
+<div class="pied">
+    <div class="signatures">
+        <div class="signature">
+            Le / La secrétaire
+            <div class="signature-ligne"></div>
+            <div class="signature-note">Cachet et signature</div>
+        </div>
+        <div class="signature">
+            Le chef d'établissement
+            <div class="signature-ligne"></div>
+            <div class="signature-note">Cachet et signature</div>
+        </div>
+    </div>
+</div>
+
+<p class="mentions-legales">
+    Le présent billet est généré par l'application de gestion scolaire
+    le {{ maintenant|date:"d/m/Y à H:i" }}
+    {% if billet.genere_par %}
+        par {{ billet.genere_par.nom|title }} {{ billet.genere_par.prenom|title }}
+    {% endif %}.
+    Il atteste l'enregistrement de l'inscription de l'élève dans
+    l'établissement pour l'année scolaire indiquée. Toute inscription
+    annulée donne lieu à l'impression d'une mention sur le document.
+</p>
+
+</body>
+</html>

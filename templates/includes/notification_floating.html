@@ -24,9 +24,15 @@
         </div>
     </div>
     <div class="notification-popup-footer">
-        <a href="{% url 'liste_notifications' %}">Voir toutes les notifications</a>
+        <div class="notification-popup-footer__links">
+            <a href="{% url 'liste_notifications' %}">Notifications actives</a>
+            <a href="{% url 'historique_notifications' %}">Historique</a>
+        </div>
+        <div id="notification-popup-count" class="notification-popup-count"></div>
     </div>
 </div>
+
+{% include 'includes/notification_detail.html' %}
 
 <script>
 var notificationBtn = document.getElementById('notification-float-btn');
@@ -56,34 +62,97 @@ if (notificationBtn && notificationPopup) {
     });
 }
 
+function echapperHtml(texte) {
+    if (texte === null || texte === undefined) {
+        return '';
+    }
+
+    return String(texte)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 function loadNotifications() {
-    fetch("{% url 'ajax_notifications_recentes' %}")
-        .then(function(response) {
-            if (!response.ok) {
-                throw new Error("Erreur HTTP " + response.status);
+        fetch("{% url 'ajax_notifications_recentes' %}")
+            .then(function(response) {
+                if (!response.ok) {
+                    throw new Error("Erreur HTTP " + response.status);
+                }
+                return response.json();
+            })
+            .then(function(data) {
+                var html = '';
+                if (data.notifications && data.notifications.length > 0) {
+                    data.notifications.forEach(function(notif) {
+                        var unreadClass = notif.lu ? '' : 'notification-popup-item--unread';
+                        html += '<div class="notification-popup-item ' + unreadClass + '"'
+                            + ' role="button" tabindex="0"'
+                            + ' data-destinataire-id="' + notif.id + '"'
+                            + ' title="Cliquer pour afficher le message">';
+                        html += '<span class="notification-type type-' + echapperHtml(notif.type_code) + '">' + echapperHtml(notif.type_code).toUpperCase() + '</span>';
+                        html += '<span class="notification-title">' + echapperHtml(notif.objet) + '</span>';
+                        html += '<span class="notification-text">' + echapperHtml(notif.contenu) + '</span>';
+                        html += '<span class="notification-date">' + echapperHtml(notif.date_creation) + '</span>';
+                        html += '<span class="notification-open-hint"><i class="fa-solid fa-envelope-open"></i> Cliquer pour lire</span>';
+                        html += '</div>';
+                    });
+                } else {
+                    html = '<div class="notification-popup-empty"><i class="fas fa-inbox"></i>Aucune notification pour le moment.</div>';
+                }
+                notificationPopupBody.innerHTML = html;
+                if (window.majCount) window.majCount(data.nb_non_lues);
+                brancherClicsNotificationsPopup();
+            })
+            .catch(function(error) {
+                console.error('Erreur:', error);
+                notificationPopupBody.innerHTML = '<div style="padding: 20px; text-align: center; color: #ef4444; font-size: 13px;">Erreur lors du chargement.</div>';
+            });
+    }
+
+function retirerNotificationPopup(destinataireId) {
+    var item = notificationPopupBody.querySelector('[data-destinataire-id="' + destinataireId + '"]');
+
+    if (!item) {
+        return;
+    }
+
+    item.classList.add('notification-popup-item--retrait');
+
+    window.setTimeout(function() {
+        item.remove();
+
+        if (!notificationPopupBody.querySelector('.notification-popup-item')) {
+            notificationPopupBody.innerHTML = '<div class="notification-popup-empty"><i class="fas fa-inbox"></i>Plus aucune notification active.<br>Consultez l\'historique.</div>';
+        }
+    }, 200);
+}
+
+function brancherClicsNotificationsPopup() {
+    notificationPopupBody.querySelectorAll('.notification-popup-item[data-destinataire-id]').forEach(function(item) {
+        var ouvrir = function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+
+            if (item.dataset.ouverture === '1') {
+                return;
             }
-            return response.json();
-        })
-        .then(function(data) {
-            var html = '';
-            if (data.notifications && data.notifications.length > 0) {
-                data.notifications.forEach(function(notif) {
-                    var unreadClass = notif.lu ? '' : 'notification-popup-item--unread';
-                    html += '<div class="notification-popup-item ' + unreadClass + '">';
-                    html += '<span class="notification-type type-' + notif.type_code + '">' + notif.type_code.toUpperCase() + '</span>';
-                    html += '<span class="notification-title">' + notif.objet + '</span>';
-                    html += '<span class="notification-text">' + notif.contenu + '</span>';
-                    html += '<span class="notification-date">' + notif.date_creation + '</span>';
-                    html += '</div>';
-                });
-            } else {
-                html = '<div style="padding: 30px; text-align: center; color: #9ca3af; font-size: 13px;"><i class="fas fa-inbox" style="font-size: 36px; display: block; margin-bottom: 10px;"></i>Aucune notification pour le moment.</div>';
+
+            item.dataset.ouverture = '1';
+
+            window.ouvrirNotification(item.dataset.destinataireId, function() {
+                retirerNotificationPopup(item.dataset.destinataireId);
+            });
+        };
+
+        item.addEventListener('click', ouvrir);
+        item.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                ouvrir(e);
             }
-            notificationPopupBody.innerHTML = html;
-        })
-        .catch(function(error) {
-            console.error('Erreur:', error);
-            notificationPopupBody.innerHTML = '<div style="padding: 20px; text-align: center; color: #ef4444; font-size: 13px;">Erreur lors du chargement.</div>';
         });
+    });
 }
 </script>

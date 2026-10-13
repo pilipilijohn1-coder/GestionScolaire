@@ -126,6 +126,27 @@
             background: #111827;
         }
 
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .form-check-input {
+            width: 18px;
+            height: 18px;
+            accent-color: #2563eb;
+            cursor: pointer;
+        }
+
+        .form-check-label {
+            font-size: 14px;
+            color: #374151;
+            cursor: pointer;
+            margin: 0;
+        }
+
         .message {
             padding: 10px;
             margin-bottom: 20px;
@@ -165,6 +186,11 @@
   <span class="toggle-password" onclick="togglePassword()">
     <i id="toggleIcon" class="fas fa-eye"></i>
   </span>
+</div>
+
+<div class="form-group form-check">
+  <input type="checkbox" id="se_souvenir" name="se_souvenir" class="form-check-input">
+  <label for="se_souvenir" class="form-check-label">Se souvenir de moi</label>
 </div>
 
             <button type="submit">

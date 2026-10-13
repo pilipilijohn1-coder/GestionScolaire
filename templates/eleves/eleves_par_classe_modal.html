@@ -1,3 +1,26 @@
+<!--
+    Fragment de popup : ne doit PAS heriter du gabarit general.
+    Ce contenu est injecte dans la boite de dialogue de la liste des
+    eleves ; y inclure une page complete produisait un document HTML
+    imbrique qui cassait la mise en page.
+-->
+<div class="eleves-modal-entete">
+    <div>
+        <strong>{{ classe.libelle }}</strong>
+        <span>
+            {{ nb_eleves }} élève{{ nb_eleves|pluralize }}
+            &mdash; {{ nb_filles }} fille{{ nb_filles|pluralize }} /
+            {{ nb_garcons }} garçon{{ nb_garcons|pluralize }}
+        </span>
+    </div>
+    <a href="{% url 'impression_liste_eleves' classe.id %}"
+       target="_blank"
+       rel="noopener"
+       class="btn btn-sm btn-secondary eleves-modal-impression">
+        <i class="fa-solid fa-print"></i> Imprimer
+    </a>
+</div>
+
 <table class="data-table eleves-table" style="border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden;">
     <thead>
         <tr>
@@ -62,6 +85,44 @@
 </table>
 
 <style>
+.eleves-modal-entete {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: #f8fafc;
+}
+.eleves-modal-entete strong {
+    display: block;
+    font-size: 15px;
+    color: #0f172a;
+}
+.eleves-modal-entete span {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    color: #64748b;
+}
+.eleves-modal-impression {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+}
+.eleves-modal-impression:hover {
+    background: #f1f5f9;
+}
 .eleves-table .eleve-photo {
     width: 50px;
     height: 50px;

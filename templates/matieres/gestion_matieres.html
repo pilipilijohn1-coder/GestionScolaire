@@ -270,6 +270,33 @@
         color: var(--gm-text);
     }
 
+    .gm-cours-cell strong {
+        display: block;
+        font-weight: 600;
+    }
+
+    .gm-cours-enseignant {
+        display: block;
+        margin-top: 2px;
+        font-size: 10.5px;
+        color: var(--gm-text-secondary);
+    }
+
+    /* Pause : elle occupe toute la largeur d'un jour. */
+    .gm-pause-cell {
+        background: #fef3c7;
+        color: #92400e;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        text-align: center;
+    }
+
+    .gm-ligne-pause .gm-creneau-cell {
+        background: #fef9e7;
+    }
+
     .gm-cours-vide {
         color: #cbd5e1;
     }
@@ -332,11 +359,29 @@
                         {{ item.nombre_affectations }} cours
                     </span>
 
+                    <span class="gm-badge-count"
+                          title="Cours issus du programme officiel">
+                        {{ item.nombre_officiels }} officiels
+                    </span>
+
+                    {% if item.nombre_hors_programme %}
+                    <span class="gm-badge-count"
+                          style="background:#fee2e2;color:#991b1b;"
+                          title="Cours saisis manuellement, sans équivalent au programme">
+                        {{ item.nombre_hors_programme }} hors programme
+                    </span>
+                    {% endif %}
+
                     {% if item.est_niveau_bulletin %}
                     <span class="gm-card-meta">
                         Matières officielles du bulletin
                     </span>
                     {% endif %}
+                </div>
+                <div class="gm-card-meta">
+                    Avec enseignant :
+                    <strong>{{ item.nombre_avec_enseignant }}</strong>
+                    sur {{ item.nombre_affectations }}
                 </div>
                 <div class="gm-card-meta">
                     Code : <strong>{{ item.classe.code }}</strong>
@@ -369,7 +414,7 @@
                onclick="openMatieresOverlay(event, this)">
                 <i class="fas fa-eye"></i> Voir les cours
             </a>
-            <a href="{% url 'creer_matiere' %}?classe_id={{ item.classe.id }}"
+            <a href="{% url 'programmation_cours' %}?classe_id={{ item.classe.id }}"
                class="gm-btn-action gm-btn-assign">
                 <i class="fas fa-plus"></i> Affecter des cours
             </a>
@@ -393,6 +438,9 @@
             <div class="gm-loading">Chargement des matières...</div>
         </div>
         <footer class="gm-modal-footer">
+            <a href="#" class="gm-btn-action gm-btn-view" id="matieresPrintLink" target="_blank" rel="noopener">
+                <i class="fas fa-print"></i> Imprimer
+            </a>
             <a href="#" class="gm-btn-action gm-btn-view" id="matieresPageLink" target="_blank">
                 <i class="fas fa-external-link-alt"></i> Ouvrir la liste
             </a>
@@ -425,6 +473,9 @@
             <div class="gm-loading">Chargement de l'horaire...</div>
         </div>
         <footer class="gm-modal-footer">
+            <a href="#" id="horairePrintBtn" class="gm-btn-action gm-btn-schedule" target="_blank" rel="noopener">
+                <i class="fas fa-print"></i> Imprimer l'horaire
+            </a>
             <button type="button" class="gm-btn-action gm-btn-view" onclick="closeHoraireOverlay()">
                 <i class="fas fa-times"></i> Fermer
             </button>
@@ -448,6 +499,10 @@
         document.getElementById('matieresOverlayTitle').textContent = 'Matières — ' + classeLibelle;
         document.getElementById('matieresOverlaySubtitle').textContent = 'Liste des cours et des pondérations';
         pageLink.href = listeUrl;
+        const printLink = document.getElementById('matieresPrintLink');
+        if (printLink) {
+            printLink.href = listeUrl + '?format=impression';
+        }
         body.innerHTML = '<div class="gm-loading">Chargement des matières...</div>';
         overlay.classList.add('open');
         overlay.setAttribute('aria-hidden', 'false');
@@ -501,6 +556,10 @@
 
         document.getElementById('horaireOverlayTitle').textContent = 'Horaire — ' + classeLibelle;
         document.getElementById('horaireOverlaySubtitle').textContent = 'Emploi du temps de la classe';
+        const printBtn = document.getElementById('horairePrintBtn');
+        if (printBtn) {
+            printBtn.href = "{% url 'impression_horaire_classe' 0 %}".replace('/0/', '/' + classeId + '/');
+        }
         body.innerHTML = '<div class="gm-loading">Chargement de l\'horaire...</div>';
         overlay.classList.add('open');
         overlay.setAttribute('aria-hidden', 'false');
@@ -530,12 +589,32 @@
                         html += '<tr><td colspan="' + (jours.length + 1) + '" class="gm-empty">Aucun créneau horaire configuré pour cette classe.</td></tr>';
                     } else {
                         for (const creneau of creneaux) {
+                            /*
+                             * Une pause barre toute la largeur de la
+                             * journée : elle ne peut pas recevoir de
+                             * matière, faute de quoi la grille
+                             * présenterait 07:30-10:00 puis 10:20
+                             * sans faire apparaître le repos.
+                             */
+                            if (creneau.type === 'PAUSE') {
+                                html += '<tr class="gm-ligne-pause">';
+                                html += '<td class="gm-creneau-cell">' + creneau.heure_debut + ' - ' + creneau.heure_fin + '</td>';
+                                html += '<td colspan="' + jours.length + '" class="gm-pause-cell">Pause</td>';
+                                html += '</tr>';
+                                continue;
+                            }
+
                             html += '<tr>';
                             html += '<td class="gm-creneau-cell">' + creneau.heure_debut + ' - ' + creneau.heure_fin + '</td>';
                             for (const jour of jours) {
                                 const cours = emploi[jour] && emploi[jour][creneau.ordre];
                                 if (cours) {
-                                    html += '<td class="gm-cours-cell">' + cours.matiere + '</td>';
+                                    html += '<td class="gm-cours-cell">';
+                                    html += '<strong>' + cours.matiere + '</strong>';
+                                    if (cours.enseignant) {
+                                        html += '<small class="gm-cours-enseignant">' + cours.enseignant + '</small>';
+                                    }
+                                    html += '</td>';
                                 } else {
                                     html += '<td class="gm-cours-cell gm-cours-vide">-</td>';
                                 }

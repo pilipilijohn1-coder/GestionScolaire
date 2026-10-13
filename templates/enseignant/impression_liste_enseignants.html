@@ -1,0 +1,371 @@
+{% load static %}<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des enseignants</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 10mm;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        html,
+        body {
+            /* Gabarit A4 paysage impose, independamment de la
+               fenetre du navigateur. */
+            width: 297mm;
+        }
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            color: #0f172a;
+            font-size: 11px;
+            background: #ffffff;
+            /* Sans cela les fonds de tableau disparaissent a
+               l'impression. */
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .entete {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #0f766e;
+            margin-bottom: 16px;
+        }
+
+        .etablissement h1 {
+            font-size: 17px;
+            color: #115e59;
+        }
+
+        .etablissement p {
+            font-size: 10px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .titre-document {
+            font-size: 15px;
+            font-weight: 700;
+            color: #115e59;
+        }
+
+        .meta {
+            font-size: 10px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .bandeau {
+            display: flex;
+            border: 1px solid #dbe3ef;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .bandeau-cellule {
+            flex: 1 1 140px;
+            padding: 8px 12px;
+            border-right: 1px solid #e8eef7;
+            background: #f8fafc;
+        }
+
+        .bandeau-cellule:last-child {
+            border-right: none;
+        }
+
+        .bandeau-label {
+            font-size: 8.5px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: #64748b;
+            font-weight: 700;
+        }
+
+        .bandeau-valeur {
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            background: #0f766e;
+            color: #ffffff;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            padding: 7px 6px;
+            text-align: left;
+            border: 1px solid #0f766e;
+        }
+
+        thead th.centre,
+        tbody td.centre {
+            text-align: center;
+        }
+
+        tbody td {
+            border: 1px solid #dbe3ef;
+            padding: 5px 6px;
+            vertical-align: top;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .num {
+            width: 26px;
+            font-weight: 700;
+            color: #64748b;
+            text-align: center;
+        }
+
+        .matricule {
+            font-family: "Courier New", monospace;
+            font-weight: 700;
+            color: #115e59;
+            white-space: nowrap;
+        }
+
+        .nom {
+            font-weight: 600;
+        }
+
+        .vide {
+            color: #94a3b8;
+        }
+
+        .etiquette {
+            display: inline-block;
+            border-radius: 3px;
+            padding: 0 5px;
+            font-size: 8.5px;
+            font-weight: 700;
+        }
+
+        .etiquette-oui {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .etiquette-non {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .pied {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 22px;
+            padding-top: 10px;
+            border-top: 1px solid #dbe3ef;
+            font-size: 9.5px;
+            color: #64748b;
+        }
+
+        .signatures {
+            display: flex;
+            gap: 40px;
+            margin-top: 6px;
+        }
+
+        .signature {
+            width: 150px;
+            text-align: center;
+            font-size: 9px;
+        }
+
+        .signature-ligne {
+            border-top: 1px solid #94a3b8;
+            margin-top: 26px;
+        }
+
+        .barre-outils {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #115e59;
+            color: #ffffff;
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .18);
+            z-index: 10;
+        }
+
+        .barre-outils a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, .14);
+            border: 1px solid rgba(255, 255, 255, .3);
+            border-radius: 5px;
+            padding: 6px 13px;
+        }
+
+        .barre-outils a:hover {
+            background: rgba(255, 255, 255, .26);
+        }
+
+        @media print {
+            .barre-outils {
+                display: none;
+            }
+
+            thead {
+                display: table-header-group;
+            }
+
+            tbody tr {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="barre-outils">
+    <a href="{% url 'liste_enseignants' %}">&larr; Retour à la liste</a>
+    <a href="#" onclick="window.print()">Imprimer cette liste</a>
+</div>
+
+<div style="height:44px;"></div>
+
+<div class="entete">
+    <div class="etablissement">
+        <h1>{{ etablissement|default:"Établissement" }}</h1>
+        <p>{{ annee.libelle|default:"Année scolaire non définie" }}</p>
+    </div>
+    <div class="entete-droite">
+        <div class="titre-document">Liste des enseignants</div>
+        <div class="meta">Édité le {{ maintenant|date:"d/m/Y à H:i" }}</div>
+    </div>
+</div>
+
+<div class="bandeau">
+    <div class="bandeau-cellule">
+        <div class="bandeau-label">Effectif total</div>
+        <div class="bandeau-valeur">{{ enseignants|length }}</div>
+    </div>
+    <div class="bandeau-cellule">
+        <div class="bandeau-label">En activité</div>
+        <div class="bandeau-valeur">{{ nb_actifs }}</div>
+    </div>
+    <div class="bandeau-cellule">
+        <div class="bandeau-label">Inactifs</div>
+        <div class="bandeau-valeur">{{ nb_inactifs }}</div>
+    </div>
+    <div class="bandeau-cellule">
+        <div class="bandeau-label">Avec affectation</div>
+        <div class="bandeau-valeur">{{ nb_affectes }}</div>
+    </div>
+    <div class="bandeau-cellule">
+        <div class="bandeau-label">Heures hebdomadaires</div>
+        <div class="bandeau-valeur">{{ total_heures }} h</div>
+    </div>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th class="centre num">N°</th>
+            <th>Matricule</th>
+            <th>Nom et prénom</th>
+            <th>Grade</th>
+            <th>Spécialité</th>
+            <th>Téléphone</th>
+            <th>Email</th>
+            <th>Adresse</th>
+            <th class="centre">Sexe</th>
+            <th class="centre">Actif</th>
+            <th class="centre">Affectations</th>
+            <th>Classes prises en charge</th>
+            <th class="centre">Heures/sem.</th>
+            <th>Entrée en fonction</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for enseignant in enseignants %}
+            <tr>
+                <td class="centre num">{{ forloop.counter }}</td>
+                <td class="matricule">{{ enseignant.matricule }}</td>
+                <td>
+                    <span class="nom">{{ enseignant.utilisateur.nom|title }} {{ enseignant.utilisateur.prenom|title }}</span>
+                    {% if enseignant.utilisateur.postnom %}
+                        <div class="secondaire">{{ enseignant.utilisateur.postnom|title }}</div>
+                    {% endif %}
+                </td>
+                <td>{{ enseignant.grade|default:"—" }}</td>
+                <td>{{ enseignant.specialite|default:"—" }}</td>
+                <td>{{ enseignant.utilisateur.telephone|default:"—" }}</td>
+                <td>{{ enseignant.utilisateur.email|default:"—" }}</td>
+                <td>{{ enseignant.utilisateur.adresse|default:"—" }}</td>
+                <td class="centre">{{ enseignant.utilisateur.get_sexe_display|default:"—" }}</td>
+                <td class="centre">
+                    {% if enseignant.actif and enseignant.utilisateur.actif %}
+                        <span class="etiquette etiquette-oui">OUI</span>
+                    {% else %}
+                        <span class="etiquette etiquette-non">NON</span>
+                    {% endif %}
+                </td>
+                <td class="centre">{{ enseignant.nb_affectations }}</td>
+                <td>
+                    {% for classe in enseignant.classes %}
+                        {{ classe.libelle }}{% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                        <span class="vide">Aucune</span>
+                    {% endfor %}
+                </td>
+                <td class="centre">{{ enseignant.total_heures }} h</td>
+                <td>{{ enseignant.date_entree|date:"d/m/Y"|default:"—" }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="14" style="text-align:center; padding:22px; color:#94a3b8;">
+                    Aucun enseignant enregistré.
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="pied">
+    <div>
+        <strong>Total :</strong> {{ enseignants|length }} enseignant{{ enseignants|length|pluralize }}
+        <div class="signatures">
+            <div class="signature">
+                Le secrétaire académique
+                <div class="signature-ligne"></div>
+            </div>
+            <div class="signature">
+                Le chef d'établissement
+                <div class="signature-ligne"></div>
+            </div>
+        </div>
+    </div>
+    <div style="text-align:right;">
+        Document éditable<br>
+        École de gestion scolaire
+    </div>
+</div>
+
+</body>
+</html>

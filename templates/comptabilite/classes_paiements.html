@@ -69,8 +69,60 @@
     .classe-card:hover {
         background: #f8fafc;
         border-color: var(--cp-primary);
-        transform: translateY(-2px);
         box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    }
+
+    /* La carte n'est plus un lien unique : elle contient le lien de
+       consultation et le bouton de paiement. Un <a> autour d'un
+       <button> est invalide et imbrique deux elements interactifs. */
+    .classe-lien {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .classe-card-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: auto;
+        padding-top: 12px;
+        border-top: 1px solid var(--cp-border);
+    }
+
+    .classe-card-actions .btn {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 9px 12px;
+        border: none;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .classe-card-actions .btn-primary {
+        background: var(--cp-primary);
+        color: #ffffff;
+    }
+
+    .classe-card-actions .btn-primary:hover {
+        background: var(--cp-primary-dark);
+    }
+
+    .classe-card-actions .btn-secondary {
+        background: #e2e8f0;
+        color: #334155;
+    }
+
+    .classe-card-actions .btn-secondary:hover {
+        background: #cbd5e1;
     }
 
     .classe-card-header {
@@ -138,6 +190,315 @@
             grid-template-columns: 1fr;
         }
     }
+
+    /* =====================================================
+         FENÊTRE DE RECHERCHE D'UN ÉLÈVE
+    ====================================================== */
+
+    .pa-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, .55);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1050;
+        padding: 20px;
+    }
+    .pa-overlay.open {
+        display: flex;
+    }
+    /* La seconde fenêtre se pose au-dessus de la première : sans un
+       z-index superieur, elle s'ouvre sous le calque de la première. */
+    .pa-overlay.secondary {
+        z-index: 1100;
+        background: rgba(15, 23, 42, .68);
+    }
+    .pa-modal {
+        background: #ffffff;
+        border-radius: 14px;
+        width: 100%;
+        max-width: 720px;
+        max-height: 88vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0,0,0,.25);
+    }
+    .pa-modal.narrow {
+        max-width: 560px;
+    }
+    .pa-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--cp-border);
+    }
+    .pa-modal-header h2 {
+        margin: 0;
+        font-size: 17px;
+    }
+    .pa-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        line-height: 1;
+        cursor: pointer;
+        color: var(--cp-text-secondary);
+    }
+    .pa-close:hover {
+        color: var(--cp-text);
+    }
+    .pa-modal-body {
+        overflow-y: auto;
+        padding: 18px 20px;
+    }
+    .pa-modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 12px 20px;
+        border-top: 1px solid var(--cp-border);
+        background: #f8fafc;
+    }
+
+    /* ---------- Champs de recherche ---------- */
+
+    .pa-champs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-bottom: 16px;
+    }
+    @media (max-width: 640px) {
+        .pa-champs {
+            grid-template-columns: 1fr;
+        }
+    }
+    .pa-champ label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        color: var(--cp-text-secondary);
+        margin-bottom: 6px;
+    }
+    .pa-champ input,
+    .pa-champ select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--cp-border);
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: inherit;
+        background: #ffffff;
+        color: var(--cp-text);
+    }
+    .pa-champ input:focus,
+    .pa-champ select:focus {
+        outline: none;
+        border-color: var(--cp-primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, .15);
+    }
+    .pa-selection-classe {
+        font-size: 13px;
+        color: var(--cp-text-secondary);
+        margin-top: 6px;
+    }
+    .pa-selection-classe strong {
+        color: var(--cp-text);
+    }
+
+    /* ---------- En-tête de la liste des élèves ---------- */
+
+    .pa-liste-entete {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+        margin-top: 16px;
+        margin-bottom: 8px;
+    }
+    .pa-liste-entete h3 {
+        margin: 0;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        color: var(--cp-text-secondary);
+    }
+    .pa-compteur {
+        font-size: 12px;
+        color: var(--cp-text-secondary);
+    }
+
+    /* ---------- Suggestions de classes ---------- */
+
+    .pa-liste {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-top: 10px;
+        max-height: 220px;
+        overflow-y: auto;
+    }
+    /* Le roster de la classe tient plus d'élèves qu'une simple
+       suggestion : la liste gagne de la hauteur et reste scrollable. */
+    .pa-liste.grande {
+        max-height: 320px;
+    }
+    .pa-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        text-align: left;
+        padding: 10px 12px;
+        border: 1px solid var(--cp-border);
+        border-radius: 8px;
+        background: #ffffff;
+        cursor: pointer;
+        font-size: 14px;
+        font-family: inherit;
+        color: var(--cp-text);
+    }
+    .pa-item:hover {
+        background: #eff6ff;
+        border-color: var(--cp-primary);
+    }
+    .pa-item-detail {
+        font-size: 12px;
+        color: var(--cp-text-secondary);
+        white-space: nowrap;
+    }
+    .pa-item-nom {
+        font-weight: 600;
+    }
+    .pa-vide {
+        padding: 18px;
+        text-align: center;
+        color: var(--cp-text-secondary);
+        font-size: 13px;
+    }
+    .pa-astuce {
+        font-size: 12px;
+        color: var(--cp-text-secondary);
+        margin: 14px 0 0;
+    }
+
+    /* ---------- Formulaire de paiement ---------- */
+
+    .paiement-identite {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px 16px;
+        padding: 14px;
+        border: 1px solid var(--cp-border);
+        border-radius: 10px;
+        background: #f8fafc;
+        margin-bottom: 18px;
+    }
+    .paiement-identite-ligne {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+    .paiement-identite-ligne span {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        color: var(--cp-text-secondary);
+        font-weight: 700;
+    }
+    .paiement-identite-ligne strong {
+        font-size: 14px;
+    }
+    .mono {
+        font-family: "Courier New", monospace;
+    }
+    .paiement-champ {
+        margin-bottom: 16px;
+    }
+    .paiement-champ label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        color: var(--cp-text-secondary);
+        margin-bottom: 6px;
+    }
+    .paiement-champ select,
+    .paiement-champ input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--cp-border);
+        border-radius: 8px;
+        font-size: 15px;
+        font-family: inherit;
+    }
+    .paiement-champ input.invalide {
+        border-color: var(--cp-danger);
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, .12);
+    }
+    .paiement-aide {
+        display: block;
+        margin-top: 5px;
+        font-size: 12px;
+        color: var(--cp-text-secondary);
+    }
+    .paiement-erreur-champ {
+        display: none;
+        margin-top: 5px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--cp-danger);
+    }
+    .paiement-erreur-champ.visible {
+        display: block;
+    }
+    .paiement-alerte {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 12px 14px;
+        margin-bottom: 16px;
+        border: 1px solid #fecaca;
+        border-radius: 8px;
+        background: #fef2f2;
+        color: #991b1b;
+        font-size: 13px;
+    }
+    .paiement-succes {
+        text-align: center;
+        padding: 10px 0 4px;
+    }
+    .paiement-succes i {
+        font-size: 40px;
+        color: var(--cp-success);
+    }
+    .paiement-succes h3 {
+        margin: 10px 0 6px;
+        font-size: 18px;
+    }
+    .paiement-succes p {
+        color: var(--cp-text-secondary);
+        font-size: 14px;
+        line-height: 1.6;
+    }
+    .paiement-succes-note {
+        margin-top: 10px;
+        font-size: 12px !important;
+        color: #b45309 !important;
+    }
+    .paiement-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
 </style>
 {% endblock %}
 
@@ -152,18 +513,29 @@
 
     <div class="classes-grid">
         {% for classe in classes %}
-            <a href="{% url 'eleves_classe_paiements' classe.id %}" class="classe-card">
-                <div class="classe-card-header">
-                    <div class="classe-icon">
-                        <i class="fas fa-school"></i>
+            <div class="classe-card">
+                <a href="{% url 'eleves_classe_paiements' classe.id %}" class="classe-lien">
+                    <div class="classe-card-header">
+                        <div class="classe-icon">
+                            <i class="fas fa-school"></i>
+                        </div>
+                        <h2>{{ classe.libelle }}</h2>
                     </div>
-                    <h2>{{ classe.libelle }}</h2>
+                    <p>{{ classe.niveau.libelle }}{% if classe.section %} - {{ classe.section.libelle }}{% endif %}</p>
+                </a>
+                <div class="classe-card-actions">
+                    <a href="{% url 'eleves_classe_paiements' classe.id %}" class="btn btn-secondary">
+                        <i class="fas fa-list-ul"></i> Consulter
+                    </a>
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        onclick="ouvrirRechercheEleve('{{ classe.id }}')"
+                    >
+                        <i class="fas fa-money-bill-wave"></i> Paiement
+                    </button>
                 </div>
-                <p>{{ classe.niveau.libelle }}{% if classe.section %} - {{ classe.section.libelle }}{% endif %}</p>
-                <div class="classe-card-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-            </a>
+            </div>
         {% empty %}
             <div class="empty-state">
                 <i class="fas fa-inbox"></i>
@@ -172,4 +544,737 @@
         {% endfor %}
     </div>
 </div>
+
+<!-- =========================================================
+     PREMIÈRE FENÊTRE : recherche de l'élève
+     La classe est pré-remplie par le bouton utilisé, mais reste
+     modifiable : une demande de paiement peut concerner une autre
+     classe que celle d'où l'on a cliqué.
+========================================================= -->
+<div class="pa-overlay" id="paOverlayRecherche">
+    <div class="pa-modal">
+        <div class="pa-modal-header">
+            <h2>Enregistrer un paiement</h2>
+            <button type="button" class="pa-close" onclick="fermerRechercheEleve()">&times;</button>
+        </div>
+        <div class="pa-modal-body">
+
+            <div class="pa-champs">
+                <div class="pa-champ">
+                    <label for="paClasseSelect">Classe</label>
+                    <select id="paClasseSelect">
+                        <option value="">Toutes les classes</option>
+                        {% for classe in classes %}
+                            <option value="{{ classe.id }}">
+                                {{ classe.libelle }} — {{ classe.code }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <div class="pa-selection-classe" id="paClasseChoisie"></div>
+                </div>
+                <div class="pa-champ">
+                    <label for="paEleveRecherche">Rechercher un élève</label>
+                    <input
+                        type="text"
+                        id="paEleveRecherche"
+                        placeholder="Nom, postnom, prénom ou matricule..."
+                        autocomplete="off"
+                    >
+                </div>
+            </div>
+
+            <div class="pa-liste-entete">
+                <h3>Élèves de la classe</h3>
+                <span class="pa-compteur" id="paElevesCompteur"></span>
+            </div>
+
+            <div class="pa-liste grande" id="paElevesListe"></div>
+
+            <p class="pa-astuce">
+                Choisissez une classe puis cliquez sur l'élève concerné.
+                Vous pouvez changer de classe à tout moment : le
+                paiement ne se fait pas nécessairement sur la classe
+                d'où vous avez ouvert cette fenêtre.
+            </p>
+
+        </div>
+        <div class="pa-modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="fermerRechercheEleve()">Fermer</button>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================
+     SECONDE FENÊTRE : formulaire de paiement
+========================================================= -->
+<div class="pa-overlay secondary" id="paOverlayPaiement">
+    <div class="pa-modal narrow">
+        <div class="pa-modal-header">
+            <h2>Formulaire de paiement</h2>
+            <button type="button" class="pa-close" onclick="fermerFormulairePaiement()">&times;</button>
+        </div>
+        <div class="pa-modal-body" id="paPaiementCorps">
+            <p style="color:var(--cp-text-secondary);">Chargement...</p>
+        </div>
+        <div class="pa-modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="fermerFormulairePaiement()">Fermer</button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const overlayRecherche = document.getElementById('paOverlayRecherche');
+    const overlayPaiement = document.getElementById('paOverlayPaiement');
+    const selectClasse = document.getElementById('paClasseSelect');
+    const classeChoisie = document.getElementById('paClasseChoisie');
+    const champEleve = document.getElementById('paEleveRecherche');
+    const listeEleves = document.getElementById('paElevesListe');
+    const compteurEleves = document.getElementById('paElevesCompteur');
+    const corpsPaiement = document.getElementById('paPaiementCorps');
+
+    const URL_ROSTER = "{% url 'ajax_inscriptions_par_classe' classe_id=0 %}";
+    const URL_ELEVES = "{% url 'ajax_eleves_par_nom' %}";
+    const URL_INSCRIPTIONS = "{% url 'ajax_inscriptions_eleve' eleve_id=0 %}";
+    const URL_TRANCHES = "{% url 'ajax_tranches_par_inscription' inscription_id=0 %}";
+    const URL_PAIEMENT = "{% url 'encaisser_paiement' %}";
+
+    let idClasseCourante = '';
+    let inscriptionCourante = null;
+
+    /*
+     * Le roster de la classe est conservé en mémoire : le filtre de
+     * recherche porte dessus plutot que sur une requete, ce qui rend
+     * la frappe instantanee et evite un aller-retour par frappe.
+     */
+    let rosterClasse = [];
+
+    /* =====================================================
+       OUVERTURE ET FERMETURE
+    ====================================================== */
+
+    window.ouvrirRechercheEleve = function(classeId) {
+        idClasseCourante = classeId || '';
+        inscriptionCourante = null;
+        rosterClasse = [];
+
+        /*
+         * Le select est la seule source de verite : on le positionne
+         * sur la classe du bouton clique, puis c'est lui qui pilote
+         * l'affichage. Choisir une autre classe plus tard reste possible.
+         */
+        selectClasse.value = idClasseCourante;
+        rendreLibelleClasse();
+
+        champEleve.value = '';
+        listeEleves.innerHTML = '';
+        compteurEleves.textContent = '';
+
+        overlayRecherche.classList.add('open');
+
+        if (idClasseCourante) {
+            chargerRosterClasse(idClasseCourante);
+        }
+
+        champEleve.focus();
+    };
+
+    window.fermerRechercheEleve = function() {
+        overlayRecherche.classList.remove('open');
+    };
+
+    window.fermerFormulairePaiement = function() {
+        overlayPaiement.classList.remove('open');
+        corpsPaiement.innerHTML = '';
+        inscriptionCourante = null;
+    };
+
+    overlayRecherche.addEventListener('click', function(event) {
+        if (event.target === overlayRecherche) {
+            fermerRechercheEleve();
+        }
+    });
+
+    overlayPaiement.addEventListener('click', function(event) {
+        if (event.target === overlayPaiement) {
+            fermerFormulairePaiement();
+        }
+    });
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            if (overlayPaiement.classList.contains('open')) {
+                fermerFormulairePaiement();
+            } else if (overlayRecherche.classList.contains('open')) {
+                fermerRechercheEleve();
+            }
+        }
+    });
+
+    /* =====================================================
+       SÉLECTION DE LA CLASSE
+    ====================================================== */
+
+    function rendreLibelleClasse() {
+        if (!idClasseCourante) {
+            classeChoisie.textContent =
+                'Aucune classe retenue : choisissez une classe pour '
+                + 'afficher ses élèves.';
+            return;
+        }
+
+        const option = selectClasse.options[selectClasse.selectedIndex];
+
+        classeChoisie.innerHTML = 'Classe retenue : <strong>'
+            + (option ? option.textContent.trim() : idClasseCourante)
+            + '</strong>';
+    }
+
+    selectClasse.addEventListener('change', function() {
+        idClasseCourante = this.value;
+        rendreLibelleClasse();
+        champEleve.value = '';
+
+        if (idClasseCourante) {
+            chargerRosterClasse(idClasseCourante);
+        } else {
+            rosterClasse = [];
+            listeEleves.innerHTML =
+                '<div class="pa-vide">Choisissez une classe pour '
+                + 'afficher ses élèves.</div>';
+            compteurEleves.textContent = '';
+        }
+    });
+
+    /* =====================================================
+       ROSTER DE LA CLASSE
+    ====================================================== */
+
+    function chargerRosterClasse(classeId) {
+        listeEleves.innerHTML =
+            '<div class="pa-vide">Chargement des élèves...</div>';
+        compteurEleves.textContent = '';
+
+        fetch(URL_ROSTER.replace('/0/', '/' + classeId + '/'))
+            .then(function(reponse) {
+                return reponse.json();
+            })
+            .then(function(donnees) {
+                rosterClasse = donnees.inscriptions || [];
+                rendreEleves();
+            })
+            .catch(function() {
+                rosterClasse = [];
+                listeEleves.innerHTML =
+                    '<div class="pa-vide">Erreur de chargement des '
+                    + 'élèves de la classe.</div>';
+                compteurEleves.textContent = '';
+            });
+    }
+
+    /* =====================================================
+       FILTRE SUR LE ROSTER
+    ====================================================== */
+
+    let minuteurEleves = null;
+
+    champEleve.addEventListener('input', function() {
+        clearTimeout(minuteurEleves);
+        minuteurEleves = setTimeout(rendreEleves, 150);
+    });
+
+    function rendreEleves() {
+        const requete = champEleve.value.trim();
+
+        /*
+         * Deux régimes de recherche. Classe choisie : le roster est
+         * déjà en mémoire, le filtre est local et instantané. Aucune
+         * classe : il n'y a pas de roster à filtrer, la recherche
+         * part sur le serveur et porte alors sur toutes les classes.
+         */
+        if (!idClasseCourante) {
+            if (requete.length < 2) {
+                listeEleves.innerHTML =
+                    '<div class="pa-vide">Choisissez une classe, ou '
+                    + 'saisissez au moins deux caractères pour chercher '
+                    + 'sur toutes les classes.</div>';
+                compteurEleves.textContent = '';
+                return;
+            }
+
+            chercherPartout(requete);
+            return;
+        }
+
+        if (rosterClasse.length === 0) {
+            listeEleves.innerHTML =
+                '<div class="pa-vide">Aucun élève inscrit dans cette '
+                + 'classe.</div>';
+            compteurEleves.textContent = '';
+            return;
+        }
+
+        const recherche = requete.toLowerCase();
+
+        /*
+         * Le filtre porte sur le nom et le matricule. Deux élèves
+         * peuvent porter le même nom : le matricule affiché à côté
+         * permet de ne pas se tromper.
+         */
+        const filtres = recherche
+            ? rosterClasse.filter(function(item) {
+                return (item.eleve || '').toLowerCase().indexOf(recherche) !== -1
+                    || (item.matricule || '').toLowerCase().indexOf(recherche) !== -1;
+            })
+            : rosterClasse;
+
+        listeEleves.innerHTML = '';
+
+        if (filtres.length === 0) {
+            listeEleves.innerHTML =
+                '<div class="pa-vide">Aucun élève ne correspond à '
+                + '« ' + escapeHtml(requete) + ' ».</div>';
+            compteurEleves.textContent = '0 sur ' + rosterClasse.length;
+            return;
+        }
+
+        compteurEleves.textContent = filtres.length === rosterClasse.length
+            ? rosterClasse.length + ' élève(s)'
+            : filtres.length + ' sur ' + rosterClasse.length;
+
+        filtres.forEach(function(item) {
+            const bouton = document.createElement('button');
+            bouton.type = 'button';
+            bouton.className = 'pa-item';
+
+            const nom = document.createElement('span');
+            nom.className = 'pa-item-nom';
+            nom.textContent = item.eleve;
+
+            const detail = document.createElement('span');
+            detail.className = 'pa-item-detail';
+            detail.textContent = item.matricule + ' — ' + item.annee;
+
+            bouton.appendChild(nom);
+            bouton.appendChild(detail);
+
+            /*
+             * L'inscription vient du roster : elle est déjà celle de
+             * la classe sélectionnée, inutile de redemander au serveur
+             * laquelle départager parmi plusieurs.
+             */
+            bouton.addEventListener('click', function() {
+                ouvrirFormulairePaiement(item);
+            });
+
+            listeEleves.appendChild(bouton);
+        });
+    }
+
+    function escapeHtml(texte) {
+        const div = document.createElement('div');
+        div.textContent = texte;
+        return div.innerHTML;
+    }
+
+    /* =====================================================
+       RECHERCHE SUR TOUTES LES CLASSES
+    ====================================================== */
+
+    function chercherPartout(requete) {
+        listeEleves.innerHTML =
+            '<div class="pa-vide">Recherche...</div>';
+        compteurEleves.textContent = '';
+
+        const url = URL_ELEVES
+            + '?q=' + encodeURIComponent(requete)
+            + '&classe_id=';
+
+        fetch(url)
+            .then(function(reponse) {
+                return reponse.json();
+            })
+            .then(function(donnees) {
+                const resultats = donnees.results || [];
+
+                listeEleves.innerHTML = '';
+                compteurEleves.textContent = resultats.length + ' résultat(s)';
+
+                if (resultats.length === 0) {
+                    listeEleves.innerHTML =
+                        '<div class="pa-vide">Aucun élève trouvé.</div>';
+                    return;
+                }
+
+                resultats.forEach(function(item) {
+                    /*
+                     * Ce point de recherche renvoie des élèves, pas des
+                     * inscriptions : il faut retrouver l'inscription de
+                     * la classe affichée avant d'ouvrir le paiement.
+                     */
+                    const bouton = document.createElement('button');
+                    bouton.type = 'button';
+                    bouton.className = 'pa-item';
+
+                    const nom = document.createElement('span');
+                    nom.className = 'pa-item-nom';
+                    nom.textContent = item.text;
+
+                    const detail = document.createElement('span');
+                    detail.className = 'pa-item-detail';
+                    detail.textContent = item.detail;
+
+                    bouton.appendChild(nom);
+                    bouton.appendChild(detail);
+
+                    bouton.addEventListener('click', function() {
+                        resoudreInscription(item);
+                    });
+
+                    listeEleves.appendChild(bouton);
+                });
+            })
+            .catch(function() {
+                listeEleves.innerHTML =
+                    '<div class="pa-vide">Erreur lors de la recherche.</div>';
+                compteurEleves.textContent = '';
+            });
+    }
+
+    function resoudreInscription(eleve) {
+        corpsPaiement.innerHTML =
+            '<p style="color:var(--cp-text-secondary);">Chargement...</p>';
+        overlayPaiement.classList.add('open');
+
+        fetch(URL_INSCRIPTIONS.replace('/0/', '/' + eleve.id + '/'))
+            .then(function(reponse) {
+                return reponse.json();
+            })
+            .then(function(donnees) {
+                if (!donnees.results || donnees.results.length === 0) {
+                    corpsPaiement.innerHTML =
+                        '<div class="pa-vide">Cet élève n\'a aucune '
+                        + 'inscription active : aucun paiement ne peut '
+                        + 'être enregistré.</div>';
+                    return;
+                }
+
+                /*
+                 * Aucune classe n'est retenue ici, donc aucune classe
+                 * ne départage les inscriptions : un élève réinscrit
+                 * en cumule plusieurs. La plus récente est retenue,
+                 * ce qui correspond à l'année en cours.
+                 */
+                inscriptionCourante = donnees.results[0];
+                chargerFormulairePaiement();
+            })
+            .catch(function() {
+                corpsPaiement.innerHTML =
+                    '<div class="pa-vide">Erreur de chargement.</div>';
+            });
+    }
+
+    /* =====================================================
+       FENÊTRE DE PAIEMENT
+    ====================================================== */
+
+    /*
+     * Le roster fournit deja l'inscription : plus besoin de redemander
+     * au serveur les inscriptions de l'eleve pour choisir la bonne.
+     * Un aller-retour de moins, et la classe choisie ne peut plus
+     * diverger de celle qui sert de support a l'affichage.
+     */
+    function ouvrirFormulairePaiement(inscription) {
+        corpsPaiement.innerHTML =
+            '<p style="color:var(--cp-text-secondary);">Chargement...</p>';
+        overlayPaiement.classList.add('open');
+
+        inscriptionCourante = inscription;
+        chargerFormulairePaiement();
+    }
+
+    function chargerFormulairePaiement() {
+        if (!inscriptionCourante) {
+            return;
+        }
+
+        fetch(
+            URL_PAIEMENT
+            + '?format=fragment&inscription_id='
+            + encodeURIComponent(inscriptionCourante.id)
+        )
+            .then(function(reponse) {
+                return reponse.text();
+            })
+            .then(function(html) {
+                corpsPaiement.innerHTML = html;
+                brancherFormulaire();
+            })
+            .catch(function() {
+                corpsPaiement.innerHTML =
+                    '<div class="pa-vide">Erreur de chargement du formulaire.</div>';
+            });
+    }
+
+    function brancherFormulaire() {
+        const formulaire = document.getElementById('paiementForm');
+        const champMontant = document.getElementById('paiementMontant');
+        const messageMontant = document.getElementById('paiementMontantErreur');
+        const selectTranche = document.getElementById('paiementTranche');
+        const aideTranche = document.getElementById('paiementTrancheAide');
+
+        if (!formulaire) {
+            return;
+        }
+
+        /* ---------- Tranches disponibles ---------- */
+
+        const urlTranches = URL_TRANCHES.replace(
+            '/0/',
+            '/' + inscriptionCourante.id + '/'
+        );
+
+        fetch(urlTranches)
+            .then(function(reponse) {
+                return reponse.json();
+            })
+            .then(function(donnees) {
+                selectTranche.innerHTML =
+                    '<option value="">Sélectionner une tranche</option>';
+
+                if (!donnees.results || donnees.results.length === 0) {
+                    aideTranche.textContent =
+                        'Aucune tranche à solder : toutes les tranches '
+                        + 'sont réglées, ou les frais scolaires de '
+                        + 'l\'année ne sont pas encore configurés.';
+                    selectTranche.disabled = true;
+                    return;
+                }
+
+                selectTranche.disabled = false;
+                aideTranche.textContent =
+                    'Les tranches se payent dans l\'ordre des '
+                    + 'échéances : seule la plus ancienne non soldée '
+                    + 'est proposée. La suivante s\'affichera une fois '
+                    + 'celle-ci réglée.';
+
+                donnees.results.forEach(function(item) {
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = item.text;
+                    option.dataset.reste = item.montant;
+                    selectTranche.appendChild(option);
+                });
+            })
+            .catch(function() {
+                selectTranche.innerHTML =
+                    '<option value="">Erreur de chargement</option>';
+            });
+
+        selectTranche.addEventListener('change', function() {
+            const option = this.options[this.selectedIndex];
+
+            if (option && option.dataset.reste) {
+                champMontant.value = option.dataset.reste;
+                champMontant.dataset.reste = option.dataset.reste;
+            }
+
+            controlerMontant();
+        });
+
+        /* ---------- Contrôle du montant ---------- */
+
+        /*
+         * Un montant nul ou négatif n'est pas un paiement : il est
+         * refusé ici pour ne pas faire un aller-retour au serveur, et
+         * refusé une seconde fois côté serveur, qui fait foi.
+         */
+        function controlerMontant() {
+            const brut = champMontant.value.trim();
+
+            if (brut === '') {
+                return erreurMontant('Le montant est obligatoire.');
+            }
+
+            if (!/^[0-9]+([.,][0-9]{1,2})?$/.test(brut)) {
+                return erreurMontant(
+                    'Seuls les chiffres sont acceptés, avec au plus '
+                    + 'deux décimales (exemple : 125.50).'
+                );
+            }
+
+            const valeur = parseFloat(brut.replace(',', '.'));
+
+            if (isNaN(valeur)) {
+                return erreurMontant('Le montant doit être un nombre.');
+            }
+
+            if (valeur <= 0) {
+                return erreurMontant(
+                    'Le montant doit être supérieur à zéro.'
+                );
+            }
+
+            const reste = champMontant.dataset.reste;
+
+            if (reste && valeur > parseFloat(reste)) {
+                return erreurMontant(
+                    'Le montant dépasse le reste à payer sur cette tranche ('
+                    + reste + ').'
+                );
+            }
+
+            champMontant.classList.remove('invalide');
+            messageMontant.classList.remove('visible');
+            messageMontant.textContent = '';
+            formulaire.dataset.montantValide = '1';
+            return true;
+        }
+
+        function erreurMontant(message) {
+            champMontant.classList.add('invalide');
+            messageMontant.textContent = message;
+            messageMontant.classList.add('visible');
+            formulaire.dataset.montantValide = '0';
+            return false;
+        }
+
+        champMontant.addEventListener('input', controlerMontant);
+        champMontant.addEventListener('blur', controlerMontant);
+
+        /* ---------- Envoi ---------- */
+
+        formulaire.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            if (!selectTranche.value) {
+                selectTranche.focus();
+                return;
+            }
+
+            if (controlerMontant() !== true) {
+                champMontant.focus();
+                return;
+            }
+
+            const bouton = document.getElementById('paiementValider');
+            bouton.disabled = true;
+            bouton.innerHTML = 'Enregistrement...';
+
+            const donnees = new FormData(formulaire);
+
+            fetch(URL_PAIEMENT, {
+                method: 'POST',
+                body: donnees,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+.then(function(reponse) {
+                return reponse.json().then(function(donnee) {
+                    return {ok: reponse.ok, donnee: donnee};
+                });
+            })
+            .then(function(resultat) {
+                const donnee = resultat.donnee;
+
+                if (donnee.succes) {
+                    corpsPaiement.innerHTML =
+                        '<div class="paiement-formulaire">'
+                        + '<div class="paiement-succes">'
+                        + '<i class="fa-solid fa-circle-check"></i>'
+                        + '<h3>Paiement enregistré</h3>'
+                        + '<p>Montant de <strong>'
+                        + escapeHtml(donnee.montant)
+                        + '</strong> enregistré.</p>'
+                        + '</div></div>';
+                    return;
+                }
+
+                /*
+                 * Le formulaire n'est pas remplacé : la tranche déjà
+                 * choisie et le montant saisi restent en place, seule
+                 * la valeur fautive est à corriger. Le remplacer
+                 * obligerait à tout ressaisir pour une simple erreur
+                 * de frappe.
+                 */
+                afficherErreurPaiement(donnee);
+                bouton.disabled = false;
+                bouton.innerHTML =
+                    '<i class="fa-solid fa-save"></i> '
+                    + 'Enregistrer le paiement';
+            })
+            .catch(function() {
+                afficherErreurPaiement({
+                    error: 'Erreur réseau : le paiement n\'a pas été '
+                        + 'enregistré. Vérifiez votre connexion puis '
+                        + 'réessayez.',
+                });
+                bouton.disabled = false;
+                bouton.innerHTML =
+                    '<i class="fa-solid fa-save"></i> '
+                    + 'Enregistrer le paiement';
+            });
+        });
+    }
+
+    function afficherErreurPaiement(donnee) {
+        const ancienne = document.getElementById('paiementErreurGlobale');
+
+        if (ancienne) {
+            ancienne.remove();
+        }
+
+        /*
+         * La vue peut renvoyer soit un message unique, soit le détail
+         * par champ. Les deux sont traités pour ne jamais afficher un
+         * motif vide à l'utilisateur.
+         */
+        const messages = [];
+
+        if (donnee.erreurs) {
+            Object.keys(donnee.erreurs).forEach(function(champ) {
+                messages.push(donnee.erreurs[champ]);
+            });
+        }
+
+        if (!messages.length && donnee.error) {
+            messages.push(donnee.error);
+        }
+
+        if (!messages.length) {
+            messages.push('Le paiement a été refusé.');
+        }
+
+        const alerte = document.createElement('div');
+        alerte.id = 'paiementErreurGlobale';
+        alerte.className = 'paiement-alerte';
+
+        const icone = document.createElement('i');
+        icone.className = 'fa-solid fa-triangle-exclamation';
+
+        const texte = document.createElement('div');
+
+        messages.forEach(function(message) {
+            const ligne = document.createElement('div');
+            ligne.textContent = message;
+            texte.appendChild(ligne);
+        });
+
+        alerte.appendChild(icone);
+        alerte.appendChild(texte);
+
+        const formulaire = document.getElementById('paiementForm');
+
+        if (formulaire && formulaire.parentNode) {
+            formulaire.parentNode.insertBefore(alerte, formulaire);
+        } else {
+            corpsPaiement.innerHTML = '';
+            corpsPaiement.appendChild(alerte);
+        }
+
+        alerte.scrollIntoView({block: 'nearest'});
+    }
+})();
+</script>
 {% endblock %}

@@ -13,14 +13,32 @@ Notifications
 <div class="notifications-page">
 
     <div class="page-header">
-        <h1>Notifications</h1>
-        <p>Vos notifications récentes et messages du système.</p>
+        <div>
+            <h1>Notifications</h1>
+            <p>
+                {% if nb_non_lues > 0 %}
+                    {{ nb_non_lues }} notification(s) en attente de lecture.
+                {% else %}
+                    Vous avez lu toutes vos notifications.
+                {% endif %}
+            </p>
+        </div>
+        <a href="{% url 'historique_notifications' %}" class="btn btn-sm btn-outline">
+            <i class="fa-solid fa-box-archive"></i>
+            Historique ({{ nb_lues }})
+        </a>
     </div>
 
     {% if notifications %}
-    <div class="notifications-list">
+    <div class="notifications-list" id="notifications-list">
         {% for notif in notifications %}
-        <div class="notification-card {% if not notif.lu %}notification-card--unread{% endif %}">
+        <div
+            class="notification-card notification-card--unread"
+            role="button"
+            tabindex="0"
+            data-destinataire-id="{{ notif.id }}"
+            title="Cliquer pour afficher le message"
+        >
             <div class="notification-card__header">
                 <span class="notification-type {{ notif.notification.type_notification.code|lower }}">
                     {{ notif.notification.type_notification.libelle }}
@@ -31,7 +49,7 @@ Notifications
             </div>
             <div class="notification-card__content">
                 <h3>{{ notif.notification.objet }}</h3>
-                <p>{{ notif.notification.contenu }}</p>
+                <p>{{ notif.notification.contenu|truncatechars:160 }}</p>
             </div>
             <div class="notification-card__actions">
                 {% if notif.notification.utilisateur_createur %}
@@ -39,49 +57,75 @@ Notifications
                     Par : {{ notif.notification.utilisateur_createur }}
                 </span>
                 {% endif %}
-                {% if not notif.lu %}
-                <button
-                    type="button"
-                    class="btn btn-sm btn-outline"
-                    onclick="marquerLue({{ notif.id }})"
-                >
-                    Marquer comme lue
-                </button>
-                {% else %}
-                <span class="badge badge-read">Lue</span>
-                {% endif %}
+                <span class="notification-open-hint">
+                    <i class="fa-solid fa-envelope-open"></i>
+                    Cliquer pour lire le message
+                </span>
             </div>
         </div>
         {% endfor %}
     </div>
     {% else %}
-    <div class="notifications-empty">
+    <div class="notifications-empty" id="notifications-empty">
         <i class="fas fa-inbox"></i>
-        <p>Aucune notification pour le moment.</p>
+        <p>Aucune notification en attente. Consultez l'historique pour relire vos messages.</p>
     </div>
     {% endif %}
+
 </div>
 
 {% endblock %}
 
 {% block extra_js %}
 <script>
-function marquerLue(destinataireId) {
-    fetch("/notifications/lue/" + destinataireId + "/", {
-        method: "POST",
-        headers: {
-            "X-Requested-With": "XMLHttpRequest",
-            "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value,
-        },
-    })
-    .then(response => {
-        if (response.ok) {
-            location.reload();
-        }
-    })
-    .catch(error => {
-        console.error("Erreur:", error);
+document.addEventListener("DOMContentLoaded", function () {
+
+    var liste = document.getElementById("notifications-list");
+
+    if (!liste) {
+        return;
+    }
+
+    function retirerCarte(carte) {
+        carte.classList.add("notification-card--retrait");
+
+        window.setTimeout(function () {
+            carte.remove();
+
+            if (!liste.querySelector(".notification-card")) {
+                var vide = document.createElement("div");
+                vide.id = "notifications-empty";
+                vide.className = "notifications-empty";
+                vide.innerHTML = '<i class="fas fa-inbox"></i><p>Aucune notification en attente. Consultez l\'historique pour relire vos messages.</p>';
+
+                liste.parentNode.replaceChild(vide, liste);
+            }
+        }, 220);
+    }
+
+    liste.querySelectorAll(".notification-card[data-destinataire-id]").forEach(function (carte) {
+        var ouvrir = function (e) {
+            e.preventDefault();
+
+            if (carte.dataset.ouverture === "1") {
+                return;
+            }
+
+            carte.dataset.ouverture = "1";
+
+            window.ouvrirNotification(carte.dataset.destinataireId, function () {
+                retirerCarte(carte);
+            });
+        };
+
+        carte.addEventListener("click", ouvrir);
+        carte.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" || e.key === " ") {
+                ouvrir(e);
+            }
+        });
     });
-}
+
+});
 </script>
 {% endblock %}

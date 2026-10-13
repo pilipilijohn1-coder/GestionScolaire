@@ -21,6 +21,82 @@
         --p-card-shadow-hover: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
     }
 
+    .dashboard-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 24px;
+        min-height: calc(100vh - 80px);
+    }
+
+    .dashboard-sidebar {
+        position: sticky;
+        top: 24px;
+        height: fit-content;
+        max-height: calc(100vh - 48px);
+        overflow-y: auto;
+    }
+
+    .sidebar-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 20px;
+        border: 1px solid var(--p-border);
+        box-shadow: var(--p-card-shadow);
+        margin-bottom: 20px;
+    }
+
+    .sidebar-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--p-text);
+        margin: 0 0 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--p-border);
+        letter-spacing: -0.01em;
+    }
+
+    .sidebar-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .sidebar-nav a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        border-radius: 10px;
+        color: var(--p-text);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 14px;
+        transition: all 0.15s ease;
+        border: 1px solid transparent;
+    }
+
+    .sidebar-nav a:hover {
+        background: #f1f5f9;
+        border-color: var(--p-border);
+        color: var(--p-primary);
+    }
+
+    .sidebar-nav a i {
+        width: 20px;
+        text-align: center;
+        font-size: 16px;
+        color: var(--p-text-secondary);
+        transition: color 0.15s ease;
+    }
+
+    .sidebar-nav a:hover i {
+        color: var(--p-primary);
+    }
+
+    .dashboard-main {
+        min-width: 0;
+    }
+
     .dashboard-container {
         padding: 8px 4px;
     }
@@ -104,10 +180,49 @@
     }
 
     .promoteur-stat-icon {
-        font-size: 36px;
-        margin-bottom: 12px;
-        display: block;
+        width: 52px;
+        height: 52px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        margin: 0 auto 12px;
+
+        border-radius: 14px;
+
+        font-size: 24px;
         line-height: 1;
+    }
+
+    .promoteur-stat-icon.fa-user-graduate {
+        background: linear-gradient(135deg, #2563eb, #1e40af);
+        color: #ffffff;
+    }
+
+    .promoteur-stat-icon.fa-chalkboard-teacher {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        color: #ffffff;
+    }
+
+    .promoteur-stat-icon.fa-school {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: #ffffff;
+    }
+
+    .promoteur-stat-icon.fa-users {
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        color: #ffffff;
+    }
+
+    .promoteur-stat-icon.fa-file-lines {
+        background: linear-gradient(135deg, #9333ea, #7e22ce);
+        color: #ffffff;
+    }
+
+    .promoteur-stat-icon.fa-book-open {
+        background: linear-gradient(135deg, #0891b2, #0e7490);
+        color: #ffffff;
     }
 
     .promoteur-stat-number {
@@ -198,8 +313,67 @@
     }
 
     .action-icon {
-        font-size: 28px;
+        width: 44px;
+        height: 44px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 12px;
+
+        font-size: 20px;
         line-height: 1;
+    }
+
+    .action-icon.fa-building {
+        background: linear-gradient(135deg, #2563eb, #1e40af);
+        color: #ffffff;
+    }
+
+    .action-icon.fa-users {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        color: #ffffff;
+    }
+
+    .action-icon.fa-user-graduate {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: #ffffff;
+    }
+
+    .action-icon.fa-chalkboard-teacher {
+        background: linear-gradient(135deg, #9333ea, #7e22ce);
+        color: #ffffff;
+    }
+
+    .action-icon.fa-calendar-days {
+        background: linear-gradient(135deg, #0891b2, #0e7490);
+        color: #ffffff;
+    }
+
+    .action-icon.fa-building {
+        background: linear-gradient(135deg, #2563eb, #1e40af);
+        color: #ffffff;
+    }
+
+    .action-icon.fa-users {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        color: #ffffff;
+    }
+
+    .action-icon.fa-user-graduate {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: #ffffff;
+    }
+
+    .action-icon.fa-chalkboard-teacher {
+        background: linear-gradient(135deg, #9333ea, #7e22ce);
+        color: #ffffff;
+    }
+
+    .action-icon.fa-calendar-days {
+        background: linear-gradient(135deg, #0891b2, #0e7490);
+        color: #ffffff;
     }
 
     .action-title {
@@ -332,6 +506,15 @@
         color: var(--p-text);
     }
 
+    @media (max-width: 1024px) {
+        .dashboard-layout {
+            grid-template-columns: 1fr;
+        }
+        .dashboard-sidebar {
+            position: static;
+            max-height: none;
+        }
+    }
     @media (max-width: 768px) {
         .dashboard-header {
             flex-direction: column;
@@ -356,162 +539,166 @@
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <div class="dashboard-header">
-        <div>
-            <h1>Tableau de bord</h1>
-            <p class="header-subtitle">
-                Bienvenue, <strong>{{ utilisateur.prenom }} {{ utilisateur.nom }}</strong>
-            </p>
-            {% if annee_active %}
-                <p class="header-subtitle">
-                    Année scolaire : <strong>{{ annee_active.libelle }}</strong>
-                </p>
-            {% endif %}
+<div class="dashboard-layout">
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-card">
+            <h3 class="sidebar-title">Accès rapide</h3>
+            <nav class="sidebar-nav">
+                <a href="{% url 'structure_academique' %}">
+                    <i class="fa-solid fa-building"></i>
+                    <span>Structure académique</span>
+                </a>
+                <a href="{% url 'liste_utilisateurs' %}">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Utilisateurs</span>
+                </a>
+                <a href="{% url 'liste_eleves' %}">
+                    <i class="fa-solid fa-user-graduate"></i>
+                    <span>Élèves</span>
+                </a>
+                <a href="{% url 'interface_enseignants' %}">
+                    <i class="fa-solid fa-chalkboard-teacher"></i>
+                    <span>Enseignants</span>
+                </a>
+                <a href="{% url 'interface_organisation_scolaire' %}">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    <span>Organisation</span>
+                </a>
+            </nav>
         </div>
-        <div class="role-badge">Promoteur</div>
-    </div>
+    </aside>
 
-    <div class="promoteur-stats">
-        <div class="promoteur-stat-card">
-            <div class="promoteur-stat-icon">🎓</div>
-            <span class="promoteur-stat-number">{{ nombre_eleves }}</span>
-            <span class="promoteur-stat-label">Élèves</span>
-        </div>
-        <div class="promoteur-stat-card">
-            <div class="promoteur-stat-icon">👨‍🏫</div>
-            <span class="promoteur-stat-number">{{ nombre_enseignants }}</span>
-            <span class="promoteur-stat-label">Enseignants</span>
-        </div>
-        <div class="promoteur-stat-card">
-            <div class="promoteur-stat-icon">🏫</div>
-            <span class="promoteur-stat-number">{{ nombre_classes }}</span>
-            <span class="promoteur-stat-label">Classes</span>
-        </div>
-        <div class="promoteur-stat-card">
-            <div class="promoteur-stat-icon">👥</div>
-            <span class="promoteur-stat-number">{{ nombre_utilisateurs }}</span>
-            <span class="promoteur-stat-label">Utilisateurs</span>
-        </div>
-        <div class="promoteur-stat-card">
-            <div class="promoteur-stat-icon">📝</div>
-            <span class="promoteur-stat-number">{{ nombre_inscriptions }}</span>
-            <span class="promoteur-stat-label">Inscriptions</span>
-        </div>
-        <div class="promoteur-stat-card">
-            <div class="promoteur-stat-icon">📚</div>
-            <span class="promoteur-stat-number">{{ nombre_affectations }}</span>
-            <span class="promoteur-stat-label">Affectations</span>
-        </div>
-    </div>
+    <main class="dashboard-main">
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <div>
+                    <h1>Tableau de bord</h1>
+                    <p class="header-subtitle">
+                        Bienvenue, <strong>{{ utilisateur.prenom }} {{ utilisateur.nom }}</strong>
+                    </p>
+                    {% if annee_active %}
+                        <p class="header-subtitle">
+                            Année scolaire : <strong>{{ annee_active.libelle }}</strong>
+                        </p>
+                    {% endif %}
+                </div>
+                <div class="role-badge">Promoteur</div>
+            </div>
 
-    <div class="stats-circles">
-        <div class="stat-circle-card">
-            <div class="stat-circle circle-eleves">
-                <span>{{ nombre_eleves }}</span>
+            <div class="promoteur-stats">
+                <div class="promoteur-stat-card">
+                    <div class="promoteur-stat-icon"><i class="fa-solid fa-user-graduate"></i></div>
+                    <span class="promoteur-stat-number">{{ nombre_eleves }}</span>
+                    <span class="promoteur-stat-label">Élèves</span>
+                </div>
+                <div class="promoteur-stat-card">
+                    <div class="promoteur-stat-icon"><i class="fa-solid fa-chalkboard-teacher"></i></div>
+                    <span class="promoteur-stat-number">{{ nombre_enseignants }}</span>
+                    <span class="promoteur-stat-label">Enseignants</span>
+                </div>
+                <div class="promoteur-stat-card">
+                    <div class="promoteur-stat-icon"><i class="fa-solid fa-school"></i></div>
+                    <span class="promoteur-stat-number">{{ nombre_classes }}</span>
+                    <span class="promoteur-stat-label">Classes</span>
+                </div>
+                <div class="promoteur-stat-card">
+                    <div class="promoteur-stat-icon"><i class="fa-solid fa-users"></i></div>
+                    <span class="promoteur-stat-number">{{ nombre_utilisateurs }}</span>
+                    <span class="promoteur-stat-label">Utilisateurs</span>
+                </div>
+                <div class="promoteur-stat-card">
+                    <div class="promoteur-stat-icon"><i class="fa-solid fa-file-lines"></i></div>
+                    <span class="promoteur-stat-number">{{ nombre_inscriptions }}</span>
+                    <span class="promoteur-stat-label">Inscriptions</span>
+                </div>
+                <div class="promoteur-stat-card">
+                    <div class="promoteur-stat-icon"><i class="fa-solid fa-book-open"></i></div>
+                    <span class="promoteur-stat-number">{{ nombre_affectations }}</span>
+                    <span class="promoteur-stat-label">Affectations</span>
+                </div>
             </div>
-            <div class="stat-circle-label">Élèves</div>
-        </div>
-        <div class="stat-circle-card">
-            <div class="stat-circle circle-enseignants">
-                <span>{{ nombre_enseignants }}</span>
-            </div>
-            <div class="stat-circle-label">Enseignants</div>
-        </div>
-        <div class="stat-circle-card">
-            <div class="stat-circle circle-classes">
-                <span>{{ nombre_classes }}</span>
-            </div>
-            <div class="stat-circle-label">Classes</div>
-        </div>
-        <div class="stat-circle-card">
-            <div class="stat-circle circle-utilisateurs">
-                <span>{{ nombre_utilisateurs }}</span>
-            </div>
-            <div class="stat-circle-label">Utilisateurs</div>
-        </div>
-        <div class="stat-circle-card">
-            <div class="stat-circle circle-inscriptions">
-                <span>{{ nombre_inscriptions }}</span>
-            </div>
-            <div class="stat-circle-label">Inscriptions</div>
-        </div>
-        <div class="stat-circle-card">
-            <div class="stat-circle circle-affectations">
-                <span>{{ nombre_affectations }}</span>
-            </div>
-            <div class="stat-circle-label">Affectations</div>
-        </div>
-    </div>
 
-    <div class="chart-card">
-        <div class="chart-title">Vue d'ensemble</div>
-        <div class="bar-chart">
-            <div class="bar-row">
-                <div class="bar-label">Élèves</div>
-                <div class="bar-track">
-                    <div class="bar-fill" style="width: 100%;"></div>
+            <div class="stats-circles">
+                <div class="stat-circle-card">
+                    <div class="stat-circle circle-eleves">
+                        <span>{{ nombre_eleves }}</span>
+                    </div>
+                    <div class="stat-circle-label">Élèves</div>
                 </div>
-                <div class="bar-value">{{ nombre_eleves }}</div>
+                <div class="stat-circle-card">
+                    <div class="stat-circle circle-enseignants">
+                        <span>{{ nombre_enseignants }}</span>
+                    </div>
+                    <div class="stat-circle-label">Enseignants</div>
+                </div>
+                <div class="stat-circle-card">
+                    <div class="stat-circle circle-classes">
+                        <span>{{ nombre_classes }}</span>
+                    </div>
+                    <div class="stat-circle-label">Classes</div>
+                </div>
+                <div class="stat-circle-card">
+                    <div class="stat-circle circle-utilisateurs">
+                        <span>{{ nombre_utilisateurs }}</span>
+                    </div>
+                    <div class="stat-circle-label">Utilisateurs</div>
+                </div>
+                <div class="stat-circle-card">
+                    <div class="stat-circle circle-inscriptions">
+                        <span>{{ nombre_inscriptions }}</span>
+                    </div>
+                    <div class="stat-circle-label">Inscriptions</div>
+                </div>
+                <div class="stat-circle-card">
+                    <div class="stat-circle circle-affectations">
+                        <span>{{ nombre_affectations }}</span>
+                    </div>
+                    <div class="stat-circle-label">Affectations</div>
+                </div>
             </div>
-            <div class="bar-row">
-                <div class="bar-label">Enseignants</div>
-                <div class="bar-track">
-                    <div class="bar-fill" style="width: 80%;"></div>
+
+            <div class="chart-card">
+                <div class="chart-title">Vue d'ensemble</div>
+                <div class="bar-chart">
+                    <div class="bar-row">
+                        <div class="bar-label">Élèves</div>
+                        <div class="bar-track">
+                            <div class="bar-fill" style="width: 100%;"></div>
+                        </div>
+                        <div class="bar-value">{{ nombre_eleves }}</div>
+                    </div>
+                    <div class="bar-row">
+                        <div class="bar-label">Enseignants</div>
+                        <div class="bar-track">
+                            <div class="bar-fill" style="width: 80%;"></div>
+                        </div>
+                        <div class="bar-value">{{ nombre_enseignants }}</div>
+                    </div>
+                    <div class="bar-row">
+                        <div class="bar-label">Classes</div>
+                        <div class="bar-track">
+                            <div class="bar-fill" style="width: 60%;"></div>
+                        </div>
+                        <div class="bar-value">{{ nombre_classes }}</div>
+                    </div>
+                    <div class="bar-row">
+                        <div class="bar-label">Inscriptions</div>
+                        <div class="bar-track">
+                            <div class="bar-fill" style="width: 70%;"></div>
+                        </div>
+                        <div class="bar-value">{{ nombre_inscriptions }}</div>
+                    </div>
+                    <div class="bar-row">
+                        <div class="bar-label">Affectations</div>
+                        <div class="bar-track">
+                            <div class="bar-fill" style="width: 50%;"></div>
+                        </div>
+                        <div class="bar-value">{{ nombre_affectations }}</div>
+                    </div>
                 </div>
-                <div class="bar-value">{{ nombre_enseignants }}</div>
-            </div>
-            <div class="bar-row">
-                <div class="bar-label">Classes</div>
-                <div class="bar-track">
-                    <div class="bar-fill" style="width: 60%;"></div>
-                </div>
-                <div class="bar-value">{{ nombre_classes }}</div>
-            </div>
-            <div class="bar-row">
-                <div class="bar-label">Inscriptions</div>
-                <div class="bar-track">
-                    <div class="bar-fill" style="width: 70%;"></div>
-                </div>
-                <div class="bar-value">{{ nombre_inscriptions }}</div>
-            </div>
-            <div class="bar-row">
-                <div class="bar-label">Affectations</div>
-                <div class="bar-track">
-                    <div class="bar-fill" style="width: 50%;"></div>
-                </div>
-                <div class="bar-value">{{ nombre_affectations }}</div>
             </div>
         </div>
-    </div>
-
-    <div class="info-card">
-        <h2>Accès rapide</h2>
-        <p>Accédez rapidement aux fonctionnalités de supervision générale.</p>
-
-        <div class="actions-grid">
-            <a href="{% url 'structure_academique' %}" class="action-card">
-                <div class="action-icon">🏗️</div>
-                <div class="action-title">Structure académique</div>
-            </a>
-            <a href="{% url 'liste_utilisateurs' %}" class="action-card">
-                <div class="action-icon">👥</div>
-                <div class="action-title">Utilisateurs</div>
-            </a>
-            <a href="{% url 'liste_eleves' %}" class="action-card">
-                <div class="action-icon">🎓</div>
-                <div class="action-title">Élèves</div>
-            </a>
-            <a href="{% url 'interface_enseignants' %}" class="action-card">
-                <div class="action-icon">👨‍🏫</div>
-                <div class="action-title">Enseignants</div>
-            </a>
-            <a href="{% url 'interface_organisation_scolaire' %}" class="action-card">
-                <div class="action-icon">📆</div>
-                <div class="action-title">Organisation</div>
-            </a>
-        </div>
-    </div>
+    </main>
 </div>
 
 <!-- BOUTON FLOTTANT : MON PROFIL -->

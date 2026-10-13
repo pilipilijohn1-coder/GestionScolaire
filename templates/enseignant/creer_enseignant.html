@@ -9,7 +9,7 @@ Enregistrer enseignant
 
 <link
     rel="stylesheet"
-    href="{% static 'css/affectations/creer_enseignant.css' %}"
+    href="{% static 'css/creer_enseignant.css' %}"
 >
 
 {% endblock %}
@@ -81,7 +81,7 @@ Enregistrer enseignant
     <form
         method="post"
         enctype="multipart/form-data"
-        class="enseignant-form"
+        class="enseignant-form form-floating"
     >
 
         {% csrf_token %}
@@ -445,4 +445,16 @@ Enregistrer enseignant
 
 </div>
 
+{% block extra_js %}
+<script>
+    // Add placeholders for floating labels in Django forms
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.form-floating .form-group input, .form-floating .form-group select, .form-floating .form-group textarea').forEach(function(el) {
+            if (!el.placeholder) {
+                el.placeholder = ' ';
+            }
+        });
+    });
+</script>
+{% endblock %}
 {% endblock %}

@@ -55,7 +55,7 @@
 
     <form
         method="post"
-        class="classe-form"
+        class="classe-form form-floating"
     >
 
         {% csrf_token %}
@@ -456,4 +456,14 @@ document.addEventListener(
 
 </script>
 
+<script>
+    // Add placeholders for floating labels in Django forms
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.form-floating .form-group input, .form-floating .form-group select, .form-floating .form-group textarea').forEach(function(el) {
+            if (!el.placeholder) {
+                el.placeholder = ' ';
+            }
+        });
+    });
+</script>
 {% endblock %}

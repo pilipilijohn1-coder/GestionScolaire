@@ -1,0 +1,128 @@
+<div class="paiement-formulaire">
+
+    {% if paiement %}
+        <div class="paiement-succes">
+            <i class="fa-solid fa-circle-check"></i>
+            <h3>Paiement enregistré</h3>
+            <p>
+                Montant de <strong>{{ paiement.montant|floatformat:2 }}</strong>
+                enregistré pour
+                <strong>{{ inscription.eleve }}</strong>
+                sur la tranche {{ paiement.tranche.numero }}.
+            </p>
+            <p class="paiement-succes-note">
+                Le paiement est au statut « enregistré ». Il doit être
+                validé avant de compter dans le solde de l'élève.
+            </p>
+        </div>
+    {% else %}
+
+        {% if erreurs %}
+            <div class="paiement-alerte">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div>
+                    {% for champ, message in erreurs.items %}
+                        <div>{{ message }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <form
+            method="post"
+            action="{% url 'encaisser_paiement' %}"
+            id="paiementForm"
+            novalidate
+        >
+            {% csrf_token %}
+
+            <input
+                type="hidden"
+                name="inscription_id"
+                id="paiementInscriptionId"
+                value="{{ saisie.inscription_id }}"
+            >
+
+            {% if inscription %}
+                <div class="paiement-identite">
+                    <div class="paiement-identite-ligne">
+                        <span>Élève</span>
+                        <strong>{{ inscription.eleve }}</strong>
+                    </div>
+                    <div class="paiement-identite-ligne">
+                        <span>Classe</span>
+                        <strong>{{ inscription.classe.libelle }}</strong>
+                    </div>
+                    <div class="paiement-identite-ligne">
+                        <span>Année</span>
+                        <strong>{{ inscription.annee.libelle }}</strong>
+                    </div>
+                    <div class="paiement-identite-ligne">
+                        <span>Matricule</span>
+                        <strong class="mono">{{ inscription.eleve.matricule }}</strong>
+                    </div>
+                </div>
+            {% else %}
+                <div class="paiement-alerte">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <div>
+                        Aucune inscription sélectionnée. Revenez à la
+                        recherche d'élève et choisissez un nom.
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="paiement-champ">
+                <label for="paiementTranche">Tranche à solder</label>
+                <select
+                    id="paiementTranche"
+                    name="tranche_id"
+                    required
+                >
+                    <option value="">
+                        Chargement des tranches...
+                    </option>
+                </select>
+                <small
+                    class="paiement-aide"
+                    id="paiementTrancheAide"
+                ></small>
+            </div>
+
+            <div class="paiement-champ">
+                <label for="paiementMontant">Montant versé</label>
+                <input
+                    type="text"
+                    inputmode="decimal"
+                    id="paiementMontant"
+                    name="montant"
+                    autocomplete="off"
+                    placeholder="0.00"
+                    required
+                >
+                <small class="paiement-aide" id="paiementAide">
+                    Le montant doit être supérieur à zéro. Seul le
+                    chiffre ou la virgule décimale sont acceptés.
+                </small>
+                <small
+                    class="paiement-erreur-champ"
+                    id="paiementMontantErreur"
+                ></small>
+            </div>
+
+            <div class="paiement-actions">
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    id="paiementValider"
+                >
+                    <i class="fa-solid fa-save"></i>
+                    Enregistrer le paiement
+                </button>
+            </div>
+
+        </form>
+
+    {% endif %}
+
+</div>

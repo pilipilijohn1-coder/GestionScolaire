@@ -270,15 +270,36 @@
 
         {% if utilisateur.photo_profil %}
             <div class="photo-profil-container">
-                <img src="{{ utilisateur.photo_profil.url }}" alt="Photo de profil" class="photo">
+                <img src="{{ utilisateur.photo_profil.url }}" alt="Photo de profil" class="photo" id="photoPreview">
             </div>
         {% else %}
             <div class="photo-profil-container">
-                <div class="no-photo">
+                <div class="no-photo" id="photoPreview">
                     <i class="fas fa-user"></i>
                 </div>
             </div>
         {% endif %}
+
+        <form method="post" action="{% url 'mon_profil' %}" enctype="multipart/form-data" class="photo-form">
+            {% csrf_token %}
+            <div class="mdp-form-group">
+                <label for="photo_profil">Changer la photo de profil</label>
+                <input
+                    type="file"
+                    id="photo_profil"
+                    name="photo_profil"
+                    accept="image/*"
+                    class="mdp-form-control"
+                    onchange="previewPhoto(this)"
+                >
+                <span class="mdp-form-help">Formats acceptés : JPG, PNG, WebP. Taille max : 5 Mo.</span>
+            </div>
+            <div class="mdp-actions">
+                <button type="submit" name="action" value="photo" class="gm-btn gm-btn-submit">
+                    <i class="fas fa-camera"></i> Enregistrer la photo
+                </button>
+            </div>
+        </form>
 
     </div>
 
@@ -363,4 +384,28 @@
 
 </div>
 
+{% block extra_js %}
+<script>
+    function previewPhoto(input) {
+        const preview = document.getElementById('photoPreview');
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if (preview.tagName === 'IMG') {
+                    preview.src = e.target.result;
+                } else {
+                    // Replace the div with an img
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.alt = 'Photo de profil';
+                    img.className = 'photo';
+                    img.id = 'photoPreview';
+                    preview.replaceWith(img);
+                }
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+{% endblock %}
 {% endblock %}

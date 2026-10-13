@@ -233,12 +233,14 @@
         </div>
         <div class="eleves-modal-footer">
             <button class="btn btn-secondary" onclick="closeElevesOverlay()">Fermer</button>
-            <button class="btn btn-primary" onclick="printOverlay()">
+            <a class="btn btn-primary" id="elevesImpressionLink" href="#" target="_blank" rel="noopener"
+               onclick="return false;">
                 <i class="fa-solid fa-print"></i> Imprimer
-            </button>
-            <button class="btn btn-primary" onclick="exportPDF()">
-                <i class="fa-solid fa-file-pdf"></i> Exporter PDF
-            </button>
+            </a>
+            <a class="btn btn-primary" id="elevesPdfLink" href="#" target="_blank" rel="noopener"
+               onclick="return false;">
+                <i class="fa-solid fa-file-pen"></i> Version A4
+            </a>
         </div>
     </div>
 </div>
@@ -251,6 +253,15 @@ function openElevesOverlay(event, element) {
 
     document.getElementById('elevesOverlay').setAttribute('data-classe-id', classeId);
     document.getElementById('elevesOverlayTitle').textContent = 'Élèves — ' + classeLibelle;
+
+    /*
+     * Les deux liens pointent vers la page A4 : l'impression se fait
+     * depuis une vraie page mise en page, et non depuis un fragment
+     * recopié dans une fenetre vide.
+     */
+    document.getElementById('elevesImpressionLink').href = '/eleves/classe/' + classeId + '/impression/';
+    document.getElementById('elevesPdfLink').href = '/eleves/classe/' + classeId + '/pdf/';
+
     document.getElementById('elevesOverlayBody').innerHTML = '<p style="color:#6b7280;">Chargement...</p>';
     document.getElementById('elevesOverlay').classList.add('open');
 
@@ -266,26 +277,6 @@ function openElevesOverlay(event, element) {
 
 function closeElevesOverlay() {
     document.getElementById('elevesOverlay').classList.remove('open');
-}
-
-function printOverlay() {
-    const content = document.getElementById('elevesOverlayBody').innerHTML;
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write('<html><head><title>Liste des élèves</title>');
-        printWindow.document.write('<style>body{font-family:Segoe UI,sans-serif;color:#374151;}</style>');
-    printWindow.document.write('<style>body{font-family:Segoe UI,sans-serif;padding:20px;} table{width:100%;border-collapse:collapse;} th,td{padding:8px;border-bottom:1px solid #e5e7eb;text-align:left;} th{background:#f9fafb;} img.eleve-photo{width:40px;height:40px;border-radius:50%;object-fit:cover;}</style>');
-    printWindow.document.write('</head><body>');
-    printWindow.document.write(content);
-    printWindow.document.write('</body></html>');
-    printWindow.document.close();
-    printWindow.print();
-}
-
-function exportPDF() {
-    const classeId = document.getElementById('elevesOverlay').getAttribute('data-classe-id');
-    if (classeId) {
-        window.open('/eleves/classe/' + classeId + '/pdf/', '_blank');
-    }
 }
 </script>
 

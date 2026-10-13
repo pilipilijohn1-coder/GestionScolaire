@@ -578,7 +578,7 @@ class EnseignantForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 "class": "form-control",
-                "placeholder": "Entrez le nom",
+                "placeholder": " ",
                 "autocomplete": "family-name",
             }
         ),
@@ -591,7 +591,7 @@ class EnseignantForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 "class": "form-control",
-                "placeholder": "Entrez le postnom",
+                "placeholder": " ",
             }
         ),
     )
@@ -603,7 +603,7 @@ class EnseignantForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 "class": "form-control",
-                "placeholder": "Entrez le prénom",
+                "placeholder": " ",
                 "autocomplete": "given-name",
             }
         ),
@@ -616,7 +616,7 @@ class EnseignantForm(forms.Form):
         widget=forms.EmailInput(
             attrs={
                 "class": "form-control",
-                "placeholder": "exemple@email.com",
+                "placeholder": " ",
                 "autocomplete": "email",
             }
         ),
@@ -629,7 +629,7 @@ class EnseignantForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 "class": "form-control",
-                "placeholder": "Entrez le numéro de téléphone",
+                "placeholder": " ",
                 "autocomplete": "tel",
             }
         ),
@@ -657,7 +657,7 @@ class EnseignantForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 "class": "form-control",
-                "placeholder": "Exemple : Licencié, Gradué...",
+                "placeholder": " ",
             }
         ),
     )
@@ -669,7 +669,7 @@ class EnseignantForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 "class": "form-control",
-                "placeholder": "Exemple : Mathématiques",
+                "placeholder": " ",
             }
         ),
     )
@@ -684,7 +684,7 @@ class EnseignantForm(forms.Form):
         widget=forms.PasswordInput(
             attrs={
                 "class": "form-control",
-                "placeholder": "Entrez le mot de passe",
+                "placeholder": " ",
                 "autocomplete": "new-password",
             }
         ),
@@ -696,7 +696,7 @@ class EnseignantForm(forms.Form):
         widget=forms.PasswordInput(
             attrs={
                 "class": "form-control",
-                "placeholder": "Confirmez le mot de passe",
+                "placeholder": " ",
                 "autocomplete": "new-password",
             }
         ),
@@ -2314,31 +2314,31 @@ class EleveForm(forms.ModelForm):
         ]
         widgets = {
             "nom": forms.TextInput(
-                attrs={"placeholder": "Nom"}
+                attrs={"placeholder": " "}
             ),
             "postnom": forms.TextInput(
-                attrs={"placeholder": "Postnom"}
+                attrs={"placeholder": " "}
             ),
             "prenom": forms.TextInput(
-                attrs={"placeholder": "Prénom"}
+                attrs={"placeholder": " "}
             ),
             "sexe": forms.Select(
-                attrs={"placeholder": "Sexe"}
+                attrs={"placeholder": " "}
             ),
             "date_naissance": forms.DateInput(
                 attrs={"type": "date"},
             ),
             "lieu_naissance": forms.TextInput(
-                attrs={"placeholder": "Lieu de naissance"}
+                attrs={"placeholder": " "}
             ),
             "adresse": forms.TextInput(
-                attrs={"placeholder": "Adresse"}
+                attrs={"placeholder": " "}
             ),
             "telephone": forms.TextInput(
-                attrs={"placeholder": "Téléphone"}
+                attrs={"placeholder": " "}
             ),
             "email": forms.EmailInput(
-                attrs={"placeholder": "Email"}
+                attrs={"placeholder": " "}
             ),
             "photo": forms.FileInput(),
         }
@@ -2374,7 +2374,7 @@ class FraisScolairesForm(forms.ModelForm):
         ]
         widgets = {
             "annee": forms.Select(attrs={"class": "form-control"}),
-            "libelle": forms.TextInput(attrs={"class": "form-control", "placeholder": "Libellé des frais"}),
+            "libelle": forms.TextInput(attrs={"class": "form-control", "placeholder": " "}),
             "montant_total": forms.NumberInput(attrs={"class": "form-control", "min": "0", "step": "0.01"}),
             "actif": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
@@ -2408,8 +2408,8 @@ class ModeleBulletinForm(forms.ModelForm):
             "actif",
         ]
         widgets = {
-            "libelle": forms.TextInput(attrs={"class": "form-control", "placeholder": "Libellé du modèle"}),
-            "version": forms.TextInput(attrs={"class": "form-control", "placeholder": "Ex: v1"}),
+            "libelle": forms.TextInput(attrs={"class": "form-control", "placeholder": " "}),
+            "version": forms.TextInput(attrs={"class": "form-control", "placeholder": " "}),
             "actif": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
 
@@ -2428,13 +2428,13 @@ class ResponsableLegalForm(forms.ModelForm):
             "profession",
         ]
         widgets = {
-            "nom": forms.TextInput(attrs={"class": "form-control", "placeholder": "Nom"}),
-            "postnom": forms.TextInput(attrs={"class": "form-control", "placeholder": "Postnom"}),
-            "prenom": forms.TextInput(attrs={"class": "form-control", "placeholder": "Prénom"}),
-            "telephone": forms.TextInput(attrs={"class": "form-control", "placeholder": "Téléphone"}),
-            "email": forms.EmailInput(attrs={"class": "form-control", "placeholder": "Email"}),
-            "adresse": forms.TextInput(attrs={"class": "form-control", "placeholder": "Adresse"}),
-            "profession": forms.TextInput(attrs={"class": "form-control", "placeholder": "Profession"}),
+            "nom": forms.TextInput(attrs={"class": "form-control", "placeholder": " "}),
+            "postnom": forms.TextInput(attrs={"class": "form-control", "placeholder": " "}),
+            "prenom": forms.TextInput(attrs={"class": "form-control", "placeholder": " "}),
+            "telephone": forms.TextInput(attrs={"class": "form-control", "placeholder": " "}),
+            "email": forms.EmailInput(attrs={"class": "form-control", "placeholder": " "}),
+            "adresse": forms.TextInput(attrs={"class": "form-control", "placeholder": " "}),
+            "profession": forms.TextInput(attrs={"class": "form-control", "placeholder": " "}),
         }
 
 
@@ -2737,7 +2737,7 @@ class InscriptionCompleteForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 **TEXT_CSS,
-                "placeholder": "Généré automatiquement si laissé vide",
+                "placeholder": " ",
             }
         ),
         help_text="Laissez vide pour générer automatiquement.",
@@ -2747,21 +2747,21 @@ class InscriptionCompleteForm(forms.Form):
         required=False,
         max_length=80,
         label="Nom",
-        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": "Nom"}),
+        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": " "}),
     )
 
     eleve_postnom = forms.CharField(
         required=False,
         max_length=80,
         label="Postnom",
-        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": "Postnom"}),
+        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": " "}),
     )
 
     eleve_prenom = forms.CharField(
         required=False,
         max_length=80,
         label="Prénom",
-        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": "Prénom"}),
+        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": " "}),
     )
 
     eleve_sexe = forms.ChoiceField(
@@ -2781,27 +2781,27 @@ class InscriptionCompleteForm(forms.Form):
         required=False,
         max_length=150,
         label="Lieu de naissance",
-        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": "Lieu de naissance"}),
+        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": " "}),
     )
 
     eleve_adresse = forms.CharField(
         required=False,
         max_length=255,
         label="Adresse",
-        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": "Adresse de résidence"}),
+        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": " "}),
     )
 
     eleve_telephone = forms.CharField(
         required=False,
         max_length=30,
         label="Téléphone",
-        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": "Téléphone"}),
+        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": " "}),
     )
 
     eleve_email = forms.EmailField(
         required=False,
         label="Email",
-        widget=forms.EmailInput(attrs={**TEXT_CSS, "placeholder": "Email"}),
+        widget=forms.EmailInput(attrs={**TEXT_CSS, "placeholder": " "}),
     )
 
     eleve_photo = forms.FileField(
@@ -2828,46 +2828,46 @@ class InscriptionCompleteForm(forms.Form):
     resp_nom = forms.CharField(
         max_length=80,
         label="Nom",
-        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": "Nom"}),
+        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": " "}),
     )
 
     resp_postnom = forms.CharField(
         required=False,
         max_length=80,
         label="Postnom",
-        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": "Postnom"}),
+        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": " "}),
     )
 
     resp_prenom = forms.CharField(
         max_length=80,
         label="Prénom",
-        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": "Prénom"}),
+        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": " "}),
     )
 
     resp_telephone = forms.CharField(
         max_length=30,
         label="Téléphone",
-        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": "Téléphone (obligatoire)"}),
+        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": " "}),
     )
 
     resp_email = forms.EmailField(
         required=False,
         label="Email",
-        widget=forms.EmailInput(attrs={**TEXT_CSS, "placeholder": "Email"}),
+        widget=forms.EmailInput(attrs={**TEXT_CSS, "placeholder": " "}),
     )
 
     resp_adresse = forms.CharField(
         required=False,
         max_length=255,
         label="Adresse",
-        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": "Adresse"}),
+        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": " "}),
     )
 
     resp_profession = forms.CharField(
         required=False,
         max_length=100,
         label="Profession",
-        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": "Profession"}),
+        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": " "}),
     )
 
     resp_principal = forms.BooleanField(
@@ -2905,48 +2905,48 @@ class InscriptionCompleteForm(forms.Form):
         required=False,
         max_length=80,
         label="Nom",
-        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": "Nom"}),
+        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": " "}),
     )
 
     resp2_postnom = forms.CharField(
         required=False,
         max_length=80,
         label="Postnom",
-        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": "Postnom"}),
+        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": " "}),
     )
 
     resp2_prenom = forms.CharField(
         required=False,
         max_length=80,
         label="Prénom",
-        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": "Prénom"}),
+        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": " "}),
     )
 
     resp2_telephone = forms.CharField(
         required=False,
         max_length=30,
         label="Téléphone",
-        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": "Téléphone"}),
+        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": " "}),
     )
 
     resp2_email = forms.EmailField(
         required=False,
         label="Email",
-        widget=forms.EmailInput(attrs={**TEXT_CSS, "placeholder": "Email"}),
+        widget=forms.EmailInput(attrs={**TEXT_CSS, "placeholder": " "}),
     )
 
     resp2_adresse = forms.CharField(
         required=False,
         max_length=255,
         label="Adresse",
-        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": "Adresse"}),
+        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": " "}),
     )
 
     resp2_profession = forms.CharField(
         required=False,
         max_length=100,
         label="Profession",
-        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": "Profession"}),
+        widget=forms.TextInput(attrs={**TEXT_CSS, "placeholder": " "}),
     )
 
     # ---------------------------------------------------------
@@ -2998,16 +2998,42 @@ class InscriptionCompleteForm(forms.Form):
             AnneeScolaire.objects.all().order_by("-id")
         )
 
-        # Liste des classes restreinte a l'annee choisie (champ lie)
+        # Liste des classes restreinte a l'annee choisie (champ lie).
+        #
+        # Le queryset doit etre rempli des le premier affichage. Limite
+        # au cas is_bound, il restait vide sur un formulaire vierge : le
+        # menu deroulant des classes etait donc muet et aucune
+        # inscription ne pouvait etre enregistree.
         if self.is_bound:
             annee_id = self.data.get("annee")
-            if annee_id:
-                try:
-                    self.fields["classe"].queryset = Classe.objects.filter(
-                        annee_id=annee_id, actif=True
-                    ).order_by("libelle")
-                except (ValueError, TypeError):
-                    pass
+        else:
+            annee_id = self.initial.get("annee")
+            annee_id = getattr(annee_id, "id", annee_id)
+
+            if not annee_id:
+                annee_active = AnneeScolaire.objects.filter(
+                    statut=AnneeScolaire.ACTIVE
+                ).first()
+                annee_id = annee_active.id if annee_active else None
+
+        if annee_id:
+            try:
+                self.fields["classe"].queryset = (
+                    Classe.objects
+                    .filter(annee_id=annee_id, actif=True)
+                    .order_by("niveau__ordre", "code")
+                )
+            except (ValueError, TypeError):
+                pass
+
+        # Dernier recours : sans annee exploitable, on propose toutes les
+        # classes actives plutot qu'un menu vide.
+        if not self.fields["classe"].queryset.exists():
+            self.fields["classe"].queryset = (
+                Classe.objects
+                .filter(actif=True)
+                .order_by("niveau__ordre", "code")
+            )
 
         if self.eleve is not None:
             self._initialiser_edition(self.eleve)
@@ -3181,7 +3207,13 @@ class InscriptionCompleteForm(forms.Form):
 
     # ---------------------------------------------------------
     def _creer_responsable(self, prefixe, principal):
-        """Cree un responsable legal a partir des champs prefixes."""
+        """Retourne un responsable legal a partir des champs prefixes.
+
+        Le telephone est l'identifiant du responsable. Si un responsable
+        porte deja ce numero, il est reutilise et mis a jour plutot que
+        d'en creer un second : le meme parent, deja connu de l'etablissement,
+        ne doit pas etre duplique a chaque inscription d'un enfant.
+        """
         donnees = {
             "nom": (self.cleaned_data.get(f"{prefixe}nom") or "").strip(),
             "prenom": (self.cleaned_data.get(f"{prefixe}prenom") or "").strip(),
@@ -3191,6 +3223,28 @@ class InscriptionCompleteForm(forms.Form):
             "adresse": (self.cleaned_data.get(f"{prefixe}adresse") or "").strip() or None,
             "profession": (self.cleaned_data.get(f"{prefixe}profession") or "").strip() or None,
         }
+
+        existant = None
+
+        if donnees["telephone"]:
+            existant = (
+                ResponsableLegal.objects
+                .filter(telephone=donnees["telephone"])
+                .first()
+            )
+
+        if existant is not None:
+            # On complete ce qui manque chez le responsable connu sans
+            # ecraser les informations deja saisies.
+            for champ, valeur in donnees.items():
+                if champ == "telephone":
+                    continue
+                if valeur and not getattr(existant, champ):
+                    setattr(existant, champ, valeur)
+
+            existant.save()
+            return existant
+
         return ResponsableLegal.objects.create(**donnees)
 
     # ---------------------------------------------------------

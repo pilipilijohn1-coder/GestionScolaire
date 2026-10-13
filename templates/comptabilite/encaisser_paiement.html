@@ -213,6 +213,18 @@
         </div>
 
         <div class="card-body">
+
+            {% if erreurs %}
+                <div class="paiement-alerte">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <div>
+                        {% for champ, message in erreurs.items %}
+                            <div>{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
             <form method="post">
                 {% csrf_token %}
 
@@ -221,16 +233,27 @@
                     <input 
                         type="text" 
                         id="eleve_search" 
+                        value="{% if inscription %}{{ inscription.eleve.nom }} {{ inscription.eleve.prenom }}{% endif %}"
                         placeholder="Rechercher par nom, prénom ou matricule..."
                         autocomplete="off"
                     >
-                    <input type="hidden" id="eleve_id" name="eleve_id">
+                    <input
+                        type="hidden"
+                        id="eleve_id"
+                        name="eleve_id"
+                        value="{% if inscription %}{{ inscription.eleve.id }}{% endif %}"
+                    >
                 </div>
 
                 <div class="form-group">
                     <label for="inscription_id">Inscription</label>
                     <select id="inscription_id" name="inscription_id" required>
                         <option value="">Sélectionner une inscription</option>
+                        {% if inscription %}
+                            <option value="{{ inscription.id }}" selected>
+                                {{ inscription.annee.libelle }} — {{ inscription.classe.libelle }}
+                            </option>
+                        {% endif %}
                     </select>
                 </div>
 
@@ -238,20 +261,30 @@
                     <label for="tranche_id">Tranche</label>
                     <select id="tranche_id" name="tranche_id" required>
                         <option value="">Sélectionner une tranche</option>
+                        {% if tranche %}
+                            <option value="{{ tranche.id }}" selected>
+                                Tranche {{ tranche.numero }} — échéance {{ tranche.date_echeance|date:"d/m/Y" }} — reste {{ reste_tranche|floatformat:2 }} / {{ tranche.montant|floatformat:2 }}
+                            </option>
+                        {% endif %}
                     </select>
                 </div>
 
                 <div class="form-group">
                     <label for="montant">Montant</label>
                     <input 
-                        type="number" 
+                        type="text" 
+                        inputmode="decimal"
                         id="montant" 
                         name="montant" 
-                        step="0.01" 
-                        min="0.01"
-                        required
+                        autocomplete="off"
+                        value="{{ saisie.montant }}"
                         placeholder="0.00"
+                        required
                     >
+                    <small class="paiement-aide">
+                        Le montant doit être supérieur à zéro. Seuls les
+                        chiffres sont acceptés, avec au plus deux décimales.
+                    </small>
                 </div>
 
                 <div class="form-actions">
@@ -300,11 +333,27 @@
                     return response.json();
                 })
                 .then(function(data) {
-                    if (data.results && data.results.length > 0) {
+                    if (data.results && data.results.length === 1) {
                         const eleve = data.results[0];
                         eleveSearch.value = eleve.text;
                         eleveIdInput.value = eleve.id;
                         chargerInscriptions(eleve.id);
+                    } else if (data.results && data.results.length > 1) {
+                        /*
+                         * Plusieurs eleves portent ce nom : choisir le
+                         * premier en silence risquerait d'encaisser au
+                         * compte du mauvais. L'utilisateur affine sa
+                         * recherche avec le postnom ou le matricule.
+                         */
+                        eleveIdInput.value = '';
+                        inscriptionSelect.innerHTML = '<option value=\"\">Plusieurs élèves portent ce nom : précisez</option>';
+                        trancheSelect.innerHTML = '<option value=\"\">Sélectionner une tranche</option>';
+                        montantInput.value = '';
+                        inscriptionSelect.dataset.ambigus = JSON.stringify(
+                            data.results.map(function(item) {
+                                return item.detail || item.text;
+                            })
+                        );
                     } else {
                         eleveIdInput.value = '';
                         inscriptionSelect.innerHTML = '<option value=\"\">Aucun élève trouvé</option>';

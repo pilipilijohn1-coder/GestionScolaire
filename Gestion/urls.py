@@ -41,6 +41,7 @@ urlpatterns = [
     path("eleves/<int:eleve_id>/bulletin/", views.bulletin_eleve, name="bulletin_eleve"),
     path("eleves/classe/<int:classe_id>/",views.eleves_par_classe,name="eleves_par_classe"),
     path("eleves/classe/<int:classe_id>/pdf/",views.eleves_par_classe_pdf,name="eleves_par_classe_pdf"),
+    path("eleves/classe/<int:classe_id>/impression/",views.impression_liste_eleves,name="impression_liste_eleves"),
     path("eleves/creer/",views.creer_eleve,name="creer_eleve"),
     path("eleves/reinscription/",views.reinscription,name="reinscription"),
     path("enseignant/emploi-du-temps/",views.emploi_du_temps,name="emploi_du_temps"),
@@ -97,6 +98,7 @@ urlpatterns = [
     #============================================================
     path("annee/matieres/",views.liste_matieres,name="liste_matieres",),
     path("annee/matieres/nouvelle/",views.creer_matiere,name="creer_matiere",),
+    path("matieres/programmation/", views.programmation_cours, name="programmation_cours"),
     path("annee/matieres/<int:matiere_id>/",views.detail_matiere,name="detail_matiere",),
     path("annee/matieres/<int:matiere_id>/modifier/",views.modifier_matiere,name="modifier_matiere",),
     path("annee/matieres/<int:matiere_id>/statut/",views.activer_desactiver_matiere,name="activer_desactiver_matiere",),
@@ -107,6 +109,7 @@ urlpatterns = [
     path("Gestion/affectations-matieres/",views.liste_affectations_matieres,name="liste_affectations_matieres",),
     path("matieres/gestion/", views.gestion_matieres_classes, name="gestion_matieres_classes"),
     path("matieres/gestion/<int:classe_id>/liste/", views.liste_matieres_classe, name="liste_matieres_classe"),
+    path("matieres/gestion/<int:classe_id>/horaire/impression/", views.impression_horaire_classe, name="impression_horaire_classe"),
     path("ajax/horaire-classe/<int:classe_id>/", views.ajax_horaire_classe, name="ajax_horaire_classe"),
     path("Gestion/affectations-matieres/nouvelle/", views.creer_affectation_matiere, name="creer_affectation_matiere"),
     path("annee/affectations-matieres/<int:affectation_id>/",views.detail_affectation_matiere,name="detail_affectation_matiere",),
@@ -117,6 +120,7 @@ urlpatterns = [
     # GESTION DES ENSEIGNANTS
     # ============================================================
     path("enseignants/",views.liste_enseignants,name="liste_enseignants",),
+    path("enseignants/impression/",views.impression_liste_enseignants,name="impression_liste_enseignants",),
     path("enseignants/nouveau/",views.creer_enseignant,name="creer_enseignant",),
     path("enseignants/<int:enseignant_id>/",views.detail_enseignant,name="detail_enseignant",),
     path("enseignants/<int:enseignant_id>/modifier/",views.modifier_enseignant,name="modifier_enseignant",),
@@ -127,6 +131,7 @@ urlpatterns = [
     #==============================================================
     path("affectations/",views.liste_affectations,name="liste_affectations",),
     path("affectations/cards/",views.gestion_affectations_enseignants,name="gestion_affectations_enseignants",),
+    path("enseignants/cours-et-creneaux/", views.affectation_pedagogique, name="affectation_pedagogique"),
     path("affectations/creer/",views.creer_affectation,name="creer_affectation",),
     path("affectations/<int:affectation_id>/",views.detail_affectation,name="detail_affectation",),
     path("affectations/<int:affectation_id>/modifier/",views.modifier_affectation,name="modifier_affectation",),
@@ -136,6 +141,8 @@ urlpatterns = [
     # NOTIFICATIONS
     # ============================================================
     path("notifications/",views.liste_notifications,name="liste_notifications",),
+    path("notifications/historique/",views.historique_notifications,name="historique_notifications",),
+    path("notifications/ouvrir/<int:destinataire_id>/",views.ouvrir_notification,name="ouvrir_notification",),
     path("notifications/lue/<int:destinataire_id>/",views.marquer_notification_lue,name="marquer_notification_lue",),
     path("notifications/ajax-recentes/",views.ajax_notifications_recentes,name="ajax_notifications_recentes",),
     
@@ -149,6 +156,7 @@ urlpatterns = [
     path("ajax/creneaux-disponibles/",views.ajax_creneaux_disponibles,name="ajax_creneaux_disponibles",),
     path("ajax/matieres-programmation/",views.ajax_matieres_programmation,name="ajax_matieres_programmation",),
     path("ajax/creneaux-programmation/",views.ajax_creneaux_programmation,name="ajax_creneaux_programmation",),
+    path("ajax/modifier-cours/",views.ajax_modifier_cours,name="ajax_modifier_cours",),
 
     # =========================================================
     # INTERFACE PRINCIPALE DES ENSEIGNANTS
@@ -174,6 +182,7 @@ urlpatterns = [
     path("organisation/parcours/",views.parcours_scolaire,name="parcours_scolaire",),
 
     path("inscriptions/", views.liste_inscriptions, name="liste_inscriptions"),
+    path("inscriptions/<int:inscription_id>/billet/", views.billet_inscription, name="billet_inscription"),
     path("inscriptions/creer/", views.creer_inscription, name="creer_inscription"),
     path("eleves-inscriptions/", views.accueil_eleves_inscriptions, name="accueil_eleves_inscriptions"),
 
@@ -187,12 +196,19 @@ urlpatterns = [
     # =========================================================
     path("comptabilite/paiements/", views.liste_paiements, name="liste_paiements"),
     path("comptabilite/paiements/<int:paiement_id>/", views.detail_paiement, name="detail_paiement"),
+    path("comptabilite/paiements/<int:paiement_id>/valider/", views.valider_paiement, name="valider_paiement"),
+    path("comptabilite/paiements/<int:paiement_id>/annuler/", views.annuler_paiement, name="annuler_paiement"),
     path("comptabilite/recus/", views.liste_recus, name="liste_recus"),
+    path("comptabilite/recus/<int:paiement_id>/imprimer/", views.imprimer_recu, name="imprimer_recu"),
     path("comptabilite/caisse/<int:caisse_id>/", views.detail_caisse, name="detail_caisse"),
+    path("comptabilite/caisse/ouvrir/", views.ouvrir_caisse, name="ouvrir_caisse"),
+    path("comptabilite/caisse/fermer/", views.fermer_caisse, name="fermer_caisse"),
+    path("comptabilite/paiements/<int:paiement_id>/porter-en-caisse/", views.porter_en_caisse, name="porter_en_caisse"),
     path("comptabilite/classes/", views.liste_classes_paiements, name="liste_classes_paiements"),
     path("comptabilite/classes/<int:classe_id>/", views.eleves_classe_paiements, name="eleves_classe_paiements"),
     path("comptabilite/encaisser/", views.encaisser_paiement, name="encaisser_paiement"),
     path("ajax/eleves-par-nom/", views.ajax_eleves_par_nom, name="ajax_eleves_par_nom"),
+    path("ajax/classes-par-libelle/", views.ajax_classes_par_libelle, name="ajax_classes_par_libelle"),
     path("ajax/inscriptions-eleve/<int:eleve_id>/", views.ajax_inscriptions_eleve, name="ajax_inscriptions_eleve"),
     path("ajax/tranches-par-inscription/<int:inscription_id>/", views.ajax_tranches_par_inscription, name="ajax_tranches_par_inscription"),
 

@@ -1,0 +1,300 @@
+{% load static %}<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Reçu de paiement</title>
+
+    <style>
+        /*
+         * A4 divise en 8 : deux colonnes et quatre rangees.
+         * Chaque ticket occupe 105 mm de large sur 74,25 mm de haut,
+         * soit exactement la huitieme partie d'une page A4 (210 x 297 mm).
+         * La grille CSS garantit le decoupage ; @page evite que
+         * l'imprimante rogne les marges.
+         */
+        @page {
+            size: A4 portrait;
+            margin: 0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #e2e8f0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            color: #0f172a;
+        }
+
+        .planche {
+            display: grid;
+            grid-template-columns: repeat(2, 105mm);
+            grid-auto-rows: 74.25mm;
+            width: 210mm;
+            margin: 10mm auto;
+            background: #ffffff;
+        }
+
+        /* ---------- Un ticket ---------- */
+
+        .recu {
+            width: 105mm;
+            height: 74.25mm;
+            padding: 3mm 4mm;
+            border: 0.4mm dashed #94a3b8;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        /* L'entete du ticket estrie sur deux rangees */
+        .recu:nth-child(odd) {
+            border-right: none;
+        }
+        .recu:nth-child(-n+2) {
+            border-top: none;
+        }
+        .recu:nth-last-child(-n+2) {
+            border-bottom: none;
+        }
+
+        .recu-entete {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 3mm;
+            border-bottom: 0.3mm solid #cbd5e1;
+            padding-bottom: 1.5mm;
+        }
+
+        .ecole {
+            font-size: 7.5pt;
+            font-weight: 700;
+            line-height: 1.25;
+            text-transform: uppercase;
+        }
+
+        .recu-type {
+            font-size: 7pt;
+            font-weight: 700;
+            color: #ffffff;
+            background: #2563eb;
+            padding: 0.6mm 1.5mm;
+            border-radius: 1mm;
+            white-space: nowrap;
+        }
+
+        .recu-corps {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 1mm;
+        }
+
+        .ligne {
+            display: flex;
+            justify-content: space-between;
+            gap: 3mm;
+            font-size: 7pt;
+            line-height: 1.35;
+        }
+
+        .ligne span:first-child {
+            color: #64748b;
+            text-transform: uppercase;
+            font-size: 6pt;
+            letter-spacing: 0.02em;
+        }
+
+        .ligne span:last-child {
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .eleve {
+            font-size: 8.5pt;
+            font-weight: 700;
+        }
+
+        .recu-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 0.3mm solid #cbd5e1;
+            padding-top: 1.5mm;
+            margin-top: 1mm;
+            font-size: 8pt;
+        }
+
+        .recu-total strong {
+            font-size: 10pt;
+            color: #166534;
+        }
+
+        .recu-pied {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 3mm;
+            margin-top: 1.5mm;
+            font-size: 6pt;
+            color: #64748b;
+        }
+
+        .signature {
+            border-top: 0.3mm solid #94a3b8;
+            padding-top: 0.8mm;
+            min-width: 30mm;
+            text-align: center;
+        }
+
+        .coupe {
+            display: none;
+        }
+
+        /* ---------- Apercu a l'ecran ---------- */
+
+        .barre-outils {
+            position: sticky;
+            top: 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px;
+            background: #0f172a;
+        }
+
+        .barre-outils button {
+            padding: 9px 18px;
+            border: none;
+            border-radius: 8px;
+            background: #2563eb;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+        }
+        .barre-outils button:hover {
+            background: #1e40af;
+        }
+        .barre-outils a {
+            padding: 9px 18px;
+            border-radius: 8px;
+            background: #334155;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .note-ecran {
+            max-width: 210mm;
+            margin: 6mm auto 0;
+            padding: 0 4mm;
+            font-size: 12px;
+            color: #334155;
+        }
+
+        /* ---------- Impression ---------- */
+
+        @media print {
+            body {
+                background: #ffffff;
+            }
+            .barre-outils,
+            .note-ecran {
+                display: none !important;
+            }
+            .planche {
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="barre-outils">
+        <button type="button" onclick="window.print()">
+            Imprimer
+        </button>
+        <a href="{% url 'detail_paiement' paiement.id %}">Retour au paiement</a>
+    </div>
+
+    <p class="note-ecran">
+        Format A4, huit reçus par page (2 colonnes &times; 4 rang&eacute;es).
+        La page suivante est vierge&nbsp;: le huiti&egrave;me emplacement est
+        r&eacute;serv&eacute; &agrave; la d&eacute;coupe.
+    </p>
+
+    <div class="planche">
+
+        {#- Le huitieme emplacement reste vide pour la decoupe -#}
+        {% for _ in "1234567" %}
+        <div class="recu">
+            <div class="recu-entete">
+                <div class="ecole">
+                    {{ ETABLISSEMENT|default:"Établissement" }}<br>
+                    Reçu de versement
+                </div>
+                <div class="recu-type">N° {{ recu.numero_recu }}</div>
+            </div>
+
+            <div class="recu-corps">
+                <div class="ligne">
+                    <span>Élève</span>
+                    <span class="eleve">{{ paiement.inscription.eleve }}</span>
+                </div>
+                <div class="ligne">
+                    <span>Matricule</span>
+                    <span>{{ paiement.inscription.eleve.matricule }}</span>
+                </div>
+                <div class="ligne">
+                    <span>Classe</span>
+                    <span>{{ paiement.inscription.classe.libelle }}</span>
+                </div>
+                <div class="ligne">
+                    <span>Année</span>
+                    <span>{{ paiement.inscription.annee.libelle }}</span>
+                </div>
+                <div class="ligne">
+                    <span>Tranche</span>
+                    <span>
+                        N° {{ paiement.tranche.id }}
+                        (n° {{ paiement.tranche.numero }})
+                    </span>
+                </div>
+                <div class="ligne">
+                    <span>Échéance</span>
+                    <span>{{ paiement.tranche.date_echeance|date:"d/m/Y" }}</span>
+                </div>
+            </div>
+
+            <div class="recu-total">
+                <span>Montant versé</span>
+                <strong>{{ paiement.montant|floatformat:2 }} FC</strong>
+            </div>
+
+            <div class="recu-pied">
+                <div>
+                    Le {{ paiement.date_paiement|date:"d/m/Y" }}<br>
+                    Cashier : {{ paiement.valide_par|default:paiement.enregistre_par }}
+                </div>
+                <div class="signature">Signature &amp; cachet</div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="coupe"></div>
+
+    </div>
+
+</body>
+</html>
