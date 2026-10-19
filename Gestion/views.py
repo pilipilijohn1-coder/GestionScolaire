@@ -20,11 +20,12 @@ from django.utils import timezone
 from Gestion.decorators import permission_requise, role_requis
 from Gestion.historique import enregistrer_historique
 from Gestion.permissions.decorators import permission_required
-from django.db.models import Q, Count, Sum
+from django.db.models import Q, Count, Sum, Max
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from .decorators import permission_requise
 from .historique import enregistrer_historique
+from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404, redirect, render
 from .models import AnneeScolaire, CompteUtilisateur, Eleve
 from .service.authentification import (
@@ -9057,7 +9058,11 @@ def liste_eleves(request):
         "eleves/liste.html",
         {
             "utilisateur": _utilisateur_courant(request),
-            "eleves": Eleve.objects.filter(actif=True).order_by("nom", "prenom"),
+            "eleves": Eleve.objects.filter(actif=True)
+                .annotate(
+                    last_inscription=Max("inscription__date_inscription")
+                )
+                .order_by("-last_inscription", "nom", "prenom"),
             "classes": classes,
             "annee_active": annee_active,
         }
@@ -9108,7 +9113,11 @@ def liste_tous_eleves(request):
             pass
 
     lignes = []
-    for eleve in Eleve.objects.filter(actif=True).order_by("nom", "prenom"):
+    for eleve in (
+        Eleve.objects.filter(actif=True)
+        .annotate(last_inscription=Max("inscription__date_inscription"))
+        .order_by("-last_inscription", "nom", "prenom")
+    ):
         inscription = inscription_ref.get(eleve.id)
         classe = inscription.classe if inscription else None
 
@@ -9491,6 +9500,7 @@ def historique_notifications(request):
         return redirect("liste_notifications")
 
 
+@csrf_exempt
 def ouvrir_notification(request, destinataire_id):
     """
     Detail complet d'une notification + marquage comme lue.

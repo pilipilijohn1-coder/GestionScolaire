@@ -699,6 +699,7 @@ body {
     padding: 0 6px;
     margin-bottom: 0;
     display: inline-block;
+    z-index: 2;
 }
 
 .form-floating .form-group input,
@@ -706,24 +707,12 @@ body {
 .form-floating .form-group textarea {
     padding-top: 18px;
     padding-bottom: 6px;
+    position: relative;
+    z-index: 1;
+    background: #fff;
 }
 
-.form-floating .form-group input:focus ~ label,
-.form-floating .form-group input:not(:placeholder-shown) ~ label,
-.form-floating .form-group select:focus ~ label,
-.form-floating .form-group select:not([value=""]):valid ~ label,
-.form-floating .form-group textarea:focus ~ label,
-.form-floating .form-group textarea:not(:placeholder-shown) ~ label {
-    top: -8px;
-    left: 10px;
-    font-size: 11px;
-    color: #2563eb;
-    font-weight: 600;
-    transform: none;
-}
-
-/* For select, we need a different approach since :placeholder-shown doesn't work */
-.form-floating .form-group select:not([value=""]) ~ label {
+.form-floating .form-group label.floating-active {
     top: -8px;
     left: 10px;
     font-size: 11px;
@@ -1796,4 +1785,45 @@ body {
         max-width: 380px;
     }
 }
+
+/* ============================================================
+   FLOATING LABELS - JavaScript initialization (works regardless
+   of label/input DOM order)
+   ============================================================ */
+<script>
+(function() {
+    "use strict";
+
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll(".form-floating .form-group").forEach(function(group) {
+            var input = group.querySelector(".form-control, .form-select, textarea");
+            var label = group.querySelector("label");
+
+            if (!input || !label) return;
+
+            // Ensure placeholder exists for :placeholder-shown fallback
+            if (!input.hasAttribute("placeholder")) {
+                input.setAttribute("placeholder", " ");
+            }
+
+            function updateLabel() {
+                var hasContent = input.value !== "" && input.value !== null;
+                var isFocused = document.activeElement === input;
+                if (hasContent || isFocused) {
+                    label.classList.add("floating-active");
+                } else {
+                    label.classList.remove("floating-active");
+                }
+            }
+
+            input.addEventListener("focus", updateLabel);
+            input.addEventListener("blur", updateLabel);
+            input.addEventListener("input", updateLabel);
+
+            // Initial state
+            updateLabel();
+        });
+    });
+})();
+</script>
 </style>
