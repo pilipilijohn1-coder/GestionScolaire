@@ -23,7 +23,6 @@
         background: var(--pref-bg);
     }
 
-    /* HEADER */
     .dashboard-header {
         display: flex;
         justify-content: space-between;
@@ -60,7 +59,6 @@
         box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
     }
 
-    /* LAYOUT: main content + sticky sidebar */
     .dashboard-layout {
         display: grid;
         grid-template-columns: 1fr 300px;
@@ -81,7 +79,6 @@
         overflow-y: auto;
     }
 
-    /* STATS ROW */
     .stats-row {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
@@ -139,7 +136,6 @@
     .stat-icon.orange { background: linear-gradient(135deg, #f59e0b, #c2410c); }
     .stat-icon.teal { background: linear-gradient(135deg, #14b8a8, #0d9488); }
 
-    /* CHART CARD */
     .chart-card {
         background: #ffffff;
         border-radius: 16px;
@@ -168,7 +164,6 @@
         position: relative;
     }
 
-    /* ALERT CARD */
     .alert-card {
         background: #fef3c7;
         border: 1px solid #f59e0b;
@@ -205,7 +200,6 @@
         color: #92400e;
     }
 
-    /* SIDEBAR CARD */
     .sidebar-card {
         background: #ffffff;
         border-radius: 16px;
@@ -263,7 +257,6 @@
         color: var(--pref-primary);
     }
 
-    /* RESPONSIVE */
     @media (max-width: 1024px) {
         .dashboard-layout {
             grid-template-columns: 1fr;
@@ -292,7 +285,6 @@
 {% block content %}
 <div class="dashboard-container">
 
-    <!-- HEADER -->
     <div class="dashboard-header">
         <div>
             <h1>Tableau de bord</h1>
@@ -308,7 +300,6 @@
         </span>
     </div>
 
-    <!-- ALERTES -->
     {% if demandes_autorisation or anomalies_critiques %}
         <div class="alert-card">
             <div class="alert-icon"><i class="fas fa-triangle-exclamation"></i></div>
@@ -326,37 +317,30 @@
         </div>
     {% endif %}
 
-    <!-- LAYOUT: main + sidebar -->
     <div class="dashboard-layout">
 
         <div class="main-section">
-
-            <!-- STATS ROW -->
             <div class="stats-row">
                 <div class="stat-card">
                     <div class="stat-icon blue"><i class="fas fa-graduation-cap"></i></div>
                     <span class="stat-value">{{ nombre_eleves }}</span>
                     <span class="stat-label">Élèves</span>
                 </div>
-
                 <div class="stat-card">
                     <div class="stat-icon green"><i class="fas fa-school"></i></div>
                     <span class="stat-value">{{ nombre_classes }}</span>
                     <span class="stat-label">Classes</span>
                 </div>
-
                 <div class="stat-card">
                     <div class="stat-icon purple"><i class="fas fa-chalkboard-user"></i></div>
                     <span class="stat-value">{{ nombre_enseignants }}</span>
                     <span class="stat-label">Enseignants</span>
                 </div>
-
                 <div class="stat-card">
                     <div class="stat-icon orange"><i class="fas fa-book"></i></div>
                     <span class="stat-value">{{ nombre_affectations }}</span>
                     <span class="stat-label">Affectations</span>
                 </div>
-
                 <div class="stat-card">
                     <div class="stat-icon teal"><i class="fas fa-user-pen"></i></div>
                     <span class="stat-value">{{ nombre_inscriptions }}</span>
@@ -364,17 +348,14 @@
                 </div>
             </div>
 
-            <!-- CHART -->
             <div class="chart-card">
                 <h3><i class="fas fa-chart-bar"></i> Statistiques globales</h3>
                 <div class="chart-wrapper">
                     <canvas id="prefectChart"></canvas>
                 </div>
             </div>
-
         </div>
 
-        <!-- SIDEBAR: ACCÈS RAPIDE -->
         <aside class="dashboard-sidebar">
             <div class="sidebar-card">
                 <h3 class="sidebar-title">Accès rapide</h3>
@@ -422,12 +403,12 @@
     </div>
 </div>
 
-<!-- BOUTON FLOTTANT : MON PROFIL -->
 <div class="profile-float">
     <a href="{% url 'mon_profil' %}" class="profile-float-btn" title="Mon profil">
         <i class="fa-solid fa-user"></i>
     </a>
 </div>
+{% endblock %}
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

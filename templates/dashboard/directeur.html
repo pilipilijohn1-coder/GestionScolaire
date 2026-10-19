@@ -5,184 +5,326 @@
 
 {% block extra_css %}
 <style>
-    .dashboard-container {
-        padding: 25px;
+    :root {
+        --dir-primary: #2563eb;
+        --dir-primary-dark: #1e40af;
+        --dir-bg: #f8fafc;
+        --dir-border: #e2e8f0;
+        --dir-text: #0f172a;
+        --dir-text-secondary: #64748b;
+        --dir-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+        --dir-shadow-hover: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
     }
+
+    .dashboard-container {
+        padding: 24px;
+        max-width: 1400px;
+        margin: 0 auto;
+        background: var(--dir-bg);
+    }
+
+    /* HEADER */
     .dashboard-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 30px;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+        gap: 16px;
     }
+
     .dashboard-header h1 {
         margin: 0;
-        font-size: 28px;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--dir-text);
     }
+
+    .dashboard-header p {
+        color: var(--dir-text-secondary);
+        margin: 4px 0 0;
+        font-size: 14px;
+    }
+
     .role-badge {
-        padding: 8px 14px;
-        border-radius: 20px;
-        background: #eef2ff;
-        color: #3730a3;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 16px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        color: #fff;
         font-weight: 600;
+        font-size: 12px;
+        letter-spacing: 0.02em;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
     }
-    .stats-grid {
+
+    /* LAYOUT: main content + sticky sidebar */
+    .dashboard-layout {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 20px;
-        margin-bottom: 25px;
+        grid-template-columns: 1fr 300px;
+        gap: 28px;
     }
+
+    .main-section {
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+    }
+
+    .dashboard-sidebar {
+        position: sticky;
+        top: 24px;
+        height: fit-content;
+        max-height: calc(100vh - 48px);
+        overflow-y: auto;
+    }
+
+    /* STATS ROW */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 16px;
+    }
+
     .stat-card {
         background: #ffffff;
-        border-radius: 14px;
-        padding: 20px;
-        border: 1px solid #e5e7eb;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        border-radius: 16px;
+        padding: 20px 16px;
+        border: 1px solid var(--dir-border);
+        box-shadow: var(--dir-shadow);
         text-align: center;
+        transition: all 0.2s ease;
     }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--dir-shadow-hover);
+        border-color: var(--dir-primary);
+    }
+
     .stat-icon {
-        font-size: 32px;
-        margin-bottom: 10px;
-    }
-    .stat-value {
-        display: block;
-        font-size: 28px;
-        font-weight: 700;
-        color: #1f2937;
-    }
-    .stat-label {
-        color: #6b7280;
-        font-size: 14px;
-    }
-    .info-card {
-        background: #ffffff;
-        border-radius: 14px;
-        padding: 25px;
-        border: 1px solid #e5e7eb;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    }
-    .info-card h2 {
-        margin-top: 0;
-        font-size: 18px;
-    }
-    .actions-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 20px;
-        margin-top: 25px;
-    }
-    .action-card {
-        display: block;
-        padding: 20px;
-        border: 1px solid #e5e7eb;
+        width: 44px;
+        height: 44px;
         border-radius: 12px;
+        margin: 0 auto 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        color: #fff;
+    }
+
+    .stat-value {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--dir-text);
+        display: block;
+        line-height: 1;
+    }
+
+    .stat-label {
+        display: block;
+        color: var(--dir-text-secondary);
+        font-size: 12px;
+        font-weight: 500;
+        margin-top: 4px;
+        letter-spacing: 0.01em;
+    }
+
+    .stat-icon.blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+    .stat-icon.green { background: linear-gradient(135deg, #10b981, #059669); }
+    .stat-icon.purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+    .stat-icon.orange { background: linear-gradient(135deg, #f59e0b, #c2410c); }
+    .stat-icon.teal { background: linear-gradient(135deg, #14b8a8, #0d9488); }
+    .stat-icon.indigo { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+
+    /* SIDEBAR CARD */
+    .sidebar-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 20px;
+        border: 1px solid var(--dir-border);
+        box-shadow: var(--dir-shadow);
+        margin-bottom: 20px;
+    }
+
+    .sidebar-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--dir-text);
+        margin: 0 0 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--dir-border);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .sidebar-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .sidebar-nav a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 14px;
+        border-radius: 10px;
+        color: var(--dir-text-secondary);
         text-decoration: none;
-        color: #111827;
-        transition: 0.2s;
+        font-weight: 500;
+        font-size: 13px;
+        transition: all 0.15s ease;
+        border: 1px solid transparent;
+    }
+
+    .sidebar-nav a:hover {
+        background: #f1f5f9;
+        border-color: var(--dir-border);
+        color: var(--dir-primary);
+    }
+
+    .sidebar-nav a i {
+        width: 20px;
         text-align: center;
-    }
-    .action-card:hover {
-        background: #f9fafb;
-        border-color: #c7d2fe;
-    }
-    .action-icon {
-        font-size: 28px;
-        margin-bottom: 10px;
-    }
-    .action-title {
-        font-weight: 600;
         font-size: 14px;
+        color: var(--dir-text-secondary);
+    }
+
+    .sidebar-nav a:hover i {
+        color: var(--dir-primary);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+        .dashboard-layout {
+            grid-template-columns: 1fr;
+        }
+        .dashboard-sidebar {
+            position: static;
+            max-height: none;
+        }
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .stats-row {
+            grid-template-columns: 1fr;
+        }
+        .dashboard-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="dashboard-container">
+
+    <!-- HEADER -->
     <div class="dashboard-header">
         <div>
             <h1>Tableau de bord</h1>
-            <p style="color:#6b7280; margin: 6px 0 0;">
+            <p>
                 Bienvenue, <strong>{{ utilisateur.prenom }} {{ utilisateur.nom }}</strong>
             </p>
             {% if annee_active %}
-                <p style="color:#6b7280; margin: 4px 0 0;">
-                    Année scolaire : <strong>{{ annee_active.libelle }}</strong>
-                </p>
+                <p>Année scolaire : <strong>{{ annee_active.libelle }}</strong></p>
             {% endif %}
         </div>
-        <div class="role-badge">Directeur</div>
+        <span class="role-badge">
+            <i class="fas fa-user-tie"></i> Directeur
+        </span>
     </div>
 
-    <div class="stats-grid">
+    <!-- STATS ROW -->
+    <div class="stats-row">
         <div class="stat-card">
-            <div class="stat-icon">👥</div>
+            <div class="stat-icon blue"><i class="fas fa-users"></i></div>
             <span class="stat-value">{{ nombre_utilisateurs }}</span>
             <span class="stat-label">Utilisateurs</span>
         </div>
         <div class="stat-card">
-            <div class="stat-icon">🎓</div>
+            <div class="stat-icon green"><i class="fas fa-graduation-cap"></i></div>
             <span class="stat-value">{{ nombre_eleves }}</span>
             <span class="stat-label">Élèves</span>
         </div>
         <div class="stat-card">
-            <div class="stat-icon">🏫</div>
+            <div class="stat-icon purple"><i class="fas fa-school"></i></div>
             <span class="stat-value">{{ nombre_classes }}</span>
             <span class="stat-label">Classes</span>
         </div>
         <div class="stat-card">
-            <div class="stat-icon">👨‍🏫</div>
+            <div class="stat-icon orange"><i class="fas fa-chalkboard-user"></i></div>
             <span class="stat-value">{{ nombre_enseignants }}</span>
             <span class="stat-label">Enseignants</span>
         </div>
         <div class="stat-card">
-            <div class="stat-icon">📚</div>
+            <div class="stat-icon teal"><i class="fas fa-book"></i></div>
             <span class="stat-value">{{ nombre_affectations }}</span>
             <span class="stat-label">Affectations</span>
         </div>
         <div class="stat-card">
-            <div class="stat-icon">📝</div>
+            <div class="stat-icon indigo"><i class="fas fa-file-lines"></i></div>
             <span class="stat-value">{{ nombre_inscriptions }}</span>
             <span class="stat-label">Inscriptions</span>
         </div>
     </div>
 
-    <div class="info-card">
-        <h2>Accès rapide</h2>
-        <p style="color:#6b7280;">Accédez rapidement aux fonctionnalités de direction.</p>
+    <!-- LAYOUT: main + sidebar -->
+    <div class="dashboard-layout">
 
-        <div class="actions-grid">
-            <a href="{% url 'liste_utilisateurs' %}" class="action-card">
-                <div class="action-icon">👥</div>
-                <div class="action-title">Utilisateurs</div>
-            </a>
-            <a href="{% url 'liste_eleves' %}" class="action-card">
-                <div class="action-icon">🎓</div>
-                <div class="action-title">Élèves</div>
-            </a>
-            <a href="{% url 'liste_classes' %}" class="action-card">
-                <div class="action-icon">🏫</div>
-                <div class="action-title">Classes</div>
-            </a>
-            <a href="{% url 'liste_enseignants' %}" class="action-card">
-                <div class="action-icon">👨‍🏫</div>
-                <div class="action-title">Enseignants</div>
-            </a>
-            <a href="{% url 'liste_affectations' %}" class="action-card">
-                <div class="action-icon">📚</div>
-                <div class="action-title">Affectations</div>
-            </a>
-            <a href="{% url 'structure_academique' %}" class="action-card">
-                <div class="action-icon">🏗️</div>
-                <div class="action-title">Structure académique</div>
-            </a>
-            <a href="{% url 'interface_organisation_scolaire' %}" class="action-card">
-                <div class="action-icon">📆</div>
-                <div class="action-title">Organisation</div>
-            </a>
-            <a href="{% url 'creer_titularisation' %}" class="action-card">
-                <div class="action-icon">👨‍🏫</div>
-                <div class="action-title">Titularisation</div>
-            </a>
+        <div class="main-section">
+            <!-- Main content area reserved for future widgets -->
         </div>
+
+        <!-- SIDEBAR: ACCÈS RAPIDE -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-card">
+                <h3 class="sidebar-title">Accès rapide</h3>
+                <nav class="sidebar-nav">
+                    <a href="{% url 'liste_utilisateurs' %}">
+                        <i class="fas fa-users"></i>
+                        <span>Utilisateurs</span>
+                    </a>
+                    <a href="{% url 'liste_eleves' %}">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>Élèves</span>
+                    </a>
+                    <a href="{% url 'liste_classes' %}">
+                        <i class="fas fa-school"></i>
+                        <span>Classes</span>
+                    </a>
+                    <a href="{% url 'liste_enseignants' %}">
+                        <i class="fas fa-chalkboard-user"></i>
+                        <span>Enseignants</span>
+                    </a>
+                    <a href="{% url 'liste_affectations' %}">
+                        <i class="fas fa-book"></i>
+                        <span>Affectations</span>
+                    </a>
+                    <a href="{% url 'structure_academique' %}">
+                        <i class="fas fa-sitemap"></i>
+                        <span>Structure académique</span>
+                    </a>
+                    <a href="{% url 'interface_organisation_scolaire' %}">
+                        <i class="fas fa-calendar-days"></i>
+                        <span>Organisation</span>
+                    </a>
+                    <a href="{% url 'creer_titularisation' %}">
+                        <i class="fas fa-user-tie"></i>
+                        <span>Titularisation</span>
+                    </a>
+                </nav>
+            </div>
+        </aside>
+
     </div>
 </div>
 
